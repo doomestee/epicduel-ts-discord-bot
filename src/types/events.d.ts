@@ -42,7 +42,7 @@ export interface SFSClientEvents {
 };
 
 export interface CustomSFSClientEvents {
-    achieve_data: [result: Cheevo[]],
+    achieve_data: [result: Cheevo[], id: number],
     leader_lb: [result: (CacheTypings.AnyLeaders)[], type: number],
     faction_data: [result: (Faction), id: number],
     merch_item: [result: Shop, id: number];
