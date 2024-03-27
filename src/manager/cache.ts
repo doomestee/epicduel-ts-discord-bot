@@ -58,7 +58,7 @@ export default class CacheManager {
     /**
      * If you need to delete a key, use this but with empty value
      */
-    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [ExtractValueType<CacheInternal[T]>["val"]] : [number, ExtractValueType<CacheInternal[T]>["val"]]) {
+    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [value: ExtractValueType<CacheInternal[T]>["val"]] : [id: number, value: ExtractValueType<CacheInternal[T]>["val"]]) {
         // let obj = this.cols[type].get(key);
 
         let [key, value] = args;
@@ -83,7 +83,7 @@ export default class CacheManager {
 
         // I can't be fucking assed with the typing oh mai god i'd rather die
 
-        //@ts-expect-error
+        // @ts-expect-error
         return col.set(key, { val: value, _lastGot: Date.now() });
 
         // const ok:any = value;
@@ -97,7 +97,11 @@ export default class CacheManager {
     /**
      * Returns a boolean indicating whether if the cache is invalid.
      */
-    static check<T extends CacheType>(type:T, key:number) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
+    static check<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [] : [id: number]) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
+    // static check<T extends CacheType>(type:T, key:number) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
+
+        const [ key ] = args;
+
         const col = this.cols[type];
 
         const timeCheck = (lastGot: number) => this.settings[type].time > (Date.now() - lastGot);
@@ -108,6 +112,7 @@ export default class CacheManager {
             return { valid: true, value: col.val };
         }
 
+        //@ts-ignore
         let val = col.get(key);
 
         if (!val) return { valid: false };
