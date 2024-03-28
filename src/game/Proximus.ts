@@ -1,6 +1,48 @@
-import Constants from "./Constants.js";
-import User from "./User.js";
 import SmartFoxClient from "./sfs/SFSClient.js";
+import Constants, { Prices, Requests, Responses } from "./Constants.js";
+import User from "./User.js";
+
+import { SFSClientEvents } from "../types/events.js";
+
+// Boxes
+import AchievementBox from "./box/AchievementBox.js";
+import CharacterInvBox from "./box/CharacterInvBox.js";
+import ClassBox from "./box/ClassBox.js";
+import HomeBox from "./box/HomeBox.js";
+import ItemSBox from "./box/ItemBox.js";
+import LegendaryCategorySBox from "./box/LegendaryBox.js";
+import MerchantSBox from "./box/MerchantBox.js";
+import MissionSBox from "./box/MissionBox.js";
+import NewsSBox from "./box/NewsBox.js";
+import SkillsSMBox from "./box/SkillsBox.js";
+import StyleBox from "./box/StyleBox.js";
+import VariumPackageSBox from "./box/VariumPackageBox.js";
+import WarSMBox from "./box/WarBox.js";
+
+// Modules
+import Achievements from "./module/Achievements.js";
+import Advent from "./module/Advent.js";
+import BattlePass from "./module/BattlePass.js";
+import Character from "./module/Character.js";
+import Chat from "./module/Chat.js";
+import Currency from "./module/Currency.js";
+import Customize from "./module/Customize.js";
+import FactionManager from "./module/FactionManager.js";
+import Homes from "./module/Homes.js";
+import Inventory from "./module/Inventory.js";
+import MapModule from "./module/Map.js";
+import Merchant from "./module/Merchant.js";
+import StatsSkills from "./module/StatsSkills.js";
+import UserVariableManager from "./module/UserVariableManager.js";
+import WarManager from "./module/WarManager.js";
+import { RestrictedMode } from "../manager/epicduel.js";
+import Timer from "./Timer.js";
+import RoomManager from "./module/RoomManager.js";
+import ActiveChat from "./record/ActiveChat.js";
+import UserRecord from "./record/UserRecord.js";
+import InventoryListItem from "./record/inventory/InventoryListItem.js";
+import { Variables } from "./sfs/data/User.js";
+import MerchantRecord from "./record/MerchantRecord.js";
 
 export default class Client {
     version = "1.8.793";
@@ -40,33 +82,25 @@ export default class Client {
     selected: { character: {}; };
 
     modules = {
-        "Character": new Character(this),
-        "RoomManager": RoomManager,
-        "UserVariableManager": new UserVariableManager(this),
-        "BattlePass": new BattlePass(this),
-        "FactionManager": new FactionManager(this),
-        "WarManager": new WarManager(this),
-        "AdminActionManager": new AdminActionManager(this),
         "Achievements": new Achievements(this),
-        "EpicBattleManager": new EpicBattleManager(this),
-        "Inventory": new Inventory(this),
-        "Homes": new Homes(this),
-        "Merchant": new Merchant(this),
-        "Buddy": new Buddy(this),
-        "Chat": new ChatModule(this),
-        "MailManager": new MailManager(this),
-        "StatsSkills": new StatsSkills(this),
-        "Map": new Map(this),
-        "ItemFinder": new ItemFinder(this),
         "Advent": new Advent(this),
-        "MissionManager": new MissionManager(this),
+        "BattlePass": new BattlePass(this),
+        "Character": new Character(this),
+        "Chat": new Chat(this),
         "Customize": new Customize(this),
-        //"EnvironmentObjects": new EnvironmentObjects(this)
+        "FactionManager": new FactionManager(this),
+        "Homes": new Homes(this),
+        "Inventory": new Inventory(this),
+        "MapModule": new MapModule(this),
+        "Merchant": new Merchant(this),
+        "StatsSkills": new StatsSkills(this),
+        "UserVariableManager": new UserVariableManager(this),
+        "WarManager": new WarManager(this),
     };
 
-    this.currency = new Currency(this);
+    currency = new Currency(this);
 
-    this.boxes = {
+    boxes = {
         "war": new WarSMBox(),
         "news": new NewsSBox(),
         "home": new HomeBox(),
@@ -80,15 +114,13 @@ export default class Client {
         "characterInv": new CharacterInvBox(),
         "promo": new VariumPackageSBox(),
         "legendary": new LegendaryCategorySBox()
-    } satisfies Boxes;
+    };
 
+    restrictedMode: RestrictedMode = RestrictedMode.NONE;
 
-    boxes: any;
-    restrictedMode: any;
-    modules: any;
-    currency: any;
-    timer: any;
-    manager: any;
+    timer = {
+        ping: new Timer(Constants.PING_INTERVAL, this.pingServer.bind(this))
+    };
 
     constructor(public user: User) {
         //#region legacy dump
@@ -382,9 +414,6 @@ export default class Client {
             //}
         }
     }
-    joinRoom(arg0: string) {
-        throw new Error("Method not implemented.");
-    }
 
     getUserBySfsUserId(userId: number) {
         return this.smartFox.getActiveRoom()?.getUser(userId) ?? null;
@@ -651,13 +680,13 @@ export default class Client {
                 //     //AllyWaitModule.instance.openModule(); all this does is add the UI screen for "waiting for ally";
                 //     break;
                 case Requests.REQUEST_ALLY_CONFIRM:
-                    if (this.user._allyCharId != -1) this.modules.Buddy.friendStatusChange(this.user._allyCharId, true, this.user._allySfsId, false);
-                    console.log(dataObj);
-                    this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), true);
+                    // if (this.user._allyCharId != -1) this.modules.Buddy.friendStatusChange(this.user._allyCharId, true, this.user._allySfsId, false);
+                    // console.log(dataObj);
+                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), true);
                     break;
                 case Responses.RESPONSE_ALLY_UNLINK:
-                    console.log(dataObj);
-                    this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), false);
+                    // console.log(dataObj);
+                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), false);
                     break;
                 case Requests.REQUEST_ALLY_REQUEST:
                     // senderId is sfs user id
@@ -719,7 +748,7 @@ export default class Client {
                         this.modules.BattlePass.name = String(dataObj[4]);
                         this.modules.BattlePass.openModule();
                     }
-                    this.modules.ItemFinder.initModule();
+                    // this.modules.ItemFinder.initModule();
                     break;
                 case Responses.RESPONSE_POLL_VOTE: case Responses.RESPONSE_GET_POLL_RESULTS:
                     break;
@@ -763,7 +792,7 @@ export default class Client {
                     this.modules.FactionManager.factionDataAvailable(dataObj);
                     // TODO: facti
                     
-                    _LEADERS:
+                    // _LEADERS:
                     this.modules.Leader.leaderDataAvailable(dataObj);
                     // this.smartFox.emit('get_leaders', ...dataObj); // i hate myself for spreading this
 
@@ -839,20 +868,20 @@ export default class Client {
                     console.log(`${dataObj[2]} hours left until the next Limited Rare restock.`);
                     break;
                 case Responses.RESPONSE_FRIEND_LIST:
-                    this.user._buddyListSize = Number(dataObj[2]);
-                    this.modules.Buddy.friendDataAvailable(dataObj);
+                    // this.user._buddyListSize = Number(dataObj[2]);
+                    // this.modules.Buddy.friendDataAvailable(dataObj);
                     break;
                 case Responses.RESPONSE_CHANGE_FRIEND_STATUS:
-                    this.modules.Buddy.friendStatusChange(parseInt(dataObj[3]), Boolean(parseInt(dataObj[2])), parseInt(dataObj[4]), false, Boolean(parseInt(dataObj[5])));
+                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj[3]), Boolean(parseInt(dataObj[2])), parseInt(dataObj[4]), false, Boolean(parseInt(dataObj[5])));
                     break;
                 case Responses.RESPONSE_FRIEND_CHANGED_NAME:
-                    this.modules.Buddy.friendNameChange(parseInt(dataObj[2]), dataObj[3]);
+                    // this.modules.Buddy.friendNameChange(parseInt(dataObj[2]), dataObj[3]);
                     break;
                 case Requests.REQUEST_REMOVE_FRIEND:
-                    this.modules.Buddy.removeFriendResponse(parseInt(dataObj[2]), Boolean(parseInt(dataObj[3])));
+                    // this.modules.Buddy.removeFriendResponse(parseInt(dataObj[2]), Boolean(parseInt(dataObj[3])));
                     break;
                 case Responses.RESPONSE_FRIEND_ADD:
-                    this.modules.Buddy.addFriendToList(parseInt(dataObj[2]), dataObj[3], parseInt(dataObj[4]));
+                    // this.modules.Buddy.addFriendToList(parseInt(dataObj[2]), dataObj[3], parseInt(dataObj[4]));
                     break;
                 case Requests.REQUEST_FRIEND_REQUEST:
                     // dataObj sample: [ 'r38', '-1', 'Spank Doomester', '8776704', '19610' ]
@@ -1214,27 +1243,26 @@ export default class Client {
     onJoinRoomErrorHandler(evt: SFSClientEvents["onJoinRoomError"][0]) {
         if (evt.error === "User is already in this room!") {
             // if (this.manager?.jumps.running) {
-                this.smartFox.emit("room_jump", this.manager.jumps.roomName, false, 1);
-            }
+                // this.smartFox.emit("room_jump", this.manager.jumps.roomName, false, 1);
+            // }
 
             if (!this.lobbyInit) {
                 this.timer.ping.start();
                 this.startGameCheck();
-                this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SFSClient.XTMSG_TYPE_JSON);
+                this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
             }
         }
 
     }
 
-    onObjectReceivedHandler(evt) {
-        const sender = evt.params.sender;
-        const type = String(evt.params.obj.type);
-        const [senderId, senderCharName] = [sender.getId(), evt.params.sender.charName];
+    onObjectReceivedHandler(evt: SFSClientEvents["onObjectReceived"][0]) {
+        const sender = evt.sender;
+        const type = String(evt.obj.type);
+        const [senderId, senderCharName] = [sender.getId(), evt.sender.charName];
         
         if (!["o4", "o3"].some(v => v === type)) {
             console.log("Object received V!");
             console.log(evt);
-            console.log(evt.params);
             console.log("Object received ^!");
         }
 
@@ -1244,7 +1272,7 @@ export default class Client {
             case Requests.OBJECT_REQUEST_CHARACTER_ACTION:
                 break;
             case Requests.OBJECT_REQUEST_CHALLENGE_CONFIRM:
-                this.modules.EpicBattleManager.createChallengeBattle(senderId);
+                // this.modules.EpicBattleManager.createChallengeBattle(senderId);
                 break;
             case Requests.OBJECT_REQUEST_CHALLENGE_CONFIRM_FAIL:
                 break;
@@ -1276,18 +1304,18 @@ export default class Client {
         }
     }*/
 
-    onPublicMessageHandler(evt) {
-        if (evt == null || evt.params == null || this.muteChat) return;
+    onPublicMessageHandler(evt: SFSClientEvents["onPublicMessage"][0]) {
+        // if (evt == null || evt.params == null || this.muteChat) return;
 
-        const msg = evt.params.message;
-        const room = this.smartFox.getRoom(evt.params.roomId);
+        const msg = evt.message;
+        const room = this.smartFox.getRoom(evt.roomId);
 
         if (room == null) return;
 
         /**
          * @type {import("./data/User")}
          */
-        const sender = evt.params.sender;
+        const sender = room.getUser(evt.userId);
 
         if (sender == null) return;
 
@@ -1297,81 +1325,79 @@ export default class Client {
             //console.log(msg);
         }
 
-        if (sender.charName === "Spank Doomester") {
-            if (msg === "annoy") this.annoyFolk = !this.annoyFolk;
-            if (msg === "sehup") this.setupMyAvatar();
-        }
-
+        // if (sender.charName === "Spank Doomester") {
+        //     if (msg === "annoy") this.annoyFolk = !this.annoyFolk;
+        //     if (msg === "sehup") this.setupMyAvatar();
+        // }
     }
 
-    onPrivateMessageHandler(evt) {
-        if (evt == null || evt.params == null) return;
+    onPrivateMessageHandler(evt: SFSClientEvents["onPrivateMessage"][0]) {
+        // if (evt == null || evt.params == null) return;
 
-        const msg = evt.params.message;
+        const msg = evt.message;
         //const room = this.smartFox.getRoom(evt.params.roomId);
 
-        if (!this.ohniceok) this.ohniceok = [];
-        this.ohniceok.push([msg, evt.params.userId]);
+        // if (!this.ohniceok) this.ohniceok = [];
+        // this.ohniceok.push([msg, evt.userId]);
 
         //if (room == null) return;
 
-        let window = this.modules.Chat.list.find(v => v.userId === evt.params.userId);
+        let window = this.modules.Chat.list.find(v => v.userId === evt.userId);
         if (window) {
-            this.manager.discord.emit("epicduel_private_chat", msg, [window.charName, evt.params.userId], -1);
+            // this.manager.discord.emit("epicduel_private_chat", msg, [window.charName, evt.params.userId], -1);
             window.appendMsg([window.charName, msg.slice(window.charName.length + 2)]);
-        } else console.log(evt.params);
+        } else console.log(evt);
     }
 
     emptyHandler() {
         // nothing
     }
 
-    onLoginHandler(evt) {
+    onLoginHandler(evt: SFSClientEvents["onLogin"][0]) {
         console.log(evt);
-        console.log(this instanceof SFSClient);
+        console.log(this instanceof SmartFoxClient);
     }
 
-    onRandomKeyHandler(evt) {
+    onRandomKeyHandler(evt: SFSClientEvents["onRandomKey"][0]) {
         this.smartFox.login("project", this.user.username + "#" + this.user.session + "#" + this.user.userid, this.user.password);
     }
 
-    onUserEnterRoomHandler(evt) {
+    onUserEnterRoomHandler(evt: SFSClientEvents["onUserEnterRoom"][0]) {
         /**
          * @type {[import("./data/User"), number]}
          */
 
-        const [user, roomId] = [evt.params.user, evt.params.roomId];
-        const room = this.smartFox.getRoom(roomId);
+        const [user, roomId] = [evt.user, evt.roomId];
+        // const room = this.smartFox.getRoom(roomId);
 
-        if (room.getName != RoomManager.LOBBY) {
-            if (room.isBattle) {
-                ++this.battle.epbattle._playerCount;
-                this.battleLog("Player has joined - " + user.charName);
-            }
-        }
-
+        // if (room && room.getName() != RoomManager.LOBBY) {
+        //     if (room.isBattle) {
+        //         // ++this.battle.epbattle._playerCount;
+        //         // this.battleLog("Player has joined - " + user.charName);
+        //     }
+        // }
     }
 
-    onUserLeaveRoomHandler(evt) {
-        const [userId, roomId] = [evt.params.userId, evt.params.roomId];
+    onUserLeaveRoomHandler(evt: SFSClientEvents["onUserLeaveRoom"][0]) {
+        const [userId, roomId] = [evt.userId, evt.roomId];
         const room = this.smartFox.getRoom(roomId);
 
-        if (room.getName() != RoomManager.LOBBY) {
-            if (room.isBattle) {
-                if (this.battle.epbattle != null && this.battle.epbattle.client != null) {
-                    let actor = this.battle.epbattle.getBattleActorBySlot(userId);
-                    if (actor != null) {
-                        actor.removeBuffs();
-                        actor._inAction = false;
-                        actor.selfDestruct();
-                    }
-                    if (this.battle.epbattle._currentTurn == this.user._myBattleSlot) {
-                        this.battle.BattleActionsModule.determineBattleControlStatus();
-                    }
-                    --this.battle.epbattle._playerCount;
-                }
-            }
-        }
+        // if (room && room.getName() != RoomManager.LOBBY) {
+        //     if (room.isBattle) {
+        //         if (this.battle.epbattle != null && this.battle.epbattle.client != null) {
+        //             let actor = this.battle.epbattle.getBattleActorBySlot(userId);
+        //             if (actor != null) {
+        //                 actor.removeBuffs();
+        //                 actor._inAction = false;
+        //                 actor.selfDestruct();
+        //             }
+        //             if (this.battle.epbattle._currentTurn == this.user._myBattleSlot) {
+        //                 this.battle.BattleActionsModule.determineBattleControlStatus();
+        //             }
+        //             --this.battle.epbattle._playerCount;
+        //         }
+        //     }
+        // }
     }
 
     //#endregion
@@ -1379,17 +1405,17 @@ export default class Client {
     connectionLost(autoReload=true) {
         //this.stopAFK_Timers(true);
         //this.timer.flood.stop();
-        this.modules.EpicBattleManager.timer.turn.stop();
-        this.modules.EpicBattleManager.timer.inAction.stop();
-        this.modules.EpicBattleManager.timer.checkBattleLoaded.stop();
-        this.modules.EpicBattleManager.timer.assetLoadFail.stop();
-        //this.timer.ping.stop();
+        // this.modules.EpicBattleManager.timer.turn.stop();
+        // this.modules.EpicBattleManager.timer.inAction.stop();
+        // this.modules.EpicBattleManager.timer.checkBattleLoaded.stop();
+        // this.modules.EpicBattleManager.timer.assetLoadFail.stop();
+        this.timer.ping.stop();
         if (autoReload) {
             //this.timer.reload.start();
         }
     }
 
-    joinRoom(roomName='') {
+    joinRoom(roomName: string) {
         this.smartFox.sendXtMessage("main", Requests.REQUEST_JOIN_ROOM, {rN: roomName}, 3, "json");
     }
 
@@ -1398,19 +1424,21 @@ export default class Client {
      * @param {number} worldIndex
      * @param {number} bypassRestrictions For each increment, skips through the restrictions; level requirement
      */
-    jumpToRoomConfirm(targetRoomName, worldIndex, bypassRestrictions=0) {
+    jumpToRoomConfirm(targetRoomName: string, worldIndex: number, bypassRestrictions=0) {
         let currentRoom = this.smartFox.getActiveRoom();
 
         if (currentRoom == null) return;
 
         let roomRecord = RoomManager.getRoomRecord(RoomManager.getRoomFileName(targetRoomName));
 
-        if (roomRecord.levelRequired > this.getMyUser().charLvl && bypassRestrictions < 1) return this.manager.languages["DYN_map_err_lowLevel"];
+        if (!roomRecord) return;
+
+        // if (roomRecord.levelRequired > this.getMyUserFr().charLvl && bypassRestrictions < 1) return this.manager.languages["DYN_map_err_lowLevel"];
         if (RoomManager.roomIsHome(currentRoom.getName()) && !RoomManager.roomIsHQ(currentRoom.getName())) {
             if (RoomManager.roomIsHome(targetRoomName) || RoomManager.roomIsHQ(targetRoomName)) {
                 this.user._returnFromHomeRoomName = currentRoom.getName();
-                this.user._returnFromHomeX = this.user._myAvatar.x;
-                this.user._returnFromHomeY = this.user._myAvatar.y;
+                // this.user._returnFromHomeX = this.user._myAvatar.x;
+                // this.user._returnFromHomeY = this.user._myAvatar.y;
             }
         }
 
@@ -1515,7 +1543,7 @@ export default class Client {
                             if (this.modules.Inventory.initialised !== true && listItem) this.modules.Inventory.equippedList.push(listItem);
                         }
 
-                        if (this.modules.Inventory.initialised !== true && listItem) this.modules.Inventory.inventory.push(listItem);
+                        if (this.modules.Inventory.initialised !== true && listItem) this.modules.Inventory.list.push(listItem);
                     }
                 //}
 
@@ -1631,7 +1659,7 @@ export default class Client {
             if ("selfDestruct" in module) module["selfDestruct"]();
 
             // The operand of a 'delete' operator must be optional my ass
-            //@ts-expect-error
+            //a/ @ts-expect-error
             successes[0].push(delete this.modules[modKeys[i]].client);
             successes[1].push(delete this.modules[modKeys[i]]);
         }
@@ -1788,22 +1816,6 @@ export default class Client {
     //     this.smartFox.sendXtMessage("main", Requests.REQUEST_CHALLENGE_CHECK, { targetId: obj.targetId }, 2, "json");
     // }
 
-    /**
-     * @param {{id: number, count: number}[]} cheevos 
-     */
-    _populateCheevos(cheevos: { id: number, count: number }[]) {
-        let result = [];
-
-        for (let i = 0; i < cheevos.length; i++) {
-            let ach = this.boxes.achievement.objMap.get(cheevos[i].id);
-
-            if (!ach) result.push({achId: cheevos[i].id, count: cheevos[i].count, noAch: true});
-            else result.push({...ach, count: cheevos[i].count});
-        }
-
-        return result;
-    }
-
     // /**
     //  * This will only work for those in the room
     //  * @param {number} charId
@@ -1834,26 +1846,26 @@ export default class Client {
     //     return { type: 1, val: "Message sent." };
     // }
 
-    // /**
-    //  * @param {0|1} bool if boolean, gets converted to number
-    //  */
-    // setDnd(bool) {
-    //     let myUser = this.getMyUser();
+    /**
+     * @param {0|1} bool if boolean, gets converted to number
+     */
+    setDnd(bool: number | boolean) {
+        let myUser = this.getMyUserFr();
 
-    //     if (typeof bool === "boolean") bool = bool === true ? 1 : 0;
+        if (typeof bool === "boolean") bool = bool === true ? 1 : 0;
 
-    //     if (bool === undefined) bool = !myUser.getVariable("dnd");
+        if (bool === undefined) bool = !myUser.getVariable("dnd");
 
-    //     this.setVars("dnd", { dnd: bool });
-    // }
+        this.setVars("dnd", { dnd: bool });
+    }
 
     fameAll() {
         this.smartFox.sendXtMessage("main", Requests.REQUEST_FAME_ALL, {}, 1, "json");
     }
 
-    // openAllGifts() {
-    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_OPEN_ALL_GIFTS, {}, 1, "json");
-    // }
+    openAllGifts() {
+        this.smartFox.sendXtMessage("main", Requests.REQUEST_OPEN_ALL_GIFTS, {}, 1, "json");
+    }
 
     // jumpToPlayerRequest(charName) {
     //     if (typeof charName === "number") return this.modules.Buddy.jumpToBuddyRequest(charName);
@@ -1904,631 +1916,551 @@ export default class Client {
     //     }; return val;
     // }
 
-    /**
-     * Custom, with end result slightly modified to feature achievement details
-     * @param {number} charId 
-     */
-    async getCharCheevo(charId) {
-        let cache = this.modules.Achievements.cache[charId];
+    // /**
+    //  * @param {number} userId
+    //  * @param {boolean} screwBattle
+    //  * @returns {Promise<{ id: number, lvl: number }[]>}
+    //  */
+    // async getUserSkills(userId, screwBattle=false) {
+    //     if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
+    //         return this.user._mySkills.skills;
+    //     } else {
+    //         let playerSkills = this.user._playerSkills[String(userId)];
+    //         if (!this.battleOver && playerSkills != null && !screwBattle) {
+    //             return playerSkills.skills;
+    //         } else {
+    //             /**
+    //              * @type {Array}
+    //              */
+    //             let skills = WaitForStream(this.smartFox, "get_skills", [0, userId], [""], 3500).catch(err => { return {error: err} });
 
-        /**
-         * @param {{id: number, count: number}} cheev
-         * @returns 
-         */
-        let populate = (cheev) => {
-            let ach = this.boxes.achievement.objMap.get(cheev.id);
+    //             //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
+    //             this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_SKILLS, {userId}, 1, "json");
 
-            if (!ach) return {achId: cheev.id, count: cheev.count, noAch: true};
+    //             skills = await skills;
 
-            return {...ach, count: cheev.count};
-        }
+    //             if (skills.error) return undefined;
 
-        if (Array.isArray(charId)) {
-            return charId.map(v => { return populate(v) });
-        }
-        
-        if (cache != null) {
-            if (cache[0] + (1000 * 60 * 30) > Date.now()) {
-                return cache[1].map(v => {return populate(v); });
-            }
-        }
+    //             if (skills === null) {
+    //                 console.log("Undefined skills??? Prob non existent user");
+    //                 return undefined;
+    //             }
 
-        /**
-         * @type {[[[[0, {id: number, count: 0}[]]]]]}
-         */
-        let achieves = (WaitForStream(this.smartFox, "achievData", [0, charId], [{id: 0, count: 0}], 3000));
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_PLAYER_ACHIEVEMENTS, { charId }, 1, "json");
+    //             if (skills[1]['skills']?.length) skills = skills[1]['skills'].map(v => { return { id: parseInt(v.id), lvl: parseInt(v.lvl)} });
 
-        achieves = await achieves;
+    //             return skills;
+    //         }
 
-        if (achieves === null) return { error: "null result"};
+    //         this.smartFox.sendXtMessage("main", "r20", {targetId: 8776704}, 2, "json");
+    //     }
+    // }
 
-        return achieves[1][1].map(v => { return populate(v)});
-    }
+    // /**
+    //  * @param {number} userId
+    //  * @param {boolean} screwBattle
+    //  * @returns {Promise<{user: number, b1: number, b2: number, bj: number, w1: number, w2: number, wj: number, wn: number, fresh: boolean}>}
+    //  */
+    // async getUserRecord(userId, screwBattle=true) {
+    //     if (this.user._myRecord != null && userId == this.smartFox.myUserId) return this.user._myRecord;
 
-    /**
-     * @param {number} userId
-     * @param {boolean} screwBattle
-     * @returns {Promise<{ id: number, lvl: number }[]>}
-     */
-    async getUserSkills(userId, screwBattle=false) {
-        if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
-            return this.user._mySkills.skills;
-        } else {
-            let playerSkills = this.user._playerSkills[String(userId)];
-            if (!this.battleOver && playerSkills != null && !screwBattle) {
-                return playerSkills.skills;
-            } else {
-                /**
-                 * @type {Array}
-                 */
-                let skills = WaitForStream(this.smartFox, "get_skills", [0, userId], [""], 3500).catch(err => { return {error: err} });
+    //     let loadFresh = screwBattle || (this.battleOver && !this.smartFox.getActiveRoom().isBattle);
 
-                //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
-                this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_SKILLS, {userId}, 1, "json");
+    //     if (!loadFresh) {
+    //         let playerRecord = this.user._playerRecords[userId];
 
-                skills = await skills;
+    //         if (playerRecord != null) return this.user._playerRecords[userId];
+    //         else loadFresh = true;
+    //     }
 
-                if (skills.error) return undefined;
+    //     if (loadFresh) {
+    //         if (screwBattle) {
+    //             if (this.manager.userRecords[userId]) {
+    //                 let urr = this.manager.userRecords[userId];
+    //                 if (urr[0] > Date.now()) return {...urr[1], fresh: false};
+    //             }
+    //         }
 
-                if (skills === null) {
-                    console.log("Undefined skills??? Prob non existent user");
-                    return undefined;
-                }
+    //         /**
+    //          * @type {Array}
+    //          */
+    //         let records = WaitForStream(this.smartFox, "get_records", [0, userId], [""], 3500);
 
-                if (skills[1]['skills']?.length) skills = skills[1]['skills'].map(v => { return { id: parseInt(v.id), lvl: parseInt(v.lvl)} });
+    //         //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
+    //         this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_RECORD, { userId }, 1, "json");
 
-                return skills;
-            }
+    //         records = await records;
 
-            this.smartFox.sendXtMessage("main", "r20", {targetId: 8776704}, 2, "json");
-        }
-    }
+    //         if (records === null) {
+    //             console.log("Undefined skills??? Prob non existent user");
+    //             return undefined;
+    //         }
 
-    /**
-     * @param {number} userId
-     * @param {boolean} screwBattle
-     * @returns {Promise<{user: number, b1: number, b2: number, bj: number, w1: number, w2: number, wj: number, wn: number, fresh: boolean}>}
-     */
-    async getUserRecord(userId, screwBattle=true) {
-        if (this.user._myRecord != null && userId == this.smartFox.myUserId) return this.user._myRecord;
+    //         let recording = records[1].map(v => parseInt(v));
 
-        let loadFresh = screwBattle || (this.battleOver && !this.smartFox.getActiveRoom().isBattle);
+    //         const obj = {
+    //             user: recording[0],
+    //             b1: recording[1],
+    //             b2: recording[2],
+    //             w1: recording[3],
+    //             w2: recording[4],
+    //             bj: recording[5],
+    //             wj: recording[6],
+    //             wn: recording[7],
+    //         };
 
-        if (!loadFresh) {
-            let playerRecord = this.user._playerRecords[userId];
-
-            if (playerRecord != null) return this.user._playerRecords[userId];
-            else loadFresh = true;
-        }
-
-        if (loadFresh) {
-            if (screwBattle) {
-                if (this.manager.userRecords[userId]) {
-                    let urr = this.manager.userRecords[userId];
-                    if (urr[0] > Date.now()) return {...urr[1], fresh: false};
-                }
-            }
-
-            /**
-             * @type {Array}
-             */
-            let records = WaitForStream(this.smartFox, "get_records", [0, userId], [""], 3500);
-
-            //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
-            this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_RECORD, { userId }, 1, "json");
-
-            records = await records;
-
-            if (records === null) {
-                console.log("Undefined skills??? Prob non existent user");
-                return undefined;
-            }
-
-            let recording = records[1].map(v => parseInt(v));
-
-            const obj = {
-                user: recording[0],
-                b1: recording[1],
-                b2: recording[2],
-                w1: recording[3],
-                w2: recording[4],
-                bj: recording[5],
-                wj: recording[6],
-                wn: recording[7],
-            };
-
-            this.manager.userRecords[userId] = [Date.now() + 1000*60*30, obj];
-            return {...obj, fresh: true};
-        }
-      }
+    //         this.manager.userRecords[userId] = [Date.now() + 1000*60*30, obj];
+    //         return {...obj, fresh: true};
+    //     }
+    //   }
       
 
-    /**
-     * NOT TO BE CONFUSED WITH THE TOURNAMENT!
-     * @param {number} index Refer to static indexes please
-     */
-    async fetchLeaders(index=1) {
-        let cache = this.cache['leader_' + index];
-
-        if (cache != null) {
-            if ([1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22].some(a => a === index)) {
-                if (cache[0] + (1000 * 60 * 5) > Date.now()) {
-                    return cache[1];
-                }
-            } else if (cache[0] + (60 * 1000) > Date.now()) {
-                return cache[1];
-                //return cache[1];
-            }
-        }
-
-        this.debug("Fetching leaders...");
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_LEADERS, {v: index}, 1, "json");
-        /**
-         * @type {Array}
-         */
-        let leaders = (await WaitForStream(this.smartFox, "get_leaders", [2, index], [""], 3500));
-
-        if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
-
-        if (leaders.length <= 3) return [];
-
-        const version = parseInt(leaders[2], "$");
-        let splitIndex = getIndexesOf(leaders, "$")[0];
-
-        let result = [];
-        let brags = leaders.slice(3, splitIndex);
-        let smalls = leaders.slice(splitIndex + 1); 
-        let name = '';
-
-        switch (version) {
-            case 1: case 2: case 16:
-                // ["charName","charWins1","charBat1","charExp","charLvl","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
-                for (let i = 0; i < brags.length; i++) {
-                    result.push({
-                        name: brags[i],
-                        wins: parseInt(brags[++i]),
-                        bat: parseInt(brags[++i]),
-                        exp: parseInt(brags[++i]),
-                        misc: {
-                            lvl: parseInt(brags[++i]),
-                            gender: (brags[++i]),
-                            classId: parseInt(brags[++i]),
-                            pri: (brags[++i]),
-                            sec: (brags[++i]),
-                            hair: (brags[++i]),
-                            skin: (brags[++i]),
-                            accnt: (brags[++i]),
-                            accnt2: (brags[++i]),
-                            eye: (brags[++i]),
-                            arm: parseInt(brags[++i]),
-                            hairS: parseInt(brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    result.push({
-                        name: smalls[i],
-                        wins: parseInt(smalls[++i]),
-                        bat: parseInt(smalls[++i]),
-                        exp: parseInt(smalls[++i]),
-                        misc: {}
-                    });
-                }
-
-                break;
-            case 3: case 4: case 17:
-                // ["dailyWins1","dailyBat1","charName","charExp","charLvl","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
-
-                for (let i = 0; i < brags.length; i++) {
-                    result.push({
-                        wins: parseInt(brags[i]),
-                        bat: parseInt(brags[++i]),
-                        name: brags[++i],
-                        exp: parseInt(brags[++i]),
-                        misc: {
-                            lvl: parseInt(brags[++i]),
-                            gender: (brags[++i]),
-                            classId: parseInt(brags[++i]),
-                            pri: (brags[++i]),
-                            sec: (brags[++i]),
-                            hair: (brags[++i]),
-                            skin: (brags[++i]),
-                            accnt: (brags[++i]),
-                            accnt2: (brags[++i]),
-                            eye: (brags[++i]),
-                            arm: parseInt(brags[++i]),
-                            hairS: parseInt(brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    result.push({
-                        wins: parseInt(smalls[i]),
-                        bat: parseInt(smalls[++i]),
-                        name: smalls[++i],
-                        exp: parseInt(smalls[++i]),
-                        misc: {}
-                    });
-                }
-
-                break;
-            case 5: case 6: case 18:
-                // ["dailyWins1","dailyBat1","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
-                // ["dailyWins1","dailyBat1","fctName"]
-
-                for (let i = 0; i < brags.length; i++) {
-                    result.push({
-                        wins: parseInt(brags[i]),
-                        bat: parseInt(brags[++i]),
-                        name: brags[++i],
-                        misc: {
-                            align: (brags[++i] === "1") ? "Exile" : "Legion",
-                            symb: (brags[++i]),
-                            symbClr: (brags[++i]),
-                            back: (brags[++i]),
-                            backClr: (brags[++i]),
-                            flagClr: (brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    result.push({
-                        wins: parseInt(smalls[i]),
-                        bat: parseInt(smalls[++i]),
-                        name: smalls[++i],
-                        misc: {}
-                    });
-                }
-
-                break;
-            case 7:
-                // ["fctDom","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
-                // ["fctDom","fctName"]
-
-                for (let i = 0; i < brags.length; i++) {
-                    result.push({
-                        dom: parseInt(brags[i]),
-                        name: brags[++i],
-                        misc: {
-                            align: (brags[++i] === "1") ? "Exile" : "Legion",
-                            symb: (brags[++i]),
-                            symbClr: (brags[++i]),
-                            back: (brags[++i]),
-                            backClr: (brags[++i]),
-                            flagClr: (brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    result.push({
-                        dom: parseInt(smalls[i]),
-                        name: smalls[++i],
-                        misc: {}
-                    });
-                }
-                break;
-            case 8: case 9: case 19:
-                // ["fctLead1","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
-                // ["fctLead1","fctName"]
-
-                for (let i = 0; i < brags.length; i++) {
-                    result.push({
-                        lead: parseInt(brags[i]),
-                        name: brags[++i],
-                        misc: {
-                            align: (brags[++i] === "1") ? "Exile" : "Legion",
-                            symb: (brags[++i]),
-                            symbClr: (brags[++i]),
-                            back: (brags[++i]),
-                            backClr: (brags[++i]),
-                            flagClr: (brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    result.push({
-                        lead: parseInt(smalls[i]),
-                        name: smalls[++i],
-                        misc: {}
-                    });
-                }
-                break;
-            case 10: case 12:
-                // ["fctFlagCap","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
-                // ["fctFlagCap","fctName"]
-                name = (version === 10) ? "cap" : "influence";
-
-                for (let i = 0; i < brags.length; i++) {
-                    let obj = {};
-
-                    obj[name] = brags[i];
-                    obj['name'] = (brags[++i]);
-
-                    result.push({
-                        ...obj,
-                        misc: {
-                            align: (brags[++i] === "1") ? "Exile" : "Legion",
-                            symb: (brags[++i]),
-                            symbClr: (brags[++i]),
-                            back: (brags[++i]),
-                            backClr: (brags[++i]),
-                            flagClr: (brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    let obj = {};
-
-                    obj[name] = smalls[i];
-                    obj['name'] = (smalls[++i]);
-
-                    result.push({
-                        ...obj,
-                        misc: {}
-                    });
-                }
-
-                break;
-            case 11: case 13: case 14: case 15: case 20: case 21: case 22:
-                // "charName","charTotalInfluence","charLvl","charExp","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"
-                // "charName","charTotalInfluence"
-
-                name = (version === 11) ? "influence" : (version === 13) ? "rarity" : (version === 14 || version === 15) ? "fame" : (version === 20 || version === 21) ? "redeems" : (version === 22) ? "rating" : "";
-
-                for (let i = 0; i < brags.length; i++) {
-                    let obj = {};
-
-                    obj['name'] = brags[i];
-                    obj[name] = parseInt(brags[++i]);
-
-                    result.push({
-                        ...obj,
-                        misc: {
-                            lvl: parseInt(brags[++i]),
-                            exp: parseInt(brags[++i]),
-                            gender: (brags[++i]),
-                            classId: parseInt(brags[++i]),
-                            pri: (brags[++i]),
-                            sec: (brags[++i]),
-                            hair: (brags[++i]),
-                            skin: (brags[++i]),
-                            accnt: (brags[++i]),
-                            accnt2: (brags[++i]),
-                            eye: (brags[++i]),
-                            arm: parseInt(brags[++i]),
-                            hairS: parseInt(brags[++i])
-                        }
-                    });
-                }
-
-                for (let i = 0; i < smalls.length; i++) {
-                    let obj = {};
-
-                    obj['name'] = smalls[i];
-                    obj[name] = parseInt(smalls[++i]);
-
-                    result.push({
-                        ...obj,
-                        misc: {}
-                    });
-                }
-
-                break;
-        }
-
-        this.cache["leader_" + index] = [Date.now(), result];
-
-        return result;
-    }
-
-    /**
-     * Note that ED for some reason doesn't keep a list of tournament, so when you request a tournament detail and stuff, you'd only receive the recent.
-     * @returns {Promise<{}>}
-     */
-    async fetchTournament() {
-        let cache = [this.cache['tournament_details'], this.cache['tournament_leaders']];
-
-        /*if (cache[0] && cache[1] && cache[0][0] + (1000 * 5) > Date.now()) {
-
-        }*/
-
-        if (cache[0] != null && cache[1] != null) {
-            if (Array.isArray(cache[1]) && (cache[0][0] + (1000 * 5) > Date.now() || (cache[0][1].fetchedAt + (cache[0][1].minsTilStart * 60000)) > Date.now())) {
-                //console.log(Array.isArray(cache[0]), Array.isArray(cache[1]), cache[0][0] + (1000 * 5) > Date.now(), (cache[0][1].fetchedAt + cache[0][1].minsTilStart) > Date.now());
-                return {details: cache[0][1], leaders: cache[1][1]};
-            }
-        }
-
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_TOURNAMENT_LEADERS, {}, 1, "json");
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_TOURNAMENT_DETAILS, {}, 1, "json");
-
-        let leaders = WaitForStream(this.smartFox, "tournament_leaders", undefined, [""], 3000).catch((err) => {/* do smth about error */ return null;});
-        let details = await WaitForStream(this.smartFox, "tournament_details", undefined, [""], 3000).catch((err) => {/* do smth about error */ return null;});
-        leaders = await leaders;
-
-        // yes im aware of promise.all, but i cba
-
-        if (leaders === null || details === null) return Promise.reject(new Error("Could not fetch tournament data"));
-        if (!(Array.isArray(leaders) && Array.isArray(details))) return Promise.reject(new Error("Tournament data received in unexpected format."));
-
-        leaders = leaders.slice(2);
-        details = details;
-
-        let result = {
-            details: {
-                name: details[2],
-                active: details[3] === "1",
-                minsTilStart: parseInt(details[4]),
-                minsTilEnd: parseInt(details[5]),
-                fetchedAt: Date.now()
-            },
-            leaders: []
-        };
-
-        for (let i = 0; i <= leaders.length - 2; i++) {
-            result.leaders.push({
-                name: leaders[i],
-                score: parseInt(leaders[++i])
-            });
-        }
-
-        this.cache['tournament_details'] = [Date.now(), result.details];
-        this.cache['tournament_leaders'] = [Date.now(), result.leaders];
-
-        return result;
-    }
-
-    /**
-     * @param {string} code
-     * @returns {Promise<{status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed"}|{status: true, details: ({type: "item", item: Object}|{type: "home", id: number}|{type: "credits", amount: number})[]}>}
-     */
-    async redeemCode(code) {
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_SUBMIT_CODE, {code: code}, 1, "json");
-
-        // I really need to fix WaitForStream's identifier...
-        let details = await WaitForStream(this.smartFox, "redeem_code", undefined, {}, 3000).catch((err) => {/* do smth about error */ return null;});
-
-        if (details === null) return {status: false, details: "No response"};//Promise.reject(new Error("Could not fetch any result for redeeming code."));
-
-        details = details[0];
-
-        if (this.debugMode) {
-            console.log(details);
-        }
-
-        if (details.ok < 0) {
-            let errorMsg = '';
-
-            switch (details.ok) {
-                case -1: errorMsg = "Invalid code"; break;
-                case -2: errorMsg = "Expired code"; break;
-                case -3: errorMsg = "Level too high"; break;
-                case -4: errorMsg = "Level too low"; break;
-                case -5: errorMsg = "Already redeemed"; break;
-            }
-
-            return {details: errorMsg, status: false};//Promise.reject((errorMsg));
-        } 
-
-        //let obj = {};
-        let prizes = [];
-
-        for (let i = 0; i < details.prizeList.length; i++) {
-            let obj = details.prizeList[i];
-
-            switch (obj.type) {
-                case Constants.REDEEM_PRIZE_TYPE_ITEM:
-                    //let itemInvId = obj.itemInvId;
-
-                    this.redeemed.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
-                    prizes.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
-                    break;
-                case Constants.REDEEM_PRIZE_TYPE_HOME_ITEM:
-                    // Hell nah, nobody cares about homes
-                    this.redeemed.push({type: "home", id: obj.id});
-                    prizes.push({type: "home", id: obj.id});
-                    break;
-                case Constants.REDEEM_PRIZE_TYPE_CREDITS:
-                    this.redeemed.push({type: "credits", amount: obj.id});
-                    prizes.push({type: "credits", amount: obj.id});
-                    break;
-            }
-        }
-
-        return {status: true, details: prizes};
-    }
-
-    /**
-     * If in standalone mode, the database check will be prohibited, so there won't be a fallback to database if the id given is a name and the character is not in the room.
-     * @param {number|string} id 
-     * @param {boolean} isName Exact name, caps sensitive (despite there being no caps in the game)
-     * @param {boolean} fallbackToDb only if isName is provided
-     */
-    async fameCharacter(id, isName=false, fallbackToDb=true) {
-        let charId = id;
-
-        if (this.manager.standalone) fallbackToDb = false;
-        if (isName) {
-            let room = this.smartFox.getActiveRoom();
-
-            if (room == null && !fallbackToDb) {
-                return Promise.reject(new Error("Character cannot be found as fallback is false, and you're not in a room."));
-            } else if (room == null && fallbackToDb === true) {
-                let char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
-                    .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
-
-                if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
-
-                charId = char[0].id;
-            } else if (room) {
-                let char = room.userList.find(v => v.charName === id);
-
-                if (!char && !fallbackToDb) return Promise.reject(new Error("Character not found in room."));
-                if (!char) { 
-                    char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
-                        .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
-
-                    if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
-
-                    charId = char[0].id;
-                } else charId = char.charId;
-            } else {
-                return Promise.reject(new Error("idk how."));
-            }
-        }
-
-        this.smartFox.sendXtMessage("main", Requests.REQUEST_GIVE_FAME, {charId}, 2, "json");
-
-        // I really need to fix WaitForStream's identifier...
-        let details = await WaitForStream(this.smartFox, "giveth_fame", undefined, { success: 0, name: ""}, 3500).catch((err) => {/* do smth about error */ return null;});
-
-        if (details === null) return Promise.reject(new Error("Could not find any character famed."));
-
-        return details;
-    }
-
-    static indexes = {
-        overall: {
-            solo: 1,
-            team: 2,
-            jugg: 16,
-            influence: 11,
-            fame: 14,
-            rarity: 13,
-            faction_solo: 8,
-            faction_team: 9,
-            faction_jugg: 19,
-            world_dom: 7,
-            flags: 10,
-            faction_influence: 12,
-            redeem: 21,
-            rating: 22,
-
-            all: [1, 2, 16, 11, 14, 13, 8, 9, 19, 12, 21, 22],
-            faction: [7, 10, 8, 9, 19, 12],
-            char: [1, 2, 16, 11, 14, 13, 21, 22],
-        }, daily: {
-            solo: 3,
-            team: 4,
-            jugg: 17,
-            faction_solo: 5,
-            faction_team: 6,
-            faction_jugg: 18,
-            fame: 15,
-            redeem: 20,
-
-            all: [3, 4, 17, 5, 6, 18, 15, 20],
-            faction: [5, 6, 18],
-            char: [3, 4, 17, 15, 20],
-        },
-        all: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-        factions: [7, 10, 8, 9, 19, 12, 5, 6, 18]
-    }
+    // /**
+    //  * NOT TO BE CONFUSED WITH THE TOURNAMENT!
+    //  * @param {number} index Refer to static indexes please
+    //  */
+    // async fetchLeaders(index=1) {
+    //     let cache = this.cache['leader_' + index];
+
+    //     if (cache != null) {
+    //         if ([1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22].some(a => a === index)) {
+    //             if (cache[0] + (1000 * 60 * 5) > Date.now()) {
+    //                 return cache[1];
+    //             }
+    //         } else if (cache[0] + (60 * 1000) > Date.now()) {
+    //             return cache[1];
+    //             //return cache[1];
+    //         }
+    //     }
+
+    //     this.debug("Fetching leaders...");
+    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_LEADERS, {v: index}, 1, "json");
+    //     /**
+    //      * @type {Array}
+    //      */
+    //     let leaders = (await WaitForStream(this.smartFox, "get_leaders", [2, index], [""], 3500));
+
+    //     if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
+
+    //     if (leaders.length <= 3) return [];
+
+    //     const version = parseInt(leaders[2], "$");
+    //     let splitIndex = getIndexesOf(leaders, "$")[0];
+
+    //     let result = [];
+    //     let brags = leaders.slice(3, splitIndex);
+    //     let smalls = leaders.slice(splitIndex + 1); 
+    //     let name = '';
+
+    //     switch (version) {
+    //         case 1: case 2: case 16:
+    //             // ["charName","charWins1","charBat1","charExp","charLvl","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 result.push({
+    //                     name: brags[i],
+    //                     wins: parseInt(brags[++i]),
+    //                     bat: parseInt(brags[++i]),
+    //                     exp: parseInt(brags[++i]),
+    //                     misc: {
+    //                         lvl: parseInt(brags[++i]),
+    //                         gender: (brags[++i]),
+    //                         classId: parseInt(brags[++i]),
+    //                         pri: (brags[++i]),
+    //                         sec: (brags[++i]),
+    //                         hair: (brags[++i]),
+    //                         skin: (brags[++i]),
+    //                         accnt: (brags[++i]),
+    //                         accnt2: (brags[++i]),
+    //                         eye: (brags[++i]),
+    //                         arm: parseInt(brags[++i]),
+    //                         hairS: parseInt(brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 result.push({
+    //                     name: smalls[i],
+    //                     wins: parseInt(smalls[++i]),
+    //                     bat: parseInt(smalls[++i]),
+    //                     exp: parseInt(smalls[++i]),
+    //                     misc: {}
+    //                 });
+    //             }
+
+    //             break;
+    //         case 3: case 4: case 17:
+    //             // ["dailyWins1","dailyBat1","charName","charExp","charLvl","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 result.push({
+    //                     wins: parseInt(brags[i]),
+    //                     bat: parseInt(brags[++i]),
+    //                     name: brags[++i],
+    //                     exp: parseInt(brags[++i]),
+    //                     misc: {
+    //                         lvl: parseInt(brags[++i]),
+    //                         gender: (brags[++i]),
+    //                         classId: parseInt(brags[++i]),
+    //                         pri: (brags[++i]),
+    //                         sec: (brags[++i]),
+    //                         hair: (brags[++i]),
+    //                         skin: (brags[++i]),
+    //                         accnt: (brags[++i]),
+    //                         accnt2: (brags[++i]),
+    //                         eye: (brags[++i]),
+    //                         arm: parseInt(brags[++i]),
+    //                         hairS: parseInt(brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 result.push({
+    //                     wins: parseInt(smalls[i]),
+    //                     bat: parseInt(smalls[++i]),
+    //                     name: smalls[++i],
+    //                     exp: parseInt(smalls[++i]),
+    //                     misc: {}
+    //                 });
+    //             }
+
+    //             break;
+    //         case 5: case 6: case 18:
+    //             // ["dailyWins1","dailyBat1","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
+    //             // ["dailyWins1","dailyBat1","fctName"]
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 result.push({
+    //                     wins: parseInt(brags[i]),
+    //                     bat: parseInt(brags[++i]),
+    //                     name: brags[++i],
+    //                     misc: {
+    //                         align: (brags[++i] === "1") ? "Exile" : "Legion",
+    //                         symb: (brags[++i]),
+    //                         symbClr: (brags[++i]),
+    //                         back: (brags[++i]),
+    //                         backClr: (brags[++i]),
+    //                         flagClr: (brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 result.push({
+    //                     wins: parseInt(smalls[i]),
+    //                     bat: parseInt(smalls[++i]),
+    //                     name: smalls[++i],
+    //                     misc: {}
+    //                 });
+    //             }
+
+    //             break;
+    //         case 7:
+    //             // ["fctDom","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
+    //             // ["fctDom","fctName"]
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 result.push({
+    //                     dom: parseInt(brags[i]),
+    //                     name: brags[++i],
+    //                     misc: {
+    //                         align: (brags[++i] === "1") ? "Exile" : "Legion",
+    //                         symb: (brags[++i]),
+    //                         symbClr: (brags[++i]),
+    //                         back: (brags[++i]),
+    //                         backClr: (brags[++i]),
+    //                         flagClr: (brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 result.push({
+    //                     dom: parseInt(smalls[i]),
+    //                     name: smalls[++i],
+    //                     misc: {}
+    //                 });
+    //             }
+    //             break;
+    //         case 8: case 9: case 19:
+    //             // ["fctLead1","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
+    //             // ["fctLead1","fctName"]
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 result.push({
+    //                     lead: parseInt(brags[i]),
+    //                     name: brags[++i],
+    //                     misc: {
+    //                         align: (brags[++i] === "1") ? "Exile" : "Legion",
+    //                         symb: (brags[++i]),
+    //                         symbClr: (brags[++i]),
+    //                         back: (brags[++i]),
+    //                         backClr: (brags[++i]),
+    //                         flagClr: (brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 result.push({
+    //                     lead: parseInt(smalls[i]),
+    //                     name: smalls[++i],
+    //                     misc: {}
+    //                 });
+    //             }
+    //             break;
+    //         case 10: case 12:
+    //             // ["fctFlagCap","fctName","fctAlign","fctSymb","fctSymbClr","fctBack","fctBackClr","fctFlagClr"]
+    //             // ["fctFlagCap","fctName"]
+    //             name = (version === 10) ? "cap" : "influence";
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 let obj = {};
+
+    //                 obj[name] = brags[i];
+    //                 obj['name'] = (brags[++i]);
+
+    //                 result.push({
+    //                     ...obj,
+    //                     misc: {
+    //                         align: (brags[++i] === "1") ? "Exile" : "Legion",
+    //                         symb: (brags[++i]),
+    //                         symbClr: (brags[++i]),
+    //                         back: (brags[++i]),
+    //                         backClr: (brags[++i]),
+    //                         flagClr: (brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 let obj = {};
+
+    //                 obj[name] = smalls[i];
+    //                 obj['name'] = (smalls[++i]);
+
+    //                 result.push({
+    //                     ...obj,
+    //                     misc: {}
+    //                 });
+    //             }
+
+    //             break;
+    //         case 11: case 13: case 14: case 15: case 20: case 21: case 22:
+    //             // "charName","charTotalInfluence","charLvl","charExp","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"
+    //             // "charName","charTotalInfluence"
+
+    //             name = (version === 11) ? "influence" : (version === 13) ? "rarity" : (version === 14 || version === 15) ? "fame" : (version === 20 || version === 21) ? "redeems" : (version === 22) ? "rating" : "";
+
+    //             for (let i = 0; i < brags.length; i++) {
+    //                 let obj = {};
+
+    //                 obj['name'] = brags[i];
+    //                 obj[name] = parseInt(brags[++i]);
+
+    //                 result.push({
+    //                     ...obj,
+    //                     misc: {
+    //                         lvl: parseInt(brags[++i]),
+    //                         exp: parseInt(brags[++i]),
+    //                         gender: (brags[++i]),
+    //                         classId: parseInt(brags[++i]),
+    //                         pri: (brags[++i]),
+    //                         sec: (brags[++i]),
+    //                         hair: (brags[++i]),
+    //                         skin: (brags[++i]),
+    //                         accnt: (brags[++i]),
+    //                         accnt2: (brags[++i]),
+    //                         eye: (brags[++i]),
+    //                         arm: parseInt(brags[++i]),
+    //                         hairS: parseInt(brags[++i])
+    //                     }
+    //                 });
+    //             }
+
+    //             for (let i = 0; i < smalls.length; i++) {
+    //                 let obj = {};
+
+    //                 obj['name'] = smalls[i];
+    //                 obj[name] = parseInt(smalls[++i]);
+
+    //                 result.push({
+    //                     ...obj,
+    //                     misc: {}
+    //                 });
+    //             }
+
+    //             break;
+    //     }
+
+    //     this.cache["leader_" + index] = [Date.now(), result];
+
+    //     return result;
+    // }
+
+    // /**
+    //  * Note that ED for some reason doesn't keep a list of tournament, so when you request a tournament detail and stuff, you'd only receive the recent.
+    //  * @returns {Promise<{}>}
+    //  */
+    // async fetchTournament() {
+    //     let cache = [this.cache['tournament_details'], this.cache['tournament_leaders']];
+
+    //     /*if (cache[0] && cache[1] && cache[0][0] + (1000 * 5) > Date.now()) {
+
+    //     }*/
+
+    //     if (cache[0] != null && cache[1] != null) {
+    //         if (Array.isArray(cache[1]) && (cache[0][0] + (1000 * 5) > Date.now() || (cache[0][1].fetchedAt + (cache[0][1].minsTilStart * 60000)) > Date.now())) {
+    //             //console.log(Array.isArray(cache[0]), Array.isArray(cache[1]), cache[0][0] + (1000 * 5) > Date.now(), (cache[0][1].fetchedAt + cache[0][1].minsTilStart) > Date.now());
+    //             return {details: cache[0][1], leaders: cache[1][1]};
+    //         }
+    //     }
+
+    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_TOURNAMENT_LEADERS, {}, 1, "json");
+    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_TOURNAMENT_DETAILS, {}, 1, "json");
+
+    //     let leaders = WaitForStream(this.smartFox, "tournament_leaders", undefined, [""], 3000).catch((err) => {/* do smth about error */ return null;});
+    //     let details = await WaitForStream(this.smartFox, "tournament_details", undefined, [""], 3000).catch((err) => {/* do smth about error */ return null;});
+    //     leaders = await leaders;
+
+    //     // yes im aware of promise.all, but i cba
+
+    //     if (leaders === null || details === null) return Promise.reject(new Error("Could not fetch tournament data"));
+    //     if (!(Array.isArray(leaders) && Array.isArray(details))) return Promise.reject(new Error("Tournament data received in unexpected format."));
+
+    //     leaders = leaders.slice(2);
+    //     details = details;
+
+    //     let result = {
+    //         details: {
+    //             name: details[2],
+    //             active: details[3] === "1",
+    //             minsTilStart: parseInt(details[4]),
+    //             minsTilEnd: parseInt(details[5]),
+    //             fetchedAt: Date.now()
+    //         },
+    //         leaders: []
+    //     };
+
+    //     for (let i = 0; i <= leaders.length - 2; i++) {
+    //         result.leaders.push({
+    //             name: leaders[i],
+    //             score: parseInt(leaders[++i])
+    //         });
+    //     }
+
+    //     this.cache['tournament_details'] = [Date.now(), result.details];
+    //     this.cache['tournament_leaders'] = [Date.now(), result.leaders];
+
+    //     return result;
+    // }
+
+    // /**
+    //  * @param {string} code
+    //  * @returns {Promise<{status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed"}|{status: true, details: ({type: "item", item: Object}|{type: "home", id: number}|{type: "credits", amount: number})[]}>}
+    //  */
+    // async redeemCode(code) {
+    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_SUBMIT_CODE, {code: code}, 1, "json");
+
+    //     // I really need to fix WaitForStream's identifier...
+    //     let details = await WaitForStream(this.smartFox, "redeem_code", undefined, {}, 3000).catch((err) => {/* do smth about error */ return null;});
+
+    //     if (details === null) return {status: false, details: "No response"};//Promise.reject(new Error("Could not fetch any result for redeeming code."));
+
+    //     details = details[0];
+
+    //     if (this.debugMode) {
+    //         console.log(details);
+    //     }
+
+    //     if (details.ok < 0) {
+    //         let errorMsg = '';
+
+    //         switch (details.ok) {
+    //             case -1: errorMsg = "Invalid code"; break;
+    //             case -2: errorMsg = "Expired code"; break;
+    //             case -3: errorMsg = "Level too high"; break;
+    //             case -4: errorMsg = "Level too low"; break;
+    //             case -5: errorMsg = "Already redeemed"; break;
+    //         }
+
+    //         return {details: errorMsg, status: false};//Promise.reject((errorMsg));
+    //     } 
+
+    //     //let obj = {};
+    //     let prizes = [];
+
+    //     for (let i = 0; i < details.prizeList.length; i++) {
+    //         let obj = details.prizeList[i];
+
+    //         switch (obj.type) {
+    //             case Constants.REDEEM_PRIZE_TYPE_ITEM:
+    //                 //let itemInvId = obj.itemInvId;
+
+    //                 this.redeemed.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
+    //                 prizes.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
+    //                 break;
+    //             case Constants.REDEEM_PRIZE_TYPE_HOME_ITEM:
+    //                 // Hell nah, nobody cares about homes
+    //                 this.redeemed.push({type: "home", id: obj.id});
+    //                 prizes.push({type: "home", id: obj.id});
+    //                 break;
+    //             case Constants.REDEEM_PRIZE_TYPE_CREDITS:
+    //                 this.redeemed.push({type: "credits", amount: obj.id});
+    //                 prizes.push({type: "credits", amount: obj.id});
+    //                 break;
+    //         }
+    //     }
+
+    //     return {status: true, details: prizes};
+    // }
+
+    // /**
+    //  * If in standalone mode, the database check will be prohibited, so there won't be a fallback to database if the id given is a name and the character is not in the room.
+    //  * @param {number|string} id 
+    //  * @param {boolean} isName Exact name, caps sensitive (despite there being no caps in the game)
+    //  * @param {boolean} fallbackToDb only if isName is provided
+    //  */
+    // async fameCharacter(id, isName=false, fallbackToDb=true) {
+    //     let charId = id;
+
+    //     if (this.manager.standalone) fallbackToDb = false;
+    //     if (isName) {
+    //         let room = this.smartFox.getActiveRoom();
+
+    //         if (room == null && !fallbackToDb) {
+    //             return Promise.reject(new Error("Character cannot be found as fallback is false, and you're not in a room."));
+    //         } else if (room == null && fallbackToDb === true) {
+    //             let char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
+    //                 .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
+
+    //             if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
+
+    //             charId = char[0].id;
+    //         } else if (room) {
+    //             let char = room.userList.find(v => v.charName === id);
+
+    //             if (!char && !fallbackToDb) return Promise.reject(new Error("Character not found in room."));
+    //             if (!char) { 
+    //                 char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
+    //                     .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
+
+    //                 if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
+
+    //                 charId = char[0].id;
+    //             } else charId = char.charId;
+    //         } else {
+    //             return Promise.reject(new Error("idk how."));
+    //         }
+    //     }
+
+    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_GIVE_FAME, {charId}, 2, "json");
+
+    //     // I really need to fix WaitForStream's identifier...
+    //     let details = await WaitForStream(this.smartFox, "giveth_fame", undefined, { success: 0, name: ""}, 3500).catch((err) => {/* do smth about error */ return null;});
+
+    //     if (details === null) return Promise.reject(new Error("Could not find any character famed."));
+
+    //     return details;
+    // }
 }

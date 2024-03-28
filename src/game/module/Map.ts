@@ -3,7 +3,7 @@ import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
 import RoomManager from "./RoomManager.js";
 
-export default class Map extends BaseModule {
+export default class MapModule extends BaseModule {
     _merchantBlackList = [298,288,53,81,125,182,183,191,194,216,229,259,264,266,296,297,299,301,306,307,308,310,311,313,220,214,37,327,328,330,331,332,334,338,339,340,346,345,342];
     _worldSwitchTime = -999999;
 

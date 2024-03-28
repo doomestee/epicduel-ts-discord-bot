@@ -23,7 +23,7 @@ export interface SFSClientEvents {
     onLogin: [event: { success: true, name: string, error: "" } | { success: false, error: string }];
     onLogout: [event: {}];
     onModeratorMessage: [event: { message: string, sender: User | null }];
-    onObjectReceived: [event: { sender: User | null, obj: any }];
+    onObjectReceived: [event: { sender: User, obj: any }];
     onPrivateMessage: [event: { roomId: number, userId: number, message: string }];
     onPublicMessage: [event: { roomId: number, userId: number, message: string }];
     onRandomKey: [event: { key: string }];

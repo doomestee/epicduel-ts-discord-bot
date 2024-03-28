@@ -12,6 +12,8 @@ export default class Inventory extends BaseModule {
     equippedList:InventoryListItem[] = [];
     list:InventoryListItem[] = [];
 
+    initialised = false;
+
     constructor(public client: Client) {
         super();
     }
@@ -278,7 +280,7 @@ export default class Inventory extends BaseModule {
     equipItem(item: InventoryListItem) {
         let itemRecord = item.itemRecord;
 
-        if (!this.client.getMyUserFr().canEquipItem(itemRecord)) {
+        if (!this.client.getMyUserFr().canEquipItem(this.client, itemRecord)) {
             return console.log("Item cannot be equipped due to insufficient requirements.")
         }
 
