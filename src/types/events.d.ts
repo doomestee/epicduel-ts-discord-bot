@@ -46,7 +46,7 @@ export interface CustomSFSClientEvents {
     leader_lb: [result: (CacheTypings.AnyLeaders)[], type: number],
     faction_data: [result: (Faction), id: number],
     merch_item: [result: Shop, id: number];
-    war_status: [result: { type: "rally", align: number, status: "ongoing" } | { type: "char_used", name: string, influence: number, usedItemId: number }],
+    war_status: [result: { type: "rally", align: number, status: "ongoing" | "start" | "end" } | { type: "char_used", name: string, influence: number, usedItemId: number } | {  type: "end", align: number }],
     leader_war: [result: WarSide, type: "overall" | "daily"],
     advent_gift: [result: { status: number, prize: number, value: number, credits: number }],
     leader_gift: [result: CacheTypings.GiftingLeader]
