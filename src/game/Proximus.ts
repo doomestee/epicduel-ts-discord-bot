@@ -43,6 +43,10 @@ import UserRecord from "./record/UserRecord.js";
 import InventoryListItem from "./record/inventory/InventoryListItem.js";
 import { Variables } from "./sfs/data/User.js";
 import MerchantRecord from "./record/MerchantRecord.js";
+import AdminActionManager from "./module/AdminActionManager.js";
+import Buddy from "./module/Buddy.js";
+import Leader from "./module/Leader.js";
+import MailManager from "./module/MailManager.js";
 
 export default class Client {
     version = "1.8.793";
@@ -83,14 +87,18 @@ export default class Client {
 
     modules = {
         "Achievements": new Achievements(this),
+        "AdminActionManager": new AdminActionManager(this),
         "Advent": new Advent(this),
         "BattlePass": new BattlePass(this),
+        "Buddy": new Buddy(this),
         "Character": new Character(this),
         "Chat": new Chat(this),
         "Customize": new Customize(this),
         "FactionManager": new FactionManager(this),
         "Homes": new Homes(this),
         "Inventory": new Inventory(this),
+        "Leader": new Leader(this),
+        "MailManager": new MailManager(this),
         "MapModule": new MapModule(this),
         "Merchant": new Merchant(this),
         "StatsSkills": new StatsSkills(this),
@@ -615,6 +623,7 @@ export default class Client {
                     break;
                 case Requests.REQUEST_SELL_ITEM:
                     // TODO: sell item (bonus ig)
+                    break;
                 case Responses.RESPONSE_SELL_ITEM_FAIL:
                     break;
                 case Requests.REQUEST_BUY_HOME:
@@ -680,13 +689,13 @@ export default class Client {
                 //     //AllyWaitModule.instance.openModule(); all this does is add the UI screen for "waiting for ally";
                 //     break;
                 case Requests.REQUEST_ALLY_CONFIRM:
-                    // if (this.user._allyCharId != -1) this.modules.Buddy.friendStatusChange(this.user._allyCharId, true, this.user._allySfsId, false);
-                    // console.log(dataObj);
-                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), true);
+                    if (this.user._allyCharId != -1) this.modules.Buddy.friendStatusChange(this.user._allyCharId, true, this.user._allySfsId, false);
+                    console.log(dataObj);
+                    this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), true);
                     break;
                 case Responses.RESPONSE_ALLY_UNLINK:
-                    // console.log(dataObj);
-                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), false);
+                    console.log(dataObj);
+                    this.modules.Buddy.friendStatusChange(parseInt(dataObj.charId), true, parseInt(dataObj.sfsId), false);
                     break;
                 case Requests.REQUEST_ALLY_REQUEST:
                     // senderId is sfs user id
@@ -727,6 +736,7 @@ export default class Client {
                         delete this.modules.Chat.list[a].module;
                         delete this.modules.Chat.list[a];
                     }
+
                     this.modules.Chat.list = this.modules.Chat.list.filter(v => v);
                     break;
                 case Responses.RESPONSE_ISSUE_CHAT_BLOCK:
@@ -790,9 +800,131 @@ export default class Client {
                     break;
                 case Requests.REQUEST_GET_FACTION_DATA:
                     this.modules.FactionManager.factionDataAvailable(dataObj);
-                    // TODO: facti
-                    
-                    // _LEADERS:
+                    // TODO: faction data  
+                    break;
+                case Requests.REQUEST_GET_MY_HOMES:
+                    let _loc30_ = dataObj.slice(2);
+
+                    this.modules.Homes.homeDataAvailable(_loc30_, this.getMyUserFr().charId, this.getMyUserFr().charName);
+                    break;
+                case Requests.REQUEST_GET_CHARACTER_HOMES:
+                    if (Number(dataObj[2]) != 0) {
+                        this.modules.Homes.homeDataAvailable(dataObj.slice(4), parseInt(dataObj[3]), dataObj[2])
+                    } else {
+                        console.log("Failed fetching home data for " + dataObj[3]);
+                        //this.modules.Homes.homeDataFail(dataObj[3]);
+                    }
+                    break;
+                case Responses.RESPONSE_SEND_CLIENT_REQUIREMENTS:
+                    if (this.boxes.skills.populate("clientRequirements", dataObj.slice(2))) true;// === true && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 12);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_IMPROVE_RULES:
+                    if (this.boxes.skills.populate("improveRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 11);
+                    this.startGameCheck();
+                    break; 
+                case Responses.RESPONSE_SEND_SKILLS_ACTIVE_ATTACK_RULES:
+                    if (this.boxes.skills.populate("activeAttackRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 5);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_ACTIVE_TARGET_RULES:
+                    if (this.boxes.skills.populate("activeTargetRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 7);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_PASSIVE_STAT_RULES:
+                    if (this.boxes.skills.populate("passiveStatRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 10);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_PASSIVE_MISC_RULES:
+                    if (this.boxes.skills.populate("passiveMiscRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 9);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_ACTIVE_MISC_RULES:
+                    if (this.boxes.skills.populate("activeMiscRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 6);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_ACTIVE:
+                    if (this.boxes.skills.populate("active", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 4);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_SKILLS_PASSIVE: 
+                    if (this.boxes.skills.populate("passive", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 8);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_SEND_CORES:
+                    if (this.boxes.skills.populate("core", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 13);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_GET_ITEMS:
+                    this.boxes.item.populate(1, dataObj);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_GET_ITEMS_2:
+                    this.boxes.item.populate(2, dataObj);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_GET_ITEMS_3:
+                    this.boxes.item.populate(3, dataObj);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_GET_ITEMS_4:
+                    this.boxes.item.populate(4, dataObj);
+                    this.startGameCheck();
+                    break;
+                case Responses.RESPONSE_GET_ALL_ACHIEVEMENTS:
+                    this.boxes.achievement.populate(dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_ALL_NEWS:
+                    this.boxes.news.populate(dataObj.slice(2));
+                    this.startGameCheck();
+                    // TODO: news (although idk)
+                    break;
+                case Responses.RESPONSE_GET_ALL_MISSIONS:
+                    this.boxes.mission.populate("self", dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_ALL_MISSION_GROUPS:
+                    this.boxes.mission.populate("group", dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_CLASSES:
+                    this.boxes.class.populate(dataObj.slice(2));
+                    break; // welp, so it did happen lmao ~~//lol~~
+                case Responses.RESPONSE_GET_HOMES:
+                    this.boxes.home.populate(dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_STYLES:
+                    this.boxes.style.populate(dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_ALL_VARIUM_PACKAGES:
+                    this.boxes.promo.populate(dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_GET_MERCHANTS:
+                    this.boxes.merchant.populate(dataObj.slice(2));
+                    break; // TODO: merchants
+                case Responses.RESPONSE_GET_SKILLS:
+                    const skillData = dataObj.slice(2);
+                    const allSkillData = skillData.slice(skillData.indexOf("$") + 1, skillData.indexOf("#"));
+                    const skillTreeData = skillData.slice(skillData.indexOf("#") + 1);
+
+                    if (this.boxes.skills.populate("all", allSkillData) === true) true;// && !this.manager.standalone)   this.manager.discord.emit("epicduel_epicduel_comparison", 1, 2);
+                    if (this.boxes.skills.populate("tree", skillTreeData) === true) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 3);
+
+                    this.startGameCheck();
+                    break; // ironic
+                case Responses.RESPONSE_GET_ALL_ARCADE_GAMES: case Responses.RESPONSE_GET_ALL_ARCADE_PRIZES:
+                    break;
+                case Responses.RESPONSE_UPDATE_FACTION_TITLE: case Requests.REQUEST_CHANGE_FACTION_RANK: case Requests.REQUEST_REMOVE_FACTION_MEMBER: case Requests.REQUEST_REMOVE_NOTE:
+                    break; // This is for managing faction so no.
+                case Responses.RESPONSE_FACTION_MEMBER_LEFT: case Responses.RESPONSE_FACTION_INVITE_ACCEPTED: case Requests.REQUEST_FACTION_RECRUIT:
+                    break;
+                case Requests.REQUEST_BUDDY_SONAR:
+                    if (dataObj[2] == -1) console.log("User has activated DND mode.");
+                    else console.log(dataObj.slice(2));
+                    break;
+                case Responses.RESPONSE_FACTION_FULL: case Responses.RESPONSE_FACTION_WAIT: case Responses.RESPONSE_CREATE_FACTION_FAIL: case Responses.RESPONSE_CREATE_FACTION_OK:
+                    break;
+                case Responses.RESPONSE_CREATE_BATTLE_FAIL:
+                    break;
+                case Requests.REQUEST_GET_LEADERS:
                     this.modules.Leader.leaderDataAvailable(dataObj);
                     // this.smartFox.emit('get_leaders', ...dataObj); // i hate myself for spreading this
 
@@ -868,20 +1000,20 @@ export default class Client {
                     console.log(`${dataObj[2]} hours left until the next Limited Rare restock.`);
                     break;
                 case Responses.RESPONSE_FRIEND_LIST:
-                    // this.user._buddyListSize = Number(dataObj[2]);
-                    // this.modules.Buddy.friendDataAvailable(dataObj);
+                    this.user._buddyListSize = Number(dataObj[2]);
+                    this.modules.Buddy.friendDataAvailable(dataObj);
                     break;
                 case Responses.RESPONSE_CHANGE_FRIEND_STATUS:
-                    // this.modules.Buddy.friendStatusChange(parseInt(dataObj[3]), Boolean(parseInt(dataObj[2])), parseInt(dataObj[4]), false, Boolean(parseInt(dataObj[5])));
+                    this.modules.Buddy.friendStatusChange(parseInt(dataObj[3]), Boolean(parseInt(dataObj[2])), parseInt(dataObj[4]), false, Boolean(parseInt(dataObj[5])));
                     break;
                 case Responses.RESPONSE_FRIEND_CHANGED_NAME:
-                    // this.modules.Buddy.friendNameChange(parseInt(dataObj[2]), dataObj[3]);
+                    this.modules.Buddy.friendNameChange(parseInt(dataObj[2]), dataObj[3]);
                     break;
                 case Requests.REQUEST_REMOVE_FRIEND:
-                    // this.modules.Buddy.removeFriendResponse(parseInt(dataObj[2]), Boolean(parseInt(dataObj[3])));
+                    this.modules.Buddy.removeFriendResponse(parseInt(dataObj[2]), Boolean(parseInt(dataObj[3])));
                     break;
                 case Responses.RESPONSE_FRIEND_ADD:
-                    // this.modules.Buddy.addFriendToList(parseInt(dataObj[2]), dataObj[3], parseInt(dataObj[4]));
+                    this.modules.Buddy.addFriendToList(parseInt(dataObj[2]), dataObj[3], parseInt(dataObj[4]));
                     break;
                 case Requests.REQUEST_FRIEND_REQUEST:
                     // dataObj sample: [ 'r38', '-1', 'Spank Doomester', '8776704', '19610' ]
@@ -906,7 +1038,7 @@ export default class Client {
                     // mod stuff
                     break;
                 case Responses.RESPONSE_JUMP_CONFIRM:
-                    // if(dataObj[2] == 1) this.jumpToRoomConfirm(dataObj[3], dataObj[4]);
+                    if(dataObj[2] == 1) this.jumpToRoomConfirm(dataObj[3], dataObj[4]);
                     // else {
                     //     switch (parseInt(dataObj[3])) {
                     //         case 1: console.log(this.manager.languages["DYN_buddy_err_worldFull"]); break;
@@ -992,17 +1124,17 @@ export default class Client {
                 case Requests.REQUEST_GET_ALL_PLAYER_CASES: case Requests.REQUEST_GET_CASE: case Responses.RESPONSE_MOD_ACTIONS: case Responses.RESPONSE_MOD_CHAR_NAME_LOG: case Responses.RESPONSE_MOD_ACCT_CHAR_NAMES: case Responses.RESPONSE_MOD_CHAR_DATA: case Responses.RESPONSE_MOD_CHAR_STATUS: case Requests.REQUEST_ELEVATE_CASE: case Requests.REQUEST_DELETE_CASE: case Requests.REQUEST_CLAIM_CASE: case Requests.REQUEST_RELEASE_CASE: case Requests.REQUEST_CLOSE_CASE: case Requests.REQUEST_MODERATOR_ACTION:
                     break;
                 case Requests.REQUEST_GET_MAIL:
-                    // this.modules.MailManager.handleGetMail(dataObj);
+                    this.modules.MailManager.handleGetMail(dataObj);
                     break;
                 case Responses.RESPONSE_NEW_MAIL:
-                    //console.log("A new mail?!?!!!!? idk");
-                    // this.modules.MailManager.getNewMail();
+                    console.log("A new mail?!?!!!!? idk");
+                    this.modules.MailManager.getNewMail();
                     break;
                 case Requests.REQUEST_SEND_PLAYER_MAIL:
                     if (dataObj[2] == 1) {
                         console.log("Mail sent.");
-                        //this.modules.MailManager.clearCreateMail();
-                        //++this.modules.MailManager._mailCount;
+                        // this.modules.MailManager.clearCreateMail();
+                        // ++this.modules.MailManager._mailCount;
                     } else {
                         console.log(dataObj[3] + " was not a valid mail recipient");
                     }
@@ -1073,9 +1205,9 @@ export default class Client {
                     break;
                 case Requests.REQUEST_GET_WAR_PRIZE:
                     break;
-                // case Requests.REQUEST_CLAIM_GIFTED_PRESENT:
-                //     this.modules.MailManager.receiveClaimGiftHandler(dataObj);
-                //     break;
+                case Requests.REQUEST_CLAIM_GIFTED_PRESENT:
+                    this.modules.MailManager.receiveClaimGiftHandler(dataObj);
+                    break;
                 case Requests.REQUEST_GET_GIFT_LEADERS:
                     this.modules.Advent.receiveGetGiftLeadersResponse(dataObj);
                     break;
@@ -1659,7 +1791,7 @@ export default class Client {
             if ("selfDestruct" in module) module["selfDestruct"]();
 
             // The operand of a 'delete' operator must be optional my ass
-            //a/ @ts-expect-error
+            //@ts-expect-error
             successes[0].push(delete this.modules[modKeys[i]].client);
             successes[1].push(delete this.modules[modKeys[i]]);
         }
