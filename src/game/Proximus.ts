@@ -44,6 +44,7 @@ import MailManager from "./module/MailManager.js";
 
 // Misc
 import { RestrictedMode } from "../manager/epicduel.js";
+import type Swarm from "../manager/epicduel.js";
 import Timer from "./Timer.js";
 import ActiveChat from "./record/ActiveChat.js";
 import UserRecord from "./record/UserRecord.js";
@@ -51,7 +52,18 @@ import InventoryListItem from "./record/inventory/InventoryListItem.js";
 import MerchantRecord from "./record/MerchantRecord.js";
 import ItemFinder from "./module/ItemFinder.js";
 
+export interface ClientSettings {
+    id: number;
+    reconnectable: boolean;
+}
+
 export default class Client {
+    settings: ClientSettings;
+
+    protected isFresh = true;
+
+    //#region yes
+
     version = "1.8.793";
 
     /**
@@ -71,6 +83,7 @@ export default class Client {
     _serverClientTimeDiff = 0;
 
     public connected = false;
+    public initialised = true;
 
     hasSentItemOnce = false;
 
@@ -134,7 +147,16 @@ export default class Client {
         ping: new Timer(Constants.PING_INTERVAL, this.pingServer.bind(this))
     };
 
-    constructor(public user: User) {
+    //#endregion
+
+    constructor(public user: User, settings: Partial<ClientSettings> & { id: number } | number, public swarm: typeof Swarm) {
+        if (typeof settings === "number") settings = { id: settings };
+
+        this.settings = {
+            id: settings["id"],
+            reconnectable: settings["reconnectable"] ?? false
+        };
+
         //#region legacy dump
 
         // Custom V
@@ -320,6 +342,98 @@ export default class Client {
         }
     }
 
+    private init() {
+        if (this.initialised) throw Error("The client#initialised has to be false to use.");
+
+        this.modules = {
+            "Achievements": new Achievements(this),
+            "AdminActionManager": new AdminActionManager(this),
+            "Advent": new Advent(this),
+            "BattlePass": new BattlePass(this),
+            "Buddy": new Buddy(this),
+            "Character": new Character(this),
+            "Chat": new Chat(this),
+            "Customize": new Customize(this),
+            "FactionManager": new FactionManager(this),
+            "Homes": new Homes(this),
+            "Inventory": new Inventory(this),
+            "ItemFinder": new ItemFinder(this),
+            "Leader": new Leader(this),
+            "MailManager": new MailManager(this),
+            "MapModule": new MapModule(this),
+            "Merchant": new Merchant(this),
+            "StatsSkills": new StatsSkills(this),
+            "UserVariableManager": new UserVariableManager(this),
+            "WarManager": new WarManager(this),
+        };
+    
+        // currency = new Currency(this);
+    
+        this.boxes = {
+            "war": new WarSMBox(),
+            "news": new NewsSBox(),
+            "home": new HomeBox(),
+            "item": new ItemSBox(),
+            "style": new StyleBox(),
+            "class": new ClassBox(),
+            "skills": new SkillsSMBox(),
+            "mission": new MissionSBox(),
+            "merchant": new MerchantSBox(),
+            "achievement": new AchievementBox(),
+            "characterInv": new CharacterInvBox(),
+            "promo": new VariumPackageSBox(),
+            "legendary": new LegendaryCategorySBox()
+        };
+
+        if (!(this.timer && this.timer.ping)) {
+            this.timer = {
+                ping: new Timer(Constants.PING_INTERVAL, this.pingServer.bind(this))
+            };
+        }
+
+        this.initialised = true;
+    }
+
+    /**
+     * THIS IS ONLY FOR THE SWARM TO CALL.
+     */
+    protected connect() {
+        if (!this.initialised) throw Error("The client's not initialised!");
+        if (this.connected) throw Error("The client's still connected!");
+
+        if (!this.user.servers.length) throw Error("There are no servers available to join?");
+
+        const server = this.user.servers.find(v => v.online);
+
+        if (!server) throw Error("None of the servers available are online.");
+
+        this.smartFox.connect(server.ip, server.port);
+        return true;
+    }
+
+    async initialise() {
+        if (this.initialised) throw Error("The client's already initialised.");
+        if (this.connected) throw Error("The client's still connected!");
+
+        // If not done already.
+        this.selfDestruct(true);
+
+        await this.regenerate();
+
+        this.init();
+
+        return true;
+    }
+
+    private async regenerate() {
+        if (this.connected) throw Error("The client's still connected!");
+        if (Object.keys(this.modules).length) throw Error("The client hasn't been self destructed!");
+
+        const newUser = await this.swarm["login"](this.user.username, this.user.password);
+
+        return this.user.regenerate(newUser);
+    }
+
     //#region Timers
 
     pingServer() {
@@ -463,6 +577,7 @@ export default class Client {
         if (evt.success) {
             this.smartFox.getRandomKey();
             this.connected = true;
+            this.isFresh = false;
 
             this.connectedSince = Date.now();
         }
@@ -1781,11 +1896,8 @@ export default class Client {
      * Boxes will remain intact! This is due to the fact they're unlinked and separate, does not keep client so can be refreshed at ease.
      * @returns {boolean[][]}
      */
-    selfDestruct() {
-        /**
-         * @type {boolean[][]}
-         */
-        let successes = [[], [], [], [], [], [], [], [], []] as boolean[][];
+    selfDestruct(skipTimer = false) {
+        let successes:boolean[][] = [[], [], [], [], [], [], [], [], []];
 
         const modKeys = Object.keys(this.modules) as Array<keyof Client["modules"]>;
 
@@ -1843,10 +1955,12 @@ export default class Client {
 
             timer["stop"]();
             // timer["callback"] = () => {};
-            //@ts-expect-error
-            successes[7].push(delete this.timer[timerKeys[i]].callback);
-            //@ts-expect-error
-            successes[8].push(delete this.timer[timerKeys[i]]);
+            if (!skipTimer) {
+                //@ts-expect-error
+                successes[7].push(delete this.timer[timerKeys[i]].callback);
+                //@ts-expect-error
+                successes[8].push(delete this.timer[timerKeys[i]]);
+            }
         }
 
         // idk just a precaution cos memory leak goes brrrr when too many restarts weeee
@@ -1855,14 +1969,9 @@ export default class Client {
         //@ts-ignore
         delete this.smartFox;
 
+        this.initialised = false;
+
         return successes;
-    }
-
-    /**
-     * WARNING THIS IS DANGEROUS, it's similar to selfDestruct but it will 
-     */
-    regenerate() {
-
     }
 
     /**
