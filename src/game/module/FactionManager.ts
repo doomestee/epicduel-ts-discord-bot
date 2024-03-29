@@ -2,7 +2,7 @@ import Constants, { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
 
-interface FactionMember {
+export interface FactionMember {
     id: number,
     name: string;
     title: string;
@@ -12,7 +12,7 @@ interface FactionMember {
     rank: number;
 }
 
-interface Faction {
+export interface Faction {
     id: number,
     name: string,
     alignment: number,

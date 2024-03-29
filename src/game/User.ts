@@ -1,6 +1,9 @@
 import Server from "./Server.js";
+import CharacterRecord from "./record/CharacterRecord.js";
 
 export default class User {
+    charRecord!: CharacterRecord;
+
     loggedIn: boolean;
     session: string;
     userid: number;

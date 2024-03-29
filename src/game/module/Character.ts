@@ -1,4 +1,6 @@
+import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
+import CharacterRecord from "../record/CharacterRecord.js";
 import BaseModule from "./Base.js";
 
 export class CharacterItem {
@@ -65,6 +67,34 @@ export default class Character extends BaseModule {
         if (this._charItemList.length) {
             // this.client.debug("Character found, playing as " + this._charItemList[0].charName);
             this.client.getCharacterData(this._charItemList[0].charId);
+        }
+    }
+
+
+    handleGetCharacter(dataObj: any) {
+        if (dataObj.db.length > 0) {
+            this.client.user.charRecord = new CharacterRecord(dataObj.db[0]);
+            this.client.user._startRoom = dataObj.db[0].userStart;
+            this.client.user._myInvLimit = dataObj.db[0].charInvSlots;
+            this.client.user._myBankLimit = dataObj.db[0].charBankSlots;
+            this.client.user._myCharId = dataObj.db[0].charId;
+            this.client.user._charGender = dataObj.db[0].charGender;
+            this.client.user._initCharWarAlign = dataObj.db[0].charWarAlign;
+            this.client.user._forceRetrain = dataObj.db[0].charForceRetrain;
+            this.client.currency.credits = dataObj.db[0].userCredits;
+            this.client.currency.varium = dataObj.db[0].userVarium;
+
+            if (dataObj.db[0].charBat1 > 0) this.client.user._loginWinRatio = dataObj.db[0].charWins1 / dataObj.db[0].charBat1;
+            else this.client.user._loginWinRatio = 1;
+
+            this.client.user._loginBattleTotal = dataObj.db[0].charBat1;
+            this.client.user._chatBlock = dataObj.db[0].userChatBlock > 0 || dataObj.db[0].userChatBlock == -1;
+
+            // if (this.storeRawData) setTimeout(() => {
+            //     console.log("Getting my data!");
+
+                this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_DATA, {}, 1, "json");
+            // }, 2000); else this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_DATA, {}, 1, "json");
         }
     }
 }

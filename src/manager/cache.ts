@@ -6,7 +6,7 @@ import { Collection } from "oceanic.js";
 import { Cheevo } from "../game/module/Achievements.js";
 import { Faction } from "../game/module/FactionManager.js";
 import { Shop } from "../game/module/Merchant.js";
-import { RegionalWar } from "../game/module/WarManager.js";
+// import { RegionalWar } from "../game/module/WarManager.js";
 
 // type Cache<T extends Object, K> = Collection<K, T & { _lastGot: number }>;
 
@@ -67,8 +67,11 @@ export default class CacheManager {
         const col = this.cols[type];
 
         if (!(col instanceof Collection)) {
-            //@ts-expect-error
-            if (!key) return col.val = {};
+            if (!key) {
+                //@ts-expect-error
+                col.val = {};
+                return true;
+            }
 
             //@ts-expect-error
             col.val = key;

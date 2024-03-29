@@ -5,7 +5,7 @@ import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
 
-type Shop = {
+export type Shop = {
     itemId: number;
     qtyLeft: number | -1;
 }[];
