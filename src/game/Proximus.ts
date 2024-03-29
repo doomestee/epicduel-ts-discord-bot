@@ -3,6 +3,7 @@ import Constants, { Prices, Requests, Responses } from "./Constants.js";
 import User from "./User.js";
 
 import { SFSClientEvents } from "../types/events.js";
+import { Variables } from "./sfs/data/User.js";
 
 // Boxes
 import AchievementBox from "./box/AchievementBox.js";
@@ -35,18 +36,20 @@ import Merchant from "./module/Merchant.js";
 import StatsSkills from "./module/StatsSkills.js";
 import UserVariableManager from "./module/UserVariableManager.js";
 import WarManager from "./module/WarManager.js";
-import { RestrictedMode } from "../manager/epicduel.js";
-import Timer from "./Timer.js";
 import RoomManager from "./module/RoomManager.js";
-import ActiveChat from "./record/ActiveChat.js";
-import UserRecord from "./record/UserRecord.js";
-import InventoryListItem from "./record/inventory/InventoryListItem.js";
-import { Variables } from "./sfs/data/User.js";
-import MerchantRecord from "./record/MerchantRecord.js";
 import AdminActionManager from "./module/AdminActionManager.js";
 import Buddy from "./module/Buddy.js";
 import Leader from "./module/Leader.js";
 import MailManager from "./module/MailManager.js";
+
+// Misc
+import { RestrictedMode } from "../manager/epicduel.js";
+import Timer from "./Timer.js";
+import ActiveChat from "./record/ActiveChat.js";
+import UserRecord from "./record/UserRecord.js";
+import InventoryListItem from "./record/inventory/InventoryListItem.js";
+import MerchantRecord from "./record/MerchantRecord.js";
+import ItemFinder from "./module/ItemFinder.js";
 
 export default class Client {
     version = "1.8.793";
@@ -97,6 +100,7 @@ export default class Client {
         "FactionManager": new FactionManager(this),
         "Homes": new Homes(this),
         "Inventory": new Inventory(this),
+        "ItemFinder": new ItemFinder(this),
         "Leader": new Leader(this),
         "MailManager": new MailManager(this),
         "MapModule": new MapModule(this),
