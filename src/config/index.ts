@@ -76,4 +76,13 @@ export default class Config {
     static get commandsDirectory() {
         return decodeURIComponent(new URL("../interactions", import.meta.url).pathname);
     }
+
+    // ED
+    static get edBotEmail() {
+        return process.env.ED_EMAIL;
+    }
+
+    static get edBotPass() {
+        return process.env.ED_PASS;
+    }
 }

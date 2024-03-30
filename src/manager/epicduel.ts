@@ -6,6 +6,8 @@ import { SwarmError } from "../util/errors/index.js";
 import Server from "../game/Server.js";
 import { SFSClientEvents } from "../types/events.js";
 import { Requests } from "../game/Constants.js";
+import Logger from "./logger.js";
+import EDCycler from "../util/EDCycler.js";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -27,9 +29,19 @@ export default class Swarm {
      */
     static restrictedMode = RestrictedMode.NONE;
     
-    static readonly clients:Client[] = [];
+    /**
+     * This will only feature the list of clients that are connected.
+     * 
+     * If there's none, check purgatory.
+     */
+    protected static readonly clients:Client[] = [];
 
-    static readonly purgatory:Client[] = [];
+    protected static readonly purgatory:Client[] = [];
+
+    /**
+     * This is a service that will cycle every interval when active, connecting new clients 
+     */
+    static cycler = new EDCycler(this);
 
     static get centralClient() {
         return this.clients[0];
@@ -40,16 +52,97 @@ export default class Swarm {
      */
     static cap:number = 2;
 
+    /**
+     * If the server goes down or is offline, the manager will go into probing mode so for every interval, it'll check on ED server to see if it's alive, using proxied connections.
+     */
+    static probing = false;
+
     private static idGen = 1;
 
     /**
      * Creates a new Client instance with the given account, it'll also initialise (but does not connect).
+     * 
+     * NOTE: It will automatically add to the internal list.
      */
     static async create(email: string, password: string) : Promise<Client>;
     static async create(account: { email: string, pass: string }) : Promise<Client>;
     static async create(account: string | { email: string, pass: string }, password?: string) {
         if (this.cap >= this.clients.length) throw Error("Too many clients are initiated.");
 
+        const email = typeof account === "object" ? account["email"] : account;
+        const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
+
+        if (pass === undefined) throw new SwarmError("LOGIN_FAILED", "There's no password.");
+
+        const user = await this.login(email, pass);
+
+        const client = new Client(user, this.idGen++, this);
+        client.smartFox.once("onConnection", this.onConnection.bind({ client, swarm: this }))
+        client.smartFox.once("onConnectionLost", this.onConnectionLost.bind({ client, swarm: this }));
+
+        if (this.restrictedMode === RestrictedMode.ALL) {
+            client.restrictedMode = this.restrictedMode;
+
+            // client.homeJump = true;
+        }
+
+        this.purgatory.push(client);
+
+        return client;
+    }
+
+    static onConnection(this:{ client: Client, swarm: typeof Swarm }, ev: SFSClientEvents["onConnection"][0]) {
+        const { client, swarm } = this;
+
+        if (ev.success) {
+            client.connected = true;
+
+            if (client.restrictedMode !== RestrictedMode.NONE) {
+                this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_HOMES, {}, 1, "json");
+            }
+        } else {
+            client.connected = false;
+        } 
+    }
+
+    static onConnectionLost(this:{ client: Client, swarm: typeof Swarm }, ev: SFSClientEvents["onConnectionLost"][0]) {
+        const { client, swarm } = this;
+
+        client.connected = false;
+
+        const bools = client.selfDestruct();
+
+        let broke = false;
+        for (let i = 0, len = bools.length; i < len; i++) {
+            if (bools[i].some(g => g === false)) {
+                Logger.getLogger(`EpicDuel - ID ${client.settings.id}`).debug("Client not fully self destructed.");
+                broke = true;
+                break;
+            }
+        }
+
+        if (!broke) Logger.getLogger(`EpicDuel - ID ${client.settings.id}`).debug("Client fully self destructed.");
+
+        // I've decided that the client will persist in the list, even if redundant, to allow for regeneration.
+        // // This is the first time I'm comparing objects like this, pls do not fail on me.
+        // // nnvm i decided not to
+        // const index = swarm.clients.findIndex(v => v.settings.id === client.settings.id);
+
+        // swarm.clients.splice(index, 1);
+
+        if (ev.discParams === "CLIENT_REQUEST_DESTROYED") return;
+        if (!client.settings.reconnectable || swarm.probing) return;
+
+        // this.client.
+    }
+
+    /**
+     * This will return a new User object with session and stuff.
+     * If you're regenerating, you can just extract the servers, new user details stuff still.
+     */
+    protected static async login(email: string, password: string) : Promise<User>;
+    protected static async login(account: { email: string, pass: string }) : Promise<User>;
+    protected static async login(account: string | { email: string, pass: string }, password?: string) {
         const email = typeof account === "object" ? account["email"] : account;
         const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
 
@@ -76,7 +169,7 @@ export default class Swarm {
         if (!xml.login || xml.login['$'].success === '0') throw new SwarmError("LOGIN_FAILED", "Unable to login", xml.login['$']);
 
         const user = new User({
-            loggedIn: Boolean(Number.parseInt(xml.login["$"]["success"])),
+            loggedIn: ((xml.login["$"]["success"])),
             session: xml.login["$"]["session"],
             userId: xml.login["$"]["userid"],
             playerid: xml.login["$"]["playerid"],
@@ -101,38 +194,31 @@ export default class Swarm {
             }
         }
 
-        const client = new Client(user, this.idGen++);
-        client.smartFox.once("onConnection", this.onConnection.bind({ client, swarm: this }))
-        client.smartFox.once("onConnectionLost", this.onConnectionLost.bind({ client, swarm: this }));
+        return user;
+    }
 
-        if (this.restrictedMode === RestrictedMode.ALL) {
-            client.restrictedMode = this.restrictedMode;
-
-            // client.homeJump = true;
+    static getClientById(id: number, fromPurgatoryToo:boolean) : Client | undefined;
+    static getClientById(fromPurgatoryToo?:boolean) : Client | undefined;
+    static getClientById(id?: number | boolean, fromPurgatoryToo=true) {
+        for (let i = 0, len = this.clients.length; i < len; i++) {
+            if (typeof id !== "number") {
+                if (this.clients[i].connected) return this.clients[i];
+                else continue;
+            }
+            if (this.clients[i].settings.id === id) return this.clients[i];
         }
 
-        return client;
-    }
-
-    static onConnection(this:{ client: Client, swarm: typeof Swarm }, ev: SFSClientEvents["onConnection"][0]) {
-        const { client, swarm } = this;
-
-        if (ev.success) {
-            client.connected = true;
-
-            if (client.restrictedMode !== RestrictedMode.NONE) {
-                this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_HOMES, {}, 1, "json");
+        if (fromPurgatoryToo || id === true) {
+            for (let i = 0, len = this.purgatory.length; i < len; i++) {
+                if (typeof id !== "number") {
+                    if (this.clients[i].connected) return this.clients[i];
+                    else continue;
+                }
+                if (this.purgatory[i].settings.id === id) return this.purgatory[i];
             }
-        } else {
-            client.connected = false;
-        } 
-    }
+        }
 
-    static onConnectionLost(this:{ client: Client, swarm: typeof Swarm }, ev: SFSClientEvents["onConnectionLost"][0]) {
-        this.client.connected = false;
-
-
-
+        return undefined;
     }
 }
 
