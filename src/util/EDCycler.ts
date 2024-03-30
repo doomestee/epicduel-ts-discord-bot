@@ -1,6 +1,8 @@
 // Is a type, due to circular dependency.
 import Config from "../config/index.js";
 import type Swarm from "../manager/epicduel.js";
+import Logger from "../manager/logger.js";
+import { SwarmError } from "./errors/index.js";
 
 export default class EDCycler {
     #swarm: typeof Swarm;
@@ -33,7 +35,7 @@ export default class EDCycler {
         clearTimeout(this.timer);
     }
 
-    checkForChanges() {
+    async checkForChanges() {
         const clients = this.#swarm["clients"];
 
         // We will just get all of the redundant clients to then dump to purgatory first.
@@ -50,12 +52,64 @@ export default class EDCycler {
         }
 
         if (this.delayUntil > 0) {
-            if (Date.now() < this.delayUntil) return;
+            if (Date.now() < this.delayUntil) return this.reassignTimer();
         }
 
         if (this.#swarm.probing) {
-            this.#swarm["login"](Config.dbDatabase)
+            try {
+                const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotEmail, true);
+
+                if (attempt.servers.length === 0 || attempt.servers.length) {
+                    // Still nothing, waiting another 3 minutes.
+                    return this.reassignTimer();
+                }
+
+                // It is ready.
+            } catch (err) {
+                if (err instanceof SwarmError) {
+                    switch (err.type) {
+                        case "RATELIMITED":
+                            Logger.getLogger("Swarm").error("Ratelimited, delaying probing by an hour.");
+                            this.delayUntil = Date.now() + 1000*60*60;
+                            break;
+                    }
+                }
+            }
         } else {
+            // Look at the first few clients available, currently will do 1 client at a time.
+
+            const purgs = this.#swarm["purgatory"];
+
+            let count = 0;
+
+            for (let i = 0, len = purgs.length; i < len; i++) {
+                const purg = purgs[i];
+
+                if (count > 0) continue;
+                if (!purg.settings.reconnectable) continue;
+
+                if (purg.connected) {
+                    // Move it to clients section.
+                    this.#swarm["clients"].push(purgs[i]);
+                    this.#swarm["purgatory"].splice(i--, 1); len--;
+                    continue;
+                }
+
+                count++;
+
+                const bool = await purg.initialise()
+                    .catch(err => {
+                        if (err instanceof SwarmError) {
+                            if (err.type === "RATELIMITED") {
+                                Logger.getLogger("Swarm").error("Ratelimited, delaying logging by an hour.");
+                                this.delayUntil = Date.now() + 1000*60*60;
+                                return false;
+                            }
+                        } return false;
+                    });
+                
+                if (!bool) return this.reassignTimer();
+            }
 
         }
 

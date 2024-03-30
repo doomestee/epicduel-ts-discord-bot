@@ -140,9 +140,9 @@ export default class Swarm {
      * This will return a new User object with session and stuff.
      * If you're regenerating, you can just extract the servers, new user details stuff still.
      */
-    protected static async login(email: string, password: string) : Promise<User>;
+    protected static async login(email: string, password: string, proxy?: boolean) : Promise<User>;
     protected static async login(account: { email: string, pass: string }) : Promise<User>;
-    protected static async login(account: string | { email: string, pass: string }, password?: string) {
+    protected static async login(account: string | { email: string, pass: string }, password?: string, proxy=false) {
         const email = typeof account === "object" ? account["email"] : account;
         const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
 
