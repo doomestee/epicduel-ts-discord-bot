@@ -51,6 +51,7 @@ import UserRecord from "./record/UserRecord.js";
 import InventoryListItem from "./record/inventory/InventoryListItem.js";
 import MerchantRecord from "./record/MerchantRecord.js";
 import ItemFinder from "./module/ItemFinder.js";
+import Logger from "../manager/logger.js";
 
 export interface ClientSettings {
     id: number;
@@ -613,6 +614,7 @@ export default class Client {
     }
 
     onCreateRoomErrorHandler(evt: SFSClientEvents["onCreateRoomError"][0]) {
+        Logger.getLoggerP(this.settings.id).debug("Errored trying to create a room; " + evt.error);
         // this.manager._logger.error("Errored trying to create a room...?");
         // this.manager._logger.error(evt.params.error);
     }
@@ -750,9 +752,10 @@ export default class Client {
                     break;
                 case Requests.REQUEST_BUY_ITEM: case Responses.RESPONSE_SPEND_POINTS: case Requests.REQUEST_COMPLETE_MISSION:
                     break;
-                // default:
-                //     this.manager._logger.error("Unknown response: " + dataObj);
-                //     break;
+                default:
+                    Logger.getLoggerP(this.settings.id).debug("Unknown response; ", dataObj);
+                    // this.manager._logger.error("Unknown response: " + dataObj);
+                    break;
             }
         } else if (type === SmartFoxClient.XTMSG_TYPE_JSON) {
             switch (cmd) {
@@ -864,6 +867,7 @@ export default class Client {
                 case Responses.RESPONSE_CHAT_BLOCK_OK: case Responses.RESPONSE_MOD_NOTE_OK:
                     break;
                 default:
+                    Logger.getLoggerP(this.settings.id).debug(dataObj);
                     console.debug(dataObj);
                     // this.manager._logger.error("Unknown response: " + dataObj);
                     break;
@@ -908,7 +912,7 @@ export default class Client {
                     this.user.userPriv = obj.userPriv;
                     // this.user.userActive = obj.userActive;
                     // this.user.userLoginCount = obj.userLoginCount;
-                    this.user.userId = obj.userId;
+                    this.user.userid = obj.userId;
                     break;
                 case Responses.RESPONSE_SERVER_TIME:
                     this._serverTime = Number(dataObj[2]) - (Date.now() - this.runningSince);
@@ -1374,6 +1378,7 @@ export default class Client {
                     //TournamentModule.instance.buyTournamentTicketResponse(_loc3_ as Array);
                     break;
                 default:
+                    Logger.getLoggerP(this.settings.id).debug(dataObj);
                     // this.manager._logger.error("Unknown response: " + dataObj);
                     break;
                 
@@ -1383,9 +1388,6 @@ export default class Client {
 
     onJoinRoomHandler(evt: SFSClientEvents["onJoinRoom"][0]) {
         let playerCount = 0;
-        /**
-         * @type {import("./data/Room")}
-         */
         const [room] = [evt.room];
 
         if (!room) return;
@@ -1426,6 +1428,7 @@ export default class Client {
         // }
         
         if (roomName == RoomManager.LOBBY) {
+            console.log("MEOW");
             this.timer.ping.start();
             this.lobbyInit = true;
             this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
@@ -1509,7 +1512,10 @@ export default class Client {
     onObjectReceivedHandler(evt: SFSClientEvents["onObjectReceived"][0]) {
         const sender = evt.sender;
         const type = String(evt.obj.type);
-        const [senderId, senderCharName] = [sender.getId(), evt.sender.charName];
+
+        if (!sender) return;
+
+        const [senderId, senderCharName] = [sender.getId(), sender.charName];
         
         if (!["o4", "o3"].some(v => v === type)) {
             console.log("Object received V!");

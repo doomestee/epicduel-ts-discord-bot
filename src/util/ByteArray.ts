@@ -1,8 +1,10 @@
 // Taken from a github repo of ByteArray-Node, and converted to typescript, and made more compact.
 
-import { decode, encode, encodingExists } from "iconv-lite";
+import pkg from "iconv-lite";
 import { deflateRawSync, inflateRawSync } from "zlib";
 import type { InputType, ZlibOptions } from "zlib";
+
+const { decode, encode, encodingExists } = pkg;
 
 export enum Endian {
     LITTLE_ENDIAN = "LE",

@@ -32,7 +32,7 @@ export default class Merchant extends BaseModule {
         if (merchant.reqItems !== "") {
             let reqItems = merchant.reqItems.split(",");
             for (let r = 0; r < reqItems.length; r++) {
-                if (!this.client.modules.Inventory.clientAlreadyOwnsItem(reqItems[r])) {
+                if (!this.client.modules.Inventory.clientAlreadyOwnsItem(parseInt(reqItems[r]))) {
                     okToShop = false; break;
                 }
             }
@@ -45,7 +45,7 @@ export default class Merchant extends BaseModule {
         if (mercId === 284 && legendRank < 50) return { okay: false, reqMet: false, type: -1, reason: "50LegRank" };
 
         if (okToShop) return { okay: true, reqMet: true, type: 1 };
-        return { okay: false, reqMet: false, type: 0, reason: merchant.reqItems.split(",").map(v => this.client.boxes.item.objMap.get(v)) };
+        return { okay: false, reqMet: false, type: 0, reason: merchant.reqItems.split(",").map(v => this.client.boxes.item.objMap.get(parseInt(v))) };
     }
 
 

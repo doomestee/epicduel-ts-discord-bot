@@ -1,4 +1,4 @@
-export default class {
+export default class UserRecord {
     userId: number;
     userDate: number;
     userActive: number;

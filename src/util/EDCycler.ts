@@ -95,6 +95,7 @@ export default class EDCycler {
                     continue;
                 }
 
+                // Doesn't matter if successfully logged in or not, ed login asp ratelimits ip.
                 count++;
 
                 const bool = await purg.initialise()
@@ -109,8 +110,11 @@ export default class EDCycler {
                     });
                 
                 if (!bool) return this.reassignTimer();
-            }
 
+                if (purg.user.servers[0]?.online === true) {
+                    purg["connect"]();
+                }
+            }
         }
 
         this.reassignTimer();

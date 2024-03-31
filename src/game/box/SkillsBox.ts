@@ -129,10 +129,10 @@ export default class SkillsSMBox {
     static get objList() { return objList };
 
     populate(type: SkillTypes, list: string[]) {
+        let i = 0;
         //TODO: clean this fucking shit
         switch (type) {
             case "all": case "active": case "passive": case "activeAttackRules": case "activeMiscRules": case "activeTargetRules": case "clientRequirements": case "improveRules": case "passiveMiscRules": case "passiveStatRules": case "core":
-                let i = 0;
                 // this.objList[type] = [];
                 this.objMap[type].clear();
                 this.rawData[type] = list;
@@ -164,18 +164,14 @@ export default class SkillsSMBox {
                 return true;
             break;
             case "tree":
-                let y = 0;
                 this.objList[type] = [];
                 this.rawData[type] = list;
 
-                while (y < (list.length / this.templates[type].length)) {
-                    let y = 0; let obj = {} as any; let id = -1;
+                while (i < (list.length / this.templates[type].length)) {
+                    let y = 0; let obj = {} as any;
 
                     while (y < (this.templates[type].length)) {
                         obj[this.templates[type][y]] = list[y + y * this.templates[type].length];
-
-                        if (y === 0) id = parseInt(obj[this.templates[type][y]]);
-
                         y++;
                     }
 
@@ -185,7 +181,7 @@ export default class SkillsSMBox {
 
                     this.objList[type].push(rec);
                     // this.objMap[type].set(id, rec);
-                    y++;
+                    i++;
                 }
 
                 this.ready[type] = true;

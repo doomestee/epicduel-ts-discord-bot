@@ -74,6 +74,7 @@ export default class SysHandler {
         const fn = this.handlersTable[msgObj.body['@action'] as EventType];
 
         if (fn) {
+            // console.debug(msgObj);
             fn.apply(this, [msgObj]);
         }
     }
@@ -125,9 +126,12 @@ export default class SysHandler {
         //for (let i = 0; i < keys.length; i++) {
         //if (o.body.rmList && !Array.isArray(o.body.rmList)) o.body.rmList = [o.body.rmList];
 
+        // console.debug(o.body.rmList);
+
         for (let i in o.body.rmList) {
             //let xml = o.body.rmList["rm"][keys[i]];
             let xml = o.body.rmList[i];
+            // console.debug(xml);
             //console.log(xml);
 
             let roomId = Number(xml['@id']);
@@ -138,7 +142,7 @@ export default class SysHandler {
             }
 
             // roomList[xml['@id']] = room;
-            roomList.set(xml["@id"], room);
+            roomList.set(roomId, room);
         }
 
         count.room = roomList.size;
@@ -169,7 +173,7 @@ export default class SysHandler {
         const [roomId, roomVarsXml, playerId] = [Number(o.body['@r']), o.body, Number(o.body.pid['@id'])];
         let [userListXml] = [o.body.uLs.u];
         this.client.activeRoomId = roomId;
-        const joinedAt = new Date();
+        // const joinedAt = new Date();
 
         const currRoom = this.client.getRoom(roomId);
         const roomList = Array.from(this.client.roomList.values());
@@ -207,6 +211,7 @@ export default class SysHandler {
             }
 
             if (user.charId === undefined && user.npcId === -1) {
+                // if (!looped) //Logger.getLoggerP(this.settings.id).debug(dataObj);
                 // if (!looped) this.client.client.manager._logger.error(o.body);
 
                 looped = true;

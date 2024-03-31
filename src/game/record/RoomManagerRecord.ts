@@ -1,4 +1,4 @@
-import { MapItemRuleSet } from "./map/MapItemRule.js";
+import { MapItemRuleSet } from "./map/MapItem.js";
 import { MapStateRuleSet } from "./map/MapStateRule.js";
 
 export default class RoomManagerRecord {
@@ -10,8 +10,8 @@ export default class RoomManagerRecord {
     permissions: [number, number, number, number];
     objectiveId: number;
     backgroundSet: string[];
-    mapStateRuleSet: MapStateRuleSet;
-    mapItemRuleSet: MapItemRuleSet;
+    mapStateRuleSet: MapStateRuleSet | null;
+    mapItemRuleSet: MapItemRuleSet | null;
 
     constructor(roomName: string, version: number, coords: [number, number], merchants: number[], regionId: number, permissions: [number, number, number, number], objectiveId: number, backgroundSet: string[], mapStateRuleSet: MapStateRuleSet | null, mapItemRuleSet: MapItemRuleSet | null) {
         this.roomName = roomName;

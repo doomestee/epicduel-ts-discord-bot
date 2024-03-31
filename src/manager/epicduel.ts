@@ -67,7 +67,7 @@ export default class Swarm {
     static async create(email: string, password: string) : Promise<Client>;
     static async create(account: { email: string, pass: string }) : Promise<Client>;
     static async create(account: string | { email: string, pass: string }, password?: string) {
-        if (this.cap >= this.clients.length) throw Error("Too many clients are initiated.");
+        if (this.cap <= this.clients.length) throw Error("Too many clients are initiated.");
 
         const email = typeof account === "object" ? account["email"] : account;
         const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
@@ -157,7 +157,7 @@ export default class Swarm {
                 "pragma": "no-cache",
                 "x-requested-with": "ShockwaveFlash/32.0.0.101",
             },
-            "body": `strPassword=${pass}&publishMode=2&strUsername=${email}`,
+            "body": `strPassword=${encodeURIComponent(pass)}&publishMode=2&strUsername=${encodeURIComponent(email)}`,
             "method": "POST",
             "maxRedirections": 2
         });
@@ -166,13 +166,12 @@ export default class Swarm {
         
         const xml = await body.text().then(parseStringPromise);
 
-        if (!xml.login || xml.login['$'].success === '0') throw new SwarmError("LOGIN_FAILED", "Unable to login", xml.login['$']);
+        if (!xml.login || xml.login['$'].success === '0' || xml.login['$'].bSuccess === '0') throw new SwarmError("LOGIN_FAILED", "Unable to login", xml.login['$']);
 
         const user = new User({
             loggedIn: ((xml.login["$"]["success"])),
             session: xml.login["$"]["session"],
-            userId: xml.login["$"]["userid"],
-            playerid: xml.login["$"]["playerid"],
+            userid: xml.login["$"]["userid"],
             username: xml.login["$"]["username"],
             userPriv: xml.login["$"]["userPriv"],
             userAge: xml.login["$"]["age"],
@@ -185,10 +184,10 @@ export default class Swarm {
             for (let i = 0, len = servers.length; i < len; i++) {
                 user.servers.push(new Server({
                     online: Boolean(Number(servers[i]["$"]["onlineStatus"])),
-                    ip: ((servers[i]["$"]["onlineStatus"])),
+                    ip: ((servers[i]["$"]["serverIP"])),
                     port: ((servers[i]["$"]["serverPort"])),
-                    name: ((servers[i]["$"]["onlineStatus"])),
-                    userCount: [servers[i]["$"]["userCount"], servers[i]["$"]["userMax"]],
+                    name: ((servers[i]["$"]["serverName"])),
+                    userCount: [servers[i]["$"]["userCount"], servers[i]["$"]["userMax"]].map(Number),
                     initialised: new Date()
                 }));
             }
@@ -209,6 +208,8 @@ export default class Swarm {
         }
 
         if (fromPurgatoryToo || id === true) {
+            if (typeof id === "boolean" && id !== true) return undefined;
+
             for (let i = 0, len = this.purgatory.length; i < len; i++) {
                 if (typeof id !== "number") {
                     if (this.clients[i].connected) return this.clients[i];

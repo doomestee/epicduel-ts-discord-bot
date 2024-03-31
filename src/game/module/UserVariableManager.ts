@@ -93,7 +93,7 @@ export default class UserVariableManager extends BaseModule {
             if (myUpdate) {
                 this.client.user._forceRetrain = false; 
 
-                this.client.user._mySkills = null;
+                this.client.user._mySkills = {};
                 console.log("YOU'VE LEVELLED UP!!!!");
             }
         }

@@ -4,10 +4,11 @@ import Room from "./data/Room.js";
 import { TypedEmitter } from "oceanic.js";
 import { BothSFSClientEvents, SFSClientEvents } from "../../types/events.js";
 import SysHandler from "./handlers/SysHandler.js";
-import fastq from "fastq/index.js";
+import fastq from "fastq";
 import { Requests, Responses } from "../Constants.js";
 import { deserialize, encodeEntities, serialize } from "../../util/XML.js";
 import ExtHandler from "./handlers/ExtHandler.js";
+import Logger from "../../manager/logger.js";
 
 type SendHeader = { t: HandlerType };
 type HandlerType = "sys" | "xt";
@@ -65,9 +66,11 @@ async function workerProcessData(this: SmartFoxClient, evt: Buffer) {
             try {
                 //console.log(this.buffer.toString());
                 this.handleMessage.bind(this)(this.buffer.toString().split('\x00').join(''));
-                // delete this.buffer.buffer;
+                //@ts-ignore
+                delete this.buffer.buffer;
                 this.buffer.clear();
             } catch (e) {
+                Logger.getLogger("Puppet").error(e);
                 // this.this.manager._logger.error("Errored trying to handle message: ");
                 // this.this.manager._logger.error(e);
             }
@@ -165,7 +168,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
 
         if (!this.checkRoomList()) return;
         if (roomId == -1) roomId = this.activeRoomId;
-        if (type === module.exports.XTMSG_TYPE_XML) {
+        if (type === SmartFoxClient.XTMSG_TYPE_XML) {
             let header = {"t": "xt"} satisfies SendHeader;
             let xtReq = {
                 name: xtName,
@@ -175,14 +178,14 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
 
             let xmlmsg = "<![CDATA[" + serialize(xtReq) + "]]>";
             return this.send(header, "xtReq", roomId, xmlmsg);
-        } else if (type === module.exports.XTMSG_TYPE_STR) {
-            let hdr = module.exports.MSG_STR + 'xt' + module.exports.MSG_STR + xtName + module.exports.MSG_STR + cmd + module.exports.MSG_STR + roomId + module.exports.MSG_STR;
+        } else if (type === SmartFoxClient.XTMSG_TYPE_STR) {
+            let hdr = SmartFoxClient.MSG_STR + 'xt' + SmartFoxClient.MSG_STR + xtName + SmartFoxClient.MSG_STR + cmd + SmartFoxClient.MSG_STR + roomId + SmartFoxClient.MSG_STR;
             for (let i = 0; i < paramObj.length; i++) {
-                hdr += paramObj[i].toString() + module.exports.MSG_STR;
+                hdr += paramObj[i].toString() + SmartFoxClient.MSG_STR;
             }
 
             return this.writeToSocket(hdr);
-        } else if (type === module.exports.XTMSG_TYPE_JSON) {
+        } else if (type === SmartFoxClient.XTMSG_TYPE_JSON) {
             let body = {
                 x: xtName,
                 c: String(cmd),
@@ -370,7 +373,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
 
     async strReceived(msg: string) {
         //client.debug("Received string from server", msg);
-        const params = msg.substring(1, (msg.endsWith("^") ? msg.length - 1 : msg.length - 2)).split(module.exports.MSG_STR);
+        const params = msg.substring(1, (msg.endsWith("^") ? msg.length - 1 : msg.length - 2)).split(SmartFoxClient.MSG_STR);
         const handlerId = params[0] as HandlerType;
         const handler = this.handlers.message[handlerId];
         if (handler != null) {

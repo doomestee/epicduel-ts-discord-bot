@@ -7,7 +7,7 @@ export default class User {
     loggedIn: boolean;
     session: string;
     userid: number;
-    playerid: number;
+    // playerid: number;
     username: string;
     password: string;
     userPriv: number;
@@ -64,13 +64,12 @@ export default class User {
     _cleanShutdown: boolean;
     servers: Server[];
     userRecord: any;
-    userId: any;
 
     constructor(obj: { [x: string]: string }) {
         this.loggedIn = Boolean(parseInt(obj.loggedIn)) || false;
         this.session = obj.session;
         this.userid = parseInt(obj.userid);
-        this.playerid = parseInt(obj.playerid);
+        // this.playerid = parseInt(obj.playerid);
         this.username = obj.username;
         this.password = obj.password;
         this.userPriv = parseInt(obj.userPriv);
@@ -189,7 +188,7 @@ export default class User {
         this.loggedIn = newUser.loggedIn;
         this.session = newUser.session;
         this.userid = newUser.userid;
-        this.playerid = newUser.playerid;
+        // this.playerid = newUser.playerid;
         this.username = newUser.username;
         this.password = newUser.password;
         this.userPriv = newUser.userPriv;

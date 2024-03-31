@@ -210,7 +210,7 @@ export default class WarManager extends BaseModule {
      * @param {-1|1|2} alignId If -1, it will return all of the current objectives. 1 for Exile, 2 for Legion.
      */
     currentObjectives(alignId: -1 | 1 | 2) {
-        let list = this.client.boxes.war.getRegionalObjectives(this.activeRegionId);
+        let list = this.client.boxes.war.getObjectivesByRegionId(this.activeRegionId);
         let objs = this.warObjectiveDataList.filter(v => list.some(l => l.objectiveId == v.objectiveId));
 
         // Lazy patch for now, it's unusual but I can't find a way to fix this.
@@ -225,6 +225,8 @@ export default class WarManager extends BaseModule {
 
     getMyWarItemCount() {
         let wr = this.client.boxes.war.getRegionById(this.activeRegionId);
+
+        if (!wr) throw Error("No active region id.");
         
         let clientOnDefense = this.client.getMyUserFr().charWarAlign == this.getControlAlignmentInActiveRegion()
 

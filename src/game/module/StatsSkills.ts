@@ -135,7 +135,9 @@ export default class StatsSkills extends BaseModule {
      */
     getCharAttribPoints(charAttrib: "charMaxHp"|"charMaxMp"|"charStr"|"charDex"|"charTech"|"charSupp", obj: { hp: number, mp: number, dex: number, tech: number, supp: number, str: number }) {
         let classRecord = this.client.boxes.class.objMap.find(v => v.classId == this.client.getMyUserFr().charClassId);
-        
+
+        if (!classRecord) throw Error("Unknown class id");
+
         switch (charAttrib) {
             case "charMaxHp": return Math.ceil((obj.hp - classRecord.getMinHpByLevel(getUserLevelByExp(this.client.getMyUserFr().charExp))) / StatsSkills.HP_MULTIPLIER);
             case "charMaxMp": return Math.ceil((obj.mp - classRecord.getMinMpByLevel(getUserLevelByExp(this.client.getMyUserFr().charExp))) / StatsSkills.MP_MULTIPLIER);

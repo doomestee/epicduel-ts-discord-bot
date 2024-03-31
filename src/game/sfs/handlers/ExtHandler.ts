@@ -23,11 +23,15 @@ export default class ExtHandler {
                 // Made into variable to enable diagnosis
                 let reserialised = reserialize(xmlData.body);
 
+                // console.debug([reserialised, type]);
+
                 return this.client.emit("onExtensionResponse", { dataObj: reserialised, type });//new SFSEvent("onExtensionResponse", {dataObj: reserialised, type: type}));
             }
         } else if (type == "json") {
+            // console.debug([msgObj.o, type]);
             return this.client.emit("onExtensionResponse", { dataObj: msgObj.o, type });//this.client.emit("onExtensionResponse", new SFSEvent("onExtensionResponse", {dataObj: msgObj.o, type: type}));
         } else if (type == "str") {
+            // console.debug([msgObj, type]);
             return this.client.emit("onExtensionResponse", { dataObj: msgObj, type });//this.client.emit("onExtensionResponse", new SFSEvent("onExtensionResponse", {dataObj: msgObj, type: type}));
         }
     }

@@ -115,4 +115,12 @@ export default class Logger {
     static getLogger(name: string, ...names: Array<string>) {
         return this._log.child({ name: [name, ...names] });
     }
+
+    /**
+     * Puppet logger.
+     * @param name 
+     */
+    static getLoggerP(id: number) {//}, ...names: Array<string>) {
+        return this.getLogger("Puppet - " + id);//this._log.child({ name: [name, ...names] });
+    }
 }
