@@ -6,6 +6,7 @@ import { Collection } from "oceanic.js";
 import { Cheevo } from "../game/module/Achievements.js";
 import { Faction } from "../game/module/FactionManager.js";
 import { Shop } from "../game/module/Merchant.js";
+import { TournamentLeader } from "../game/module/Tournament.js";
 // import { RegionalWar } from "../game/module/WarManager.js";
 
 // type Cache<T extends Object, K> = Collection<K, T & { _lastGot: number }>;
@@ -22,10 +23,23 @@ interface CacheInternal {
     achievement: NumberCache<Cheevo[]>,
     faction: NumberCache<Faction>,
     merchant: NumberCache<Shop>,
+    tourney: SingularCache<TournamentLeader[]>,
 }
 
-export interface CacheSetting {
+export type CacheSetting<T = undefined> = T extends undefined ? { time: number } : {
     time: number;
+    args: T;
+    cb: () => boolean;
+}
+
+interface CacheSettingsInternal {
+    leaders: CacheSetting,
+    // Off gifting time, so for 24 hours anyways.
+    gifts: CacheSetting,
+    achievement: CacheSetting,
+    faction: CacheSetting,
+    merchant: CacheSetting,
+    tourney: CacheSetting<{ ended: boolean }>
 }
 
 type ExtractKeyType<T> = T extends Collection<infer K, any> ? K : never;
@@ -46,13 +60,16 @@ export default class CacheManager {
         merchant: new Collection(),
     };
 
-    public static settings:Record<CacheType, CacheSetting> = {
+    public static settings:CacheSettingsInternal = {
         leaders: { time: 1000*30 },
         // Off gifting time, so for 24 hours anyways.
         gifts: { time: 1000*60*60*24 },
         achievement: { time: 1000*60*10 },
         faction: { time: 1000*60*30 },
         merchant: { time: 1000*60*60*24 },
+        tourney: { time: 1000*60*1, args: { ended: true }, cb() {
+            return this.args.ended;
+        }, }
     }
 
     /**
@@ -107,7 +124,11 @@ export default class CacheManager {
 
         const col = this.cols[type];
 
-        const timeCheck = (lastGot: number) => this.settings[type].time > (Date.now() - lastGot);
+        const timeCheck = (lastGot: number) => {
+            const settings = this.settings[type];
+
+            return ("args" in settings ? !settings.cb.bind(settings)() : true) && settings.time > (Date.now() - lastGot);
+        }
 
         if (!(col instanceof Collection)) {
             if (col._lastGot < 1 || timeCheck(col._lastGot)) return { valid: false };
@@ -118,7 +139,7 @@ export default class CacheManager {
         //@ts-ignore
         let val = col.get(key);
 
-        if (!val) return { valid: false };
+        if (!val || val._lastGot < 1) return { valid: false };
 
         if (timeCheck(val._lastGot)) return { valid: true, value: val.val };
 

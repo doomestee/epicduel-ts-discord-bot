@@ -41,6 +41,7 @@ import AdminActionManager from "./module/AdminActionManager.js";
 import Buddy from "./module/Buddy.js";
 import Leader from "./module/Leader.js";
 import MailManager from "./module/MailManager.js";
+import ItemFinder from "./module/ItemFinder.js";
 
 // Misc
 import { RestrictedMode } from "../manager/epicduel.js";
@@ -50,8 +51,8 @@ import ActiveChat from "./record/ActiveChat.js";
 import UserRecord from "./record/UserRecord.js";
 import InventoryListItem from "./record/inventory/InventoryListItem.js";
 import MerchantRecord from "./record/MerchantRecord.js";
-import ItemFinder from "./module/ItemFinder.js";
 import Logger from "../manager/logger.js";
+import Tournament from "./module/Tournament.js";
 
 export interface ClientSettings {
     id: number;
@@ -120,6 +121,7 @@ export default class Client {
         "MapModule": new MapModule(this),
         "Merchant": new Merchant(this),
         "StatsSkills": new StatsSkills(this),
+        "Tournament": new Tournament(this),
         "UserVariableManager": new UserVariableManager(this),
         "WarManager": new WarManager(this),
     };
@@ -364,6 +366,7 @@ export default class Client {
             "MapModule": new MapModule(this),
             "Merchant": new Merchant(this),
             "StatsSkills": new StatsSkills(this),
+            "Tournament": new Tournament(this),
             "UserVariableManager": new UserVariableManager(this),
             "WarManager": new WarManager(this),
         };
@@ -680,10 +683,10 @@ export default class Client {
                 //         this.modules.EpicBattleManager.timer.turn.stop("ABC");
                 //         // TODO: says that the battle's been paused.
                 //     }
-                //     break;
-                // case Responses.RESPONSE_BAN_FAIL: case Responses.RESPONSE_BAN_OK: case Responses.RESPONSE_UNBAN_OK:
+                    break;
+                case Responses.RESPONSE_BAN_FAIL: case Responses.RESPONSE_BAN_OK: case Responses.RESPONSE_UNBAN_OK:
                 //     // what
-                //     break;
+                    break;
                 case Responses.RESPONSE_NAME_NOT_FOUND: case Responses.RESPONSE_WARN_OK:
                     // idk
                     break;
@@ -1230,9 +1233,9 @@ export default class Client {
                     break;
                 case Requests.REQUEST_ACCEPT_MISSION: case Requests.REQUEST_END_MISSION:
                     break;
-                // case Responses.RESPONSE_GET_MY_MISSIONS:
+                case Responses.RESPONSE_GET_MY_MISSIONS:
                     // this.modules.MissionManager.myMissionsReceived(dataObj);
-                    // break;
+                    break;
                 case Responses.RESPONSE_HOME_JUMP_PERM_FAIL:
                     // console.log(this.manager.languages["DYN_chat_err_homePermission"]);
                     // if (dataObj[2] == "1") this.play();
