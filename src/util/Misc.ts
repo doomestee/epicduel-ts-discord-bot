@@ -137,27 +137,6 @@ export function nextLegendRankByExp(exp: number) {
     return [y, x];
 }
 
-const stars = [
-    "Star:1108438413851508817",
-    "BlueStar:1108438430448357509",
-    "RedStar:1108438611109617734",
-    "PlatinumStar:1108438662422728854",
-    "RegalStar:1108438683100643508",
-    "DiamondStar:1108439045152976939",
-    "RegalDiamondStar:1108439567335428198",
-    "InfernalStar:1108439688244646008",
-    "EmeraldStar:1108439712638697502",
-    "ObsidianStar:1108439736340717750",
-    "GlidedObsidianStar:1108439796155678760",
-    "TopazStar:1108439835607306300",
-    "GalacticStar:1108439865579814952",
-    "VoidStar:1160294581208883232",
-    "AmethystStar:1160294597868658699",
-    "RubyStar:1160294607469412442",
-    "skull:1145388316666105888", // placeholder for radiant silver star whose sprite is unknown
-    "RadiantGoldStar:1160294618378797269",
-];
-
 /**
  * @param {string} str
  */
@@ -352,9 +331,9 @@ export function getStarCount(ratingPts: number) {
 export function emojiStarCount(starCount: number = 1) {
     let star = "";
 
-    for (let x = 0; x < stars.length; x++) {
+    for (let x = 0, len = emojis.stars.length; x < len; x++) {
         if (starCount >= (x*7) && starCount <= ((x+1)*7)) {
-            star = "<:" + stars[x] + ">";
+            star = "<:" + emojis.stars[x] + ">";
 
             return star.repeat(starCount - ((x)*7))
         }
@@ -365,8 +344,32 @@ export const emojis = {
     /**
      * Each string is in the form of "Name:ID" of an emoji
      */
-    stars
+    stars: [
+    "Star:1108438413851508817",
+    "BlueStar:1108438430448357509",
+    "RedStar:1108438611109617734",
+    "PlatinumStar:1108438662422728854",
+    "RegalStar:1108438683100643508",
+    "DiamondStar:1108439045152976939",
+    "RegalDiamondStar:1108439567335428198",
+    "InfernalStar:1108439688244646008",
+    "EmeraldStar:1108439712638697502",
+    "ObsidianStar:1108439736340717750",
+    "GlidedObsidianStar:1108439796155678760",
+    "TopazStar:1108439835607306300",
+    "GalacticStar:1108439865579814952",
+    "VoidStar:1160294581208883232",
+    "AmethystStar:1160294597868658699",
+    "RubyStar:1160294607469412442",
+    "skull:1145388316666105888", // placeholder for radiant silver star whose sprite is unknown
+    "RadiantGoldStar:1160294618378797269"],
+
+    letters: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴"],
+
+    alignment: ["", "exile:1085244911005208596", "legion:1085244935042764881"]
 };
+
+export const letters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
 
 export interface CharPageResult {
     armClass: string,
@@ -420,7 +423,7 @@ export async function getCharPage(charName: string) : Promise<{ success: true, r
             result[v[0] as "rating"] = v[1];
         });
 
-        if (Object.keys(result).length === 1) return { success: false, extra: { r: vars } };
+        if (Object.keys(result).length === 1) return { success: true, result: {} as CharPageResult };
 
         return { success: true, result };
     }
@@ -485,4 +488,19 @@ export function discordDate(date: Date | number) {
     if (date instanceof Date) date = date.getTime();
 
     return "<t:" + Math.round(date/1000) + ":F>";
+}
+
+/**
+ * This requires you to have calculated the difference.
+ * Avoid using this if your bigint is too big even after the calculation.
+ */
+export function getHighestTime(time: number | bigint, type: "s" | "ms" | "mi" | "ns" = "ms") : string {
+    time = typeof time === "bigint" ? Number(time) : Math.round(time * 100) / 100;
+    switch (type) {
+        case "s": return time + "s";// < 60000 ? time + "s" : getHighestTime(time / 60000, "s");
+        case "ms": return time < 1000 ? time + "ms" : getHighestTime(time / 1000, "s");
+        case "mi": return time < 1000 ? time + "µs" : getHighestTime(time / 1000, "ms");
+        case "ns": return time < 1000 ? time + "ns" : getHighestTime(time / 1000, "mi");
+        default: return time + String(type);
+    }
 }

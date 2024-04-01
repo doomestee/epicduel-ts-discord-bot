@@ -1,5 +1,5 @@
-import { ActionRowBase, ButtonStyles, ComponentTypes, EmbedField, InteractionContent, MessageComponent } from "oceanic.js";
-import { discordDate, emojiStarCount, getLegendRankByExp, getStarCount, getUserLevelByExp, levels } from "../util/Misc.js";
+import { ActionRowBase, ButtonStyles, ComponentTypes, Embed, EmbedField, EmbedOptions, InteractionContent, MessageComponent, SelectOption, StringSelectMenuOptions, User } from "oceanic.js";
+import { discordDate, emojiStarCount, emojis, getHighestTime, getLegendRankByExp, getStarCount, getUserLevelByExp, letters, levels } from "../util/Misc.js";
 import { IFaction } from "./Faction.js";
 import { ICharacterName } from "./CharacterName.js";
 
@@ -67,7 +67,7 @@ export default class Character implements ICharacter {
     /**
      * For non populated.
      */
-    static respondify(char: ICharacter, names: ICharacterName[], fact?: IFaction) : InteractionContent {
+    static respondify(char: ICharacter, names: ICharacterName[], fact?: Partial<IFaction>) : InteractionContent {
         const components:ActionRowBase<MessageComponent>[] = [{
             type: ComponentTypes.ACTION_ROW, components: [{
                 type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char.name),
@@ -80,11 +80,11 @@ export default class Character implements ICharacter {
 
         const fields:EmbedField[] = [{
             name: "Misc",
-            value: `Fame: **${char.fame}**\nRating Points: **${emojiStarCount(getStarCount(char.rating))}**\nLast Seen: ${discordDate(char.last_seen)}`,
+            value: `Fame: **${char.fame}**\nRating Points: **${char.rating}** ${emojiStarCount(getStarCount(char.rating))}\nLast Seen: ${discordDate(char.last_seen)}${char.flags & 2 ? "\nIs a staff." : ""}`,
             inline: true
         }];
 
-        if (fact && ["id", "name", "alignment"].every(v => v in fact)) {
+        if (fact && fact["id"] && fact["name"]) {
             fields.push({
                 name: "Faction",
                 value: `Name: **${fact.name}**\nAlignment: ${fact.alignment === 1 ? "Exile" : fact.alignment === 2 ? "Legion" : "Unknown."}`,
@@ -107,8 +107,51 @@ export default class Character implements ICharacter {
         return {
             embeds: [{
                 title: char.name,
-                description: `ID: ${char.id} (User: ${char.user_id})\nLevel ${getUserLevelByExp(char.exp)}${char.exp > levels[39] ? getLegendRankByExp(char.exp) : ""}${char.alignment !== null ? "\nAlignment: " + (char.alignment === 1 ? "Exile" : "Legion") : ""}`,
+                description: `ID: ${char.id} (User: ${char.user_id})\nLevel ${getUserLevelByExp(char.exp)}${char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : ""}${char.alignment !== null ? "\nAlignment: " + (char.alignment === 1 ? "Exile" : "Legion") : ""}`,
                 fields
+            }]
+        }
+    }
+
+    static listify(author: User, name: string, list: Array<ICharacter & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>, time: bigint) : InteractionContent {
+        // You can have up to 25 select options, but just for safety, 10 will be the maximum.
+
+        const embeds:Embed[] = [{
+            description: `There are ${list.length === 10 ? "over 10" : list.length} character${list.length > 1 ? "s" : ""} that meets the criteria.`
+        }];
+
+        const options:SelectOption[] = [];// = [{  }]//StringSelectMenuOptions["options"] = [{}]
+
+        for (let i = 0, len = list.length; i < len; i++) {
+            embeds[0].description += `\n\n${letters[i]} - **${list[i].name}** (ID: ${list[i].id} - User ID: ${list[i].user_id})\nFaction: ${list[i].factid === null ? "unknown." : `${list[i].alignment === null ? "❓ " : "<:" + emojis.alignment[list[i].alignment as 1 | 2] + "> "}**${list[i].factname}** (ID: ${list[i].factid})`}`
+
+            options.push({
+                label: `${list[i].name}`,
+                description: `Lvl ${getUserLevelByExp(list[i].exp)}, ID: ${list[i].id} (User ID: ${list[i].user_id})`,
+                value: `${list[i].id}`,
+                emoji: {
+                    id: null, name: emojis.letters[i]
+                }
+            });
+        }
+
+        embeds[embeds.length - 1]["footer"] = {
+            text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}`
+        }
+
+        return {
+            embeds,
+            components: [{
+                type: ComponentTypes.ACTION_ROW, components: [{
+                    type: ComponentTypes.STRING_SELECT, 
+                    customID: `char_menu_${/*discordId*/"000"}_0`,
+                    options
+                }],
+            }, {
+                type: ComponentTypes.ACTION_ROW, components: [{
+                    type: ComponentTypes.BUTTON, style: ButtonStyles.SECONDARY, label: "Fetch with this character name",
+                    emoji: { id: "1069333770093740052", name: "achievement" }, customID: "char_fetch_1_" + author.id + "_" + name
+                }]
             }]
         }
     }

@@ -423,9 +423,35 @@ export default class Hydra extends Client {
                     }]
                 }]
             }]
+        }, {
+            name: "character",
+            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            description: "characterise",
+            contexts: [Constants.InteractionContextTypes.BOT_DM, Constants.InteractionContextTypes.GUILD, Constants.InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL, Constants.ApplicationIntegrationTypes.USER_INSTALL],
+            options: [{
+                name: "search",
+                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "DEV",
+                options: [{
+                    type: Constants.ApplicationCommandOptionTypes.STRING,
+                    description: "DEV", name: "name", required: true,
+                    minLength: 1, maxLength: 50
+                }]
+            }]
+        }, {
+            name: "youre-gay",
+            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            description: "test",
+            contexts: [Constants.InteractionContextTypes.BOT_DM, Constants.InteractionContextTypes.GUILD, Constants.InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL, Constants.ApplicationIntegrationTypes.USER_INSTALL],
+            options: [{
+                type: Constants.ApplicationCommandOptionTypes.STRING,
+                description: "DEV", name: "a", required: true
+            }]
         });
 
-        if (commands.length !== 3) process.exit(1);
+        if (commands.length !== 5) process.exit(1);
 
         return this.rest.applications.bulkEditGlobalCommands(applicationId ?? this.application.id, commands);
     }
