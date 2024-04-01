@@ -115,13 +115,13 @@ export default class Swarm {
         let broke = false;
         for (let i = 0, len = bools.length; i < len; i++) {
             if (bools[i].some(g => g === false)) {
-                Logger.getLogger(`EpicDuel - ID ${client.settings.id}`).debug("Client not fully self destructed.");
+                Logger.getLoggerP(client.settings.id).debug("Client not fully self destructed.");
                 broke = true;
                 break;
             }
         }
 
-        if (!broke) Logger.getLogger(`EpicDuel - ID ${client.settings.id}`).debug("Client fully self destructed.");
+        if (!broke) Logger.getLoggerP(client.settings.id).debug("Client fully self destructed.");
 
         // I've decided that the client will persist in the list, even if redundant, to allow for regeneration.
         // // This is the first time I'm comparing objects like this, pls do not fail on me.

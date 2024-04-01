@@ -1,4 +1,5 @@
 // Is a type, due to circular dependency.
+import chalk from "chalk";
 import Config from "../config/index.js";
 import type Swarm from "../manager/epicduel.js";
 import Logger from "../manager/logger.js";
@@ -26,16 +27,20 @@ export default class EDCycler {
      */
     attempts = 0;
 
-    timer: NodeJS.Timeout;
+    timer!: NodeJS.Timeout;
+
+    debug = false;
 
     constructor(swarm: typeof Swarm) {
         this.#swarm = swarm;
-        this.timer = setTimeout(this.checkForChanges.bind(this), this.interval).unref();
+        // this.timer = setTimeout(this.checkForChanges.bind(this), this.interval).unref();
 
-        clearTimeout(this.timer);
+        // clearTimeout fucking destroys the timer object, making it non refreshable.
+        // clearTimeout(this.timer);
     }
 
     async checkForChanges() {
+        if (this.debug) console.debug(chalk.yellowBright("Cycle check: " + new Date().toISOString()));
         const clients = this.#swarm["clients"];
 
         // We will just get all of the redundant clients to then dump to purgatory first.
@@ -106,8 +111,12 @@ export default class EDCycler {
                                 this.delayUntil = Date.now() + 1000*60*60;
                                 return false;
                             }
-                        } return false;
+                        }
+                        Logger.getLogger("Cycler").error(err);
+                        return false;
                     });
+
+                // Logger.getLogger("Cycler").debug(bool);
                 
                 if (!bool) return this.reassignTimer();
 
@@ -121,14 +130,19 @@ export default class EDCycler {
     }
 
     private reassignTimer() {
-        clearTimeout(this.timer);
+        // clearTimeout(this.timer);
 
         if (this.mode === 0 && this.#swarm.probing) {
+            clearTimeout(this.timer);
             this.timer = setTimeout(this.checkForChanges.bind(this), this.probing_interval).unref();
             this.mode = 1;
         } else if (this.mode === 1 && !this.#swarm.probing) {
+            clearTimeout(this.timer);
             this.timer = setTimeout(this.checkForChanges.bind(this), this.interval).unref();
             this.mode = 0;
-        } else this.timer.refresh();
+        } else {
+            if (this.timer === undefined) this.timer = setTimeout(this.checkForChanges.bind(this), this.mode === 0 ? this.interval : this.probing_interval);
+            else this.timer.refresh();
+        }
     }
 }

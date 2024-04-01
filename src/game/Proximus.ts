@@ -45,7 +45,7 @@ import ItemFinder from "./module/ItemFinder.js";
 
 // Misc
 import { RestrictedMode } from "../manager/epicduel.js";
-import type Swarm from "../manager/epicduel.js";
+import Swarm from "../manager/epicduel.js";
 import Timer from "./Timer.js";
 import ActiveChat from "./record/ActiveChat.js";
 import UserRecord from "./record/UserRecord.js";
@@ -395,6 +395,35 @@ export default class Client {
             };
         }
 
+        this.smartFox = new SmartFoxClient();//(this, (debugForSFS === undefined) ? debugMode : debugForSFS);
+        this.smartFox.addListener("onAdminMessage",this.onAdminMessageHandler.bind(this));
+        this.smartFox.addListener("onConnection",this.onConnectionHandler.bind(this));
+        this.smartFox.addListener("onConnectionLost",this.onConnectionLostHandler.bind(this));
+        this.smartFox.addListener("onCreateRoomError",this.onCreateRoomErrorHandler.bind(this));
+        this.smartFox.addListener("onExtensionResponse",this.onExtensionResponseHandler.bind(this));
+        this.smartFox.addListener("onJoinRoom",this.onJoinRoomHandler.bind(this));
+        this.smartFox.addListener("onJoinRoomError",this.onJoinRoomErrorHandler.bind(this));
+        this.smartFox.addListener("onModeratorMessage",this.onModeratorMessageHandler.bind(this));
+        this.smartFox.addListener("onObjectReceived",this.onObjectReceivedHandler.bind(this));
+        this.smartFox.addListener("onPublicMessage",this.onPublicMessageHandler.bind(this));
+        this.smartFox.addListener("onPrivateMessage",this.onPrivateMessageHandler.bind(this));
+        this.smartFox.addListener("onRandomKey",this.onRandomKeyHandler.bind(this));
+
+        this.smartFox.addListener("onLogin",this.onLoginHandler.bind(this));
+        //this.smartFox.addListener("onRoomAdded",this.emptyHandler);
+        //this.smartFox.addListener("onRoomDeleted",this.emptyHandler);
+        //this.smartFox.addListener("onRoomLeft",this.emptyHandler);
+        //this.smartFox.addListener("onRoomListUpdate",this.emptyHandler);
+        //this.smartFox.addListener("onRoomVariablesUpdate",this.emptyHandler);
+        //this.smartFox.addListener("onUserCountChange",this.emptyHandler);
+        this.smartFox.addListener("onUserEnterRoom",this.onUserEnterRoomHandler.bind(this));
+        this.smartFox.addListener("onUserLeaveRoom",this.onUserLeaveRoomHandler.bind(this));
+
+        this.smartFox.once("onConnection", Swarm.onConnection.bind({ client: this, swarm: Swarm }));
+        this.smartFox.once("onConnectionLost", Swarm.onConnectionLost.bind({ client: this, swarm: Swarm }));
+        //this.smartFox.addListener("onUserVariablesUpdate",this.emptyHandler);
+        //this.addListener(Event.ADDED_TO_STAGE,this.onAddedToStage);
+
         this.initialised = true;
     }
 
@@ -694,7 +723,7 @@ export default class Client {
                     this.modules.Character.handleGetCharacter(dataObj);
                     break;
                 case Requests.REQUEST_GET_CHARACTER_LIST:
-                    console.log("RECEIVED CHARACTER LIST!");
+                    Logger.getLoggerP(this).debug("Received character list.");
 
                     this.modules.Character.characterListAvailable(dataObj.chars);
                     // CHARACTERERERER!
@@ -1431,7 +1460,6 @@ export default class Client {
         // }
         
         if (roomName == RoomManager.LOBBY) {
-            console.log("MEOW");
             this.timer.ping.start();
             this.lobbyInit = true;
             this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
@@ -1669,7 +1697,7 @@ export default class Client {
         // this.modules.EpicBattleManager.timer.inAction.stop();
         // this.modules.EpicBattleManager.timer.checkBattleLoaded.stop();
         // this.modules.EpicBattleManager.timer.assetLoadFail.stop();
-        this.timer.ping.stop();
+        // this.timer.ping.stop();
         if (autoReload) {
             //this.timer.reload.start();
         }
@@ -1957,9 +1985,9 @@ export default class Client {
         //     }
         // }
 
-        const timerKeys = Object.keys(this.modules) as Array<keyof Client["timer"]>;
+        const timerKeys = Object.keys(this.timer) as Array<keyof Client["timer"]>;
 
-        for (let i = 0, len = modKeys.length; i < len; i++) {
+        for (let i = 0, len = timerKeys.length; i < len; i++) {
             const timer = this.timer[timerKeys[i]];
 
             timer["stop"]();
@@ -1973,7 +2001,10 @@ export default class Client {
         }
 
         // idk just a precaution cos memory leak goes brrrr when too many restarts weeee
-        delete this.smartFox.socket;
+        if (this.smartFox) {
+            delete this.smartFox.socket;
+        }
+        
         // delete this.smartFox.client;
         //@ts-ignore
         delete this.smartFox;

@@ -136,3 +136,353 @@ export function nextLegendRankByExp(exp: number) {
 
     return [y, x];
 }
+
+const stars = [
+    "Star:1108438413851508817",
+    "BlueStar:1108438430448357509",
+    "RedStar:1108438611109617734",
+    "PlatinumStar:1108438662422728854",
+    "RegalStar:1108438683100643508",
+    "DiamondStar:1108439045152976939",
+    "RegalDiamondStar:1108439567335428198",
+    "InfernalStar:1108439688244646008",
+    "EmeraldStar:1108439712638697502",
+    "ObsidianStar:1108439736340717750",
+    "GlidedObsidianStar:1108439796155678760",
+    "TopazStar:1108439835607306300",
+    "GalacticStar:1108439865579814952",
+    "VoidStar:1160294581208883232",
+    "AmethystStar:1160294597868658699",
+    "RubyStar:1160294607469412442",
+    "skull:1145388316666105888", // placeholder for radiant silver star whose sprite is unknown
+    "RadiantGoldStar:1160294618378797269",
+];
+
+/**
+ * @param {string} str
+ */
+export function countRepeatedChars(str: string) {
+    const len = str.length; let repeated = {} as Record<string, number>;
+
+    for (let i = 0; i < len; i++) {
+        repeated[str[i]] = repeated[str[i]] ? repeated[str[i]] + 1 : 1
+    };
+
+    return len ? Object.values(repeated).sort((a, b) => b - a)[0] / len : 0;
+}
+
+/**
+ * @param {string} str
+ */
+export function isAllCharsSame(str: string) {
+    for (let i = 1, len = str.length; i < len; i++) {
+        if (str[i] != str[0]) return false;
+    }; return true;
+}
+
+export const randomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+
+export const epoch = {
+    special0: 1108382400000
+};
+
+export const regexes = {
+    grabWordsInsideEqualitySymbols: /\<.{0,}\>/g,
+    dateFormatWithEunderscore: /(E_|)\d{2}-\d{2}-\d{4}/gi,
+    sanitiseEmojiName: / *\([^)]*\) */g, // Only removes parenthesis
+    snowflake: /\d{17,21}/g
+};
+
+/**
+ * If shorten is true, it's better to put empty string for replace.
+ * replace only works for hide.
+ */
+export function getTime(milli: number, hide=false, replace=', ', shorten=false) {
+    let result = [];
+
+    let time = new Date(milli);
+    //let months = time.getUTCMonth();
+    let days = (Math.floor(time.getTime()/(1000*60*60*24)));
+    let hours = time.getUTCHours().toString().padStart(2, '0');
+    let minutes = time.getUTCMinutes().toString().padStart(2, '0');
+    let seconds = time.getUTCSeconds().toString().padStart(2, '0');
+    //let milliseconds = time.getUTCMilliseconds(); // too precise which is sad enough imo
+
+    if (days) result.push(days + ((!shorten) ? ' days' : 'd'));
+    if (hours != '00' || days) result.push(hours + ((!shorten) ? ' hours' : 'h')); // 3 hours and no days
+    if (minutes != '00' || (hours != '00' || days)) result.push(minutes + ((!shorten) ? ' minutes' : 'm'));
+    if (seconds != '00' || (minutes != '00' || hours != '00' || days)) result.push(seconds + ((!shorten) ? ' seconds' : 's'));
+
+    if (hide)
+        return result.join((typeof(replace) === 'string') ? replace : ', ');//return `${(!days) ? '' : days + ' days, '}${(hours == '00') ? '' : hours + ' hours, '}${(minutes == '00') ? '' : minutes + ' minutes, '}${(seconds == '00') ? '' : seconds + ' seconds, '}`;
+    else
+        return (!shorten) ? `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds` : `${days}d${hours}h${minutes}m${seconds}s`;
+}
+
+/**
+ * Created by someone, danke.
+ * @param arrayBuffer Must be already parsed as UInt8Array.
+ */
+export function UInt8ArrayToBase64String(arrayBuffer: Uint8Array) {
+    let base64      = '';
+    const encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  
+    const bytes         = arrayBuffer;
+    const byteLength    = bytes.byteLength;
+    const byteRemainder = byteLength % 3;
+    const mainLength    = byteLength - byteRemainder;
+  
+    let a, b, c, d;
+    let chunk;
+  
+    // Main loop deals with bytes in chunks of 3
+    for (let i = 0; i < mainLength; i = i + 3) {
+      // Combine the three bytes into a single integer
+      chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+  
+      // Use bitmasks to extract 6-bit segments from the triplet
+      a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+      b = (chunk & 258048)   >> 12; // 258048   = (2^6 - 1) << 12
+      c = (chunk & 4032)     >>  6; // 4032     = (2^6 - 1) << 6
+      d = chunk & 63;               // 63       = 2^6 - 1
+  
+      // Convert the raw binary segments to the appropriate ASCII encoding
+      base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
+    }
+  
+    // Deal with the remaining bytes and padding
+    if (byteRemainder == 1) {
+      chunk = bytes[mainLength];
+  
+      a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
+  
+      // Set the 4 least significant bits to zero
+      b = (chunk & 3)   << 4; // 3   = 2^2 - 1
+  
+      base64 += encodings[a] + encodings[b] + '=='
+    } else if (byteRemainder == 2) {
+      chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
+  
+      a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
+      b = (chunk & 1008)  >>  4; // 1008  = (2^6 - 1) << 4
+  
+      // Set the 2 least significant bits to zero
+      c = (chunk & 15)    <<  2; // 15    = 2^4 - 1
+  
+      base64 += encodings[a] + encodings[b] + encodings[c] + '=';
+    }
+    
+    return base64;
+}
+
+/**
+ * Credit: https://stackoverflow.com/a/3983830
+ * @param {number[]} probas List of percentages in decimal form, must be summed up to 1
+ * @returns 
+ */
+export function randexec(probas:number[]=[0.3, 0.3, 0.4]) {
+    let ar = []; let sum = 0;
+
+    probas = [0, ...probas];
+
+    for (let i = 0; i < probas.length - 1; i++) {
+        sum += probas[i];
+        ar[i] = sum;
+    }
+
+    let r = Math.random();
+
+    let o = 0;
+    for (let i = 0; i < ar.length && r >= ar[i]; i++) {
+        o = i;
+    }
+
+    return o;
+}
+
+export function rawHoursified(hours: number, lastRecordedTime=Date.now()) {
+    const msPerHour = 60 * 60 * 1000; // number of milliseconds in an hour
+    const hoursRoundedDown = Math.floor(hours); // round down to nearest integer
+    const timeToAdd = hoursRoundedDown * msPerHour; // convert hours to milliseconds
+  
+    const date = new Date(lastRecordedTime);
+    date.setTime(date.getTime() + timeToAdd); // add milliseconds to the last recorded time
+  
+    // Set the minutes, seconds, and milliseconds to zero
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+  
+    return date;
+}
+
+export function getStarColorRank(starCount: number) {
+    if (starCount <= 7) return 1;
+    if (starCount > 7 && starCount <= 14) return 2;
+    
+    let x = 1;
+    for (let i = 7; starCount > i && starCount <= (x + 7); i++) {
+        x++;
+    }
+    if (x > 13) return -1;
+    else return x;
+}
+
+export function getStarCount(ratingPts: number) {
+    // As of 07/10/23 20:19:20 BST, this is the maximum amount of rating and stars according to omega521.swf
+    if (ratingPts >= 3065000) return 126;
+
+    // (OUTDATED) references (90): [2140000,2115000,2090000,2065000,2040000,2015000,1990000,1965000,1940000,1915000,1890000,1865000,1840000,1815000,1790000,1765000,1740000,1715000,1690000,1665000,1640000,1615000,1590000,1565000,1540000,1515000,1490000,1465000,1440000,1415000,1390000,1365000,1340000,1315000,1290000,1265000,1240000,1215000,1190000,1165000,1140000,1115000,1090000,1065000,1040000,1015000,990000,965000,940000,915000,890000,865000,840000,815000,790000,765000,740000,715000,690000,665000,640000,615000,590000,565000,540000,515000,490000,465000,440000,415000,390000,365000,340000,315000,290000,265000,240000,215000,190000,165000,140000,115000,90000,65000,45000,30000,15000,5000,1500,500];
+
+    let abnormal = [65000, 45000, 30000, 15000, 5000, 1500, 500];
+
+    if (ratingPts <= 65000) {
+        for (let i = 0; i < abnormal.length; i++) {
+            if (ratingPts >= abnormal[i]) return 7 - i;
+        } if (ratingPts < 500) return 0;
+    }
+
+    for (let i = 7; i < 125; i++) {
+        let rp = 65000 + ((25000 * (i - 7)))
+
+        if (ratingPts >= rp && ratingPts < (rp + 25000)) return i;
+    } return 126;
+}
+
+export function emojiStarCount(starCount: number = 1) {
+    let star = "";
+
+    for (let x = 0; x < stars.length; x++) {
+        if (starCount >= (x*7) && starCount <= ((x+1)*7)) {
+            star = "<:" + stars[x] + ">";
+
+            return star.repeat(starCount - ((x)*7))
+        }
+    } return "";
+}
+
+export const emojis = {
+    /**
+     * Each string is in the form of "Name:ID" of an emoji
+     */
+    stars
+};
+
+export interface CharPageResult {
+    armClass: string,
+    armGender: string,
+    armMutate: string,
+    auxLink: string,
+    charAccnt: string,
+    charAccnt2: string,
+    charArm: string,
+    charClassId: string,
+    charEye: string,
+    charGender: string,
+    charHair: string,
+    charHairS: string,
+    charId: string,
+    charJug: string,
+    charLikes: string,
+    charLvl: string,
+    charName: string,
+    charPri: string,
+    charSec: string,
+    charSkin: string,
+    charWins1: string,
+    charWins2: string,
+    customHeadLink: string,
+    defaultLimbs: string,
+    gunLink: string,
+    noHead: string,
+    noHip: string,
+    rating: string,
+    styleHasAbove: string,
+    wpnCat: string,
+    wpnLink: string
+}
+
+export async function getCharPage(charName: string) : Promise<{ success: true, result: CharPageResult } | { success: false, extra: { r: string } | { l: number } | { c: number } }> {
+    const { statusCode, body } = await request("https://epicduel.artix.com/charpage.asp?id=" + encodeURIComponent(charName), { method: "GET", maxRedirections: 2});
+
+    let result = {} as CharPageResult;
+
+    if (statusCode >= 200 && statusCode < 300) {
+        let html = await body.text();
+
+        let lines = html.split("\n").filter(v => v.includes("CharacterPage_Red") && v.includes("AC_FL_RunContent"))
+        
+        if (!lines.length) return { success: false, extra: {l: 0}};
+
+        let vars = lines[0].split("flashvars")[1].slice(3, -19)
+
+        vars.split("&").map(g => g.split("=")).forEach(v => {
+            result[v[0] as "rating"] = v[1];
+        });
+
+        if (Object.keys(result).length === 1) return { success: false, extra: { r: vars } };
+
+        return { success: true, result };
+    }
+
+    return { success: false, extra: { c: statusCode }};
+}
+
+export function findLastIndex<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) {
+    let l = arr.length;
+    while (l--) {
+        if (pred(arr[l], l, arr))
+            return l;
+    }; return -1;
+}
+
+/**
+ * 
+ * @param list
+ * @param limit
+ * @param limitByItem If set to true, the limit will be used instead to limit how many items gets appended to str before it gets cut off.
+ * @param separator Default: "\n"
+ */
+export function trimString(list: string[], limit=1024, limitByItem=false, separator="\n") {
+    let str = ""; let str2 = "";
+
+    for (let i = 0, len = list.length; i < len; i++) {
+        str2 += list[i] + separator;
+
+        if ((limitByItem && i === limit) || (!limitByItem && str2.length > limit)) {
+            str += "And " + (list.length - i) + " more.";
+            return str;
+        } str += list[i] + separator;
+    }; return str.slice(0, -separator.length);
+}
+
+/**
+ * idk the naming
+ * @param strList
+ * @param count
+ * @returns true if naughty, false if okay
+ */
+export function countCommonStrings(strList: { c: string, t: number}[], count=5) : boolean {
+    let obj = {};
+
+    let repeated = 0;
+
+    for (let i = 0, len = strList.length; i < len; i++) {
+        let str = strList[i];
+
+        if (isAllCharsSame(str.c) || countRepeatedChars(str.c) > 0.8) {
+            if (++repeated > count) return true;
+        }
+    }
+
+    // TODO: expand more
+
+    return false;
+}
+
+export function discordDate(date: Date | number) {
+    // if (!(date instanceof Date)) date = new Date(date);
+    if (date instanceof Date) date = date.getTime();
+
+    return "<t:" + Math.round(date/1000) + ":F>";
+}

@@ -1,3 +1,4 @@
+import Logger from "../../manager/logger.js";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import CharacterRecord from "../record/CharacterRecord.js";
@@ -65,6 +66,7 @@ export default class Character extends BaseModule {
         //this.populateCharacters();
 
         if (this._charItemList.length) {
+            Logger.getLoggerP(this.client).debug("Playing as " + this._charItemList[0].charName);
             // this.client.debug("Character found, playing as " + this._charItemList[0].charName);
             this.client.getCharacterData(this._charItemList[0].charId);
         }

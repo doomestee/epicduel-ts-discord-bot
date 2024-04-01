@@ -12,6 +12,7 @@ import {
 import "winston-daily-rotate-file";
 // eslint-disable-next-line unicorn/import-style
 import chalk, { type ChalkInstance } from "chalk";
+import type Client from "../game/Proximus.js";
 
 const DefaultColors = {
     error: chalk.redBright,
@@ -120,7 +121,9 @@ export default class Logger {
      * Puppet logger.
      * @param name 
      */
-    static getLoggerP(id: number) {//}, ...names: Array<string>) {
-        return this.getLogger("Puppet - " + id);//this._log.child({ name: [name, ...names] });
+    static getLoggerP(id: number | Client) {//}, ...names: Array<string>) {
+        if (typeof id !== "number") id = id.settings.id;
+
+        return this.getLogger("Puppet: " + id);//this._log.child({ name: [name, ...names] });
     }
 }

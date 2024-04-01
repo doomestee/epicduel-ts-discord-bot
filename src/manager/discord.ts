@@ -395,9 +395,37 @@ export default class Hydra extends Client {
                     name: "efg", description: "nice"
                 }]
             }]
+        }, {
+            name: "admin",
+            description: "Administration stuff.",
+            contexts: [Constants.InteractionContextTypes.GUILD],
+            defaultMemberPermissions: "8",
+            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                name: "eval",
+                description: "yes",
+                options: [{
+                    name: "msg",
+                    description: "yeah",
+                    type: Constants.ApplicationCommandOptionTypes.STRING,
+                    required: true
+                }, {
+                    name: "async",
+                    description: "yeah",
+                    type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    choices: [{
+                        name: "True - Return",
+                        value: 1
+                    }, {
+                        name: "True",
+                        value: 2
+                    }]
+                }]
+            }]
         });
 
-        if (commands.length !== 2) process.exit(1);
+        if (commands.length !== 3) process.exit(1);
 
         return this.rest.applications.bulkEditGlobalCommands(applicationId ?? this.application.id, commands);
     }
