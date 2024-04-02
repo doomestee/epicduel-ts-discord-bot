@@ -1,6 +1,11 @@
 import { ComponentTypes } from "oceanic.js";
 import Command, { CommandType } from "../../../util/Command.js";
-import { getCharPage } from "../../../util/Misc.js";
+import { discordDate, getCharPage, getHighestTime } from "../../../util/Misc.js";
+import DatabaseManager from "../../../manager/database.js";
+import { IUserRecord } from "../../../Models/UserRecord.js";
+import ItemUtil from "../../../util/Item.js";
+import Character, { ICharacter } from "../../../Models/Character.js";
+import { ICharacterName } from "../../../Models/CharacterName.js";
 
 export default new Command(CommandType.Component, { custom_id: "char_fetch_<type>_<userId>_<arg>" })
     .attach("run", async ({ client, interaction, variables }) => {
@@ -114,6 +119,8 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
             type === "1" ? await interaction.defer() : await interaction.deferUpdate();
         }
 
+        const time = process.hrtime.bigint();
+
         let charPgName = type === "0" ? interaction.message.embeds[0].description?.split("\n").reverse()[0].slice("Character searched: `".length, -1) as string : arg;
 
         if (charPgName === "🗑️ (trrrrash)") charPgName = "Retro";
@@ -122,17 +129,52 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
 
         let charPg = await getCharPage(charPgName);
 
-        if (!charPg.success) return interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
+        const respond = (type === "1") ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction);
 
-        if (Object.keys(charPg.result).length < 2) return interaction.editOriginal({ content: "The character doesn't exist.\nCharacter searched: `" + charPgName + "`", components: []});
+        if (!charPg.success) return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64 });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
+
+        if (Object.keys(charPg.result).length < 2) return respond({ content: "The character doesn't exist" + (type === "1" ? ", may be using a different name now" : "") + ".\nCharacter searched: `" + charPgName + "`", components: []});
 
         console.log(charPg.result);
 
-        return (type === "1" ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction))({
-            embeds: [{
-                
-            }]
-        });
+        const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [charPg.result.charId]).then(v => v.rows);
+        const [charLinkFact] = await DatabaseManager.cli.query<ICharacter & { discord_id: string, linkflags: number, factname: string, factalignment: 1|2 }>(`select char.*, link.discord_id, link.flags as linkflags, faction.name as factName, faction.alignment as factAlignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where char.id = $1`, [charPg.result.charId]).then(v => v.rows);
+        const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [charPg.result.charId]).then(v => v.rows);
+
+        const result = Character.respondify(charLinkFact, names, { id: charLinkFact?.faction_id ?? 0, alignment: charLinkFact?.factalignment ?? null, name: charLinkFact?.factname ?? null }, charPg.result);
+
+        if (result.embeds) {
+            // if (charLinkFact) {
+                result.embeds[0].fields?.push({
+                    name: "Item(s)",
+                    value: `Armor: ${ItemUtil.getLinkage(parseInt(charPg.result.charArm))}\nPrimary: ${ItemUtil.getLinkage(charPg.result.wpnLink)}\nSidearm: ${ItemUtil.getLinkage(charPg.result.gunLink)}\nAuxiliary: ${ItemUtil.getLinkage(charPg.result.auxLink)}`
+                });
+            // }
+
+            let percent = <T extends 1 | 2 | "j" = 1 | 2 | "j">(prefix: T) => { let wins = recard["w" + prefix as `w${T}`]; let losses = recard["l" + prefix as `l${T}`]; return Math.round(wins/(wins + losses)*10000)/100 + "%"; }
+
+            if (recard) {
+                result.embeds[0].fields?.push({
+                    name: "Records (Database)",
+                    value: `1v1 Wins: ${recard.w1}, Losses: ${recard.l1}, ${percent(1)}\n2v2 Wins: ${recard.w2}, Losses: ${recard.l2}, ${percent(2)}\n2v1 Wins: ${recard.wj}, Losses: ${recard.lj}, ${percent("j")}\nNPC Wins: ${recard.npc}\nRetrieved at ${discordDate(recard.last_fetched)}`,//`Retrieved at ${lazyFormatTime(userRec.last_fetched)``
+                    inline: true,
+                })
+            }
+
+            result.embeds[0].fields?.push({
+                name: "Records (Char Page)",
+                value: `1v1 Wins: ${charPg.result.charWins1}\n2v2 Wins: ${charPg.result.charWins2}\n2v1 Wins: ${charPg.result.charJug}`,//`Retrieved at ${lazyFormatTime(userRec.last_fetched)``
+                inline: true,
+            })
+
+            result.embeds[result.embeds.length - 1]["timestamp"] = new Date().toISOString();
+
+            result.embeds[result.embeds.length - 1]["footer"] = {
+                text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}, populated records at`
+            };
+        }
+
+        return respond(result);
 
         // let components = interaction.message.components;
 

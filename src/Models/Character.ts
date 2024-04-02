@@ -1,7 +1,8 @@
 import { ActionRowBase, ButtonStyles, ComponentTypes, Embed, EmbedField, EmbedOptions, InteractionContent, MessageComponent, SelectOption, StringSelectMenuOptions, User } from "oceanic.js";
-import { discordDate, emojiStarCount, emojis, getHighestTime, getLegendRankByExp, getStarCount, getUserLevelByExp, letters, levels } from "../util/Misc.js";
+import { CharPageResult, discordDate, emojiStarCount, emojis, getHighestTime, getLegendRankByExp, getStarCount, getUserLevelByExp, letters, levels } from "../util/Misc.js";
 import { IFaction } from "./Faction.js";
 import { ICharacterName } from "./CharacterName.js";
+import ClassBox from "../game/box/ClassBox.js";
 
 export interface ICharacter {
     /**
@@ -67,24 +68,24 @@ export default class Character implements ICharacter {
     /**
      * For non populated.
      */
-    static respondify(char: ICharacter, names: ICharacterName[], fact?: Partial<IFaction>) : InteractionContent {
+    static respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult) : InteractionContent {
         const components:ActionRowBase<MessageComponent>[] = [{
             type: ComponentTypes.ACTION_ROW, components: [{
-                type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char.name),
+                type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char?.name ?? partial?.charName as string),
                 emoji: { id: "1212507121636085800", name: "exilegion" }
             }, {
                 type: ComponentTypes.BUTTON, style: ButtonStyles.SECONDARY, label: "Achievements",
-                emoji: { id: "1069333770093740052", name: "achievement" }, customID: "achiev_menu_" + char.id + "_000_0_0"
+                emoji: { id: "1069333770093740052", name: "achievement" }, customID: "achiev_menu_" + (char?.id ?? partial?.charId) + "_000_0_0"
             }]
         }];
 
         const fields:EmbedField[] = [{
             name: "Misc",
-            value: `Fame: **${char.fame}**\nRating Points: **${char.rating}** ${emojiStarCount(getStarCount(char.rating))}\nLast Seen: ${discordDate(char.last_seen)}${char.flags & 2 ? "\nIs a staff." : ""}`,
+            value: `Fame: **${char?.fame ?? partial?.charLikes}**\nRating Points: **${char?.rating ?? partial?.rating}** ${emojiStarCount(getStarCount(char?.rating ?? Number(partial?.rating)))}${partial?.charGender !== undefined ? `\nGender: ${partial.charGender === "M" ? "Male" : "Female"}` : "" }${partial?.charClassId !== undefined ? `\nClass: ${ClassBox.CLASS_NAME_BY_ID[Number(partial.charClassId)]}` : "" }${char ? `\nLast Seen: ${discordDate(char.last_seen)}${char.flags & 2 ? "\nIs a staff." : ""}` : ""}`,
             inline: true
         }];
 
-        if (fact && fact["id"] && fact["name"]) {
+        if (fact && fact["id"] && fact["id"] !== 0 && fact["name"]) {
             fields.push({
                 name: "Faction",
                 value: `Name: **${fact.name}**\nAlignment: ${fact.alignment === 1 ? "Exile" : fact.alignment === 2 ? "Legion" : "Unknown."}`,
@@ -104,12 +105,18 @@ export default class Character implements ICharacter {
             })
         }
 
+        let levelText = "";
+
+        if (partial?.charLvl) levelText = "\nLevel " + partial?.charLvl;
+        if (char?.exp) levelText = "\nLevel " + getUserLevelByExp(char.exp) + (char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : "")
+
         return {
             embeds: [{
-                title: char.name,
-                description: `ID: ${char.id} (User: ${char.user_id})\nLevel ${getUserLevelByExp(char.exp)}${char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : ""}${char.alignment !== null ? "\nAlignment: " + (char.alignment === 1 ? "Exile" : "Legion") : ""}`,
+                title: char?.name ?? partial?.charName,
+                description: `ID: ${char?.id ?? partial?.charId}${char ? " (User: " + char.user_id + ")" : ""}${levelText}${char?.alignment != null ? "\nAlignment: " + (char?.alignment === 1 ? "Exile" : "Legion") : ""}`,
                 fields
-            }]
+            }],
+            components
         }
     }
 
