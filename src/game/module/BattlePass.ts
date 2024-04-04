@@ -1,6 +1,10 @@
 import { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
+import { AnyItemRecordsExceptSelf } from "../box/ItemBox.js";
+import AchievementRecord from "../record/AchievementRecord.js";
 import BaseModule from "./Base.js";
+
+export type RewardInfo = { type: 0, item: AnyItemRecordsExceptSelf, qty: number } | { type: 1, styleId: number } | { type: 2, homeItem: { id: number } } | { type: 3, ach: AchievementRecord } | { type: 4, credits: number } | { type: 5, exp: number } | { type: 6, varium: number };
 
 export default class BattlePass extends BaseModule {
     active: boolean;
@@ -60,65 +64,72 @@ export default class BattlePass extends BaseModule {
         else this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_BATTLEPASS_XP, {}, 1, "json");
     }
 
-    // /**
-    //  * @param {number} ref
-    //  * @param {number} qty
-    //  * @param {number} level
-    //  * @param {number} type
-    //  * @returns {{type: 0, item: import("../record/item/SelfRecord"), qty: number}|{type: 1, styleId: number}|{type: 2, homeItem: {id: number}}|{type: 3, ach: import("../record/AchievementRecord")}|{type: 4, credits: number}|{type: 5, exp: number}|{type: 6, varium: number}}
-    //  */
-    // rewardInfo(ref: number, qty, level, type) {
-    //     ref = JSON.parse(JSON.stringify(ref));
-    //     if (Array.isArray(ref)) {
-    //         type = ref[0].type;
-    //         level = ref[0].level;
-    //         qty = ref[0].qty;
-    //         ref = ref[0].ref;
-    //     } else if (typeof ref === "object") {
-    //         type = ref.type;
-    //         level = ref.level;
-    //         qty = ref.qty;
-    //         ref = ref.ref;
-    //     };
+    /**
+     * @param {number} ref
+     * @param {number} qty
+     * @param {number} level
+     * @param {number} type
+     * @returns {{type: 0, item: import("../record/item/SelfRecord"), qty: number}|{type: 1, styleId: number}|{type: 2, homeItem: {id: number}}|{type: 3, ach: import("../record/AchievementRecord")}|{type: 4, credits: number}|{type: 5, exp: number}|{type: 6, varium: number}}
+     */
+    rewardInfo(ref: number, qty: number, level: number, type: number) : RewardInfo;
+    rewardInfo(val: { ref: number, qty: number, level: number, type: number } | Array<{ ref: number, qty: number, level: number, type: number }>) : RewardInfo;
+    rewardInfo(ref: number | { ref: number, qty: number, level: number, type: number } | Array<{ ref: number, qty: number, level: number, type: number }>, qty?: number, level?: number, type?: number) : RewardInfo {
+        ref = JSON.parse(JSON.stringify(ref));
+        if (Array.isArray(ref)) {
+            type = ref[0].type;
+            level = ref[0].level;
+            qty = ref[0].qty;
+            ref = ref[0].ref;
+        } else if (typeof ref === "object") {
+            type = ref.type;
+            level = ref.level;
+            qty = ref.qty;
+            ref = ref.ref;
+        };
 
-    //     let result = { type: -1 };
+        if (qty === undefined || level === undefined || type === undefined) throw Error("unknown qty/level/type");
 
-    //     switch (type) {
-    //         case 0:
-    //             result.type = 0;
-    //             result.item = this.client.boxes.item.getItemById(ref);
-    //             qty = qty < 1 ? qty : qty;
-    //             if (qty > 1) result.qty = qty;
-    //             else result.qty = 1;
-    //             break;
-    //         case 1:
-    //             result.type = 1;
-    //             result.styleId = ref;
-    //             break;
-    //         case 2: // nobody cares about home items, or hair styles for that matter.
-    //             result.type = 2;
-    //             result.homeItem = {id: ref}//this.client.boxes.home.
-    //             break;
-    //         case 3:
-    //             result.type = 3;
-    //             result.ach = this.client.boxes.achievement.objMap.get(ref);
-    //             break;
-    //         case 4:
-    //             result.type = 4;
-    //             result.credits = ref;
-    //             break;
-    //         case 5:
-    //             result.type = 5;
-    //             result.exp = ref;
-    //             break;
-    //         case 6:
-    //             result.type = 6;
-    //             result.varium = ref;
-    //             break;
-    //     }
+        switch (type) {
+            case 0:
+                return {
+                    type: 0,
+                    item: this.client.boxes.item.getItemById(ref) as AnyItemRecordsExceptSelf,
+                    qty: Math.max(qty, 1)
+                }
+            case 1:
+                return {
+                    type: 1,
+                    styleId: ref
+                };
+            case 2: // nobody cares about home items, or hair styles for that matter.
+                return {
+                    type: 2,
+                    homeItem: { id: ref }
+                }
+            case 3:
+                return {
+                    type: 3,
+                    ach: this.client.boxes.achievement.objMap.get(ref) as AchievementRecord
+                }
+            case 4:
+                return {
+                    type: 4,
+                    credits: ref
+                }
+            case 5:
+                return {
+                    type: 5,
+                    exp: ref
+                }
+            case 6:
+                return {
+                    type: 6,
+                    varium: ref
+                }
+        }
 
-    //     return result;
-    // }
+        throw Error("unknown type");
+    }
 
     handleInitServerResponse(data: any) {
         this.name = data.bName;

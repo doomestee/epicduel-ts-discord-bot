@@ -5,6 +5,8 @@ import type Command from "../../util/Command.js";
 import type Hydra from "../../manager/discord.js";
 import { CommandType, AnyCommand } from "../../util/Command.js";
 import Logger from "../../manager/logger.js";
+import DatabaseManager from "../../manager/database.js";
+import Swarm from "../../manager/epicduel.js";
 
 async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivateInteraction, cmd: AnyCommand, variables: Record<string, string>, first = true) {
     // For type narrowing.
@@ -104,32 +106,32 @@ async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivate
                 else if (int.type === InteractionTypes.MESSAGE_COMPONENT) await int.deferUpdate(isEphemeral ? 64 : 0);
             }
 
-            // let wanked = await database.helper.getLinkedCharacters(interaction.user.id, true);
+            let wanked = await DatabaseManager.helper.getCharacterLinks(int.user.id);
 
             // if (wanked.error) return;// interaction.createFollowup({ content: "T" })
             // if (wanked.type !== 1) return; // for intellisense
 
-            // if (wanked.type === 1 && (wanked.result.length === 0 || !wanked.result.some(v => v.char.exp > 35922))) {
-            //     if (int.gateVerifiedChar < 3) return interaction.deleteOriginal().then(() => client.safeSend(interaction, 1)({ content: "This command is strictly available to users that have linked a level 40 character.", components, flags: 64 }))
-            //     /*if (int.gateVerifiedChar > 2 && int.gateVerifiedChar < 5) {
-            //         // TODO: set database value once
-            //         if (client.warned === undefined) client.warned = [];
-            //         else if (!client.warned.includes(interaction.user.id)) {
-            //             client.warned.push(interaction.user.id)
+            if (wanked.length === 0 || !wanked.some(v => v.exp > 35922)) {
+                if (cmd.opts.gateVerifiedChar < 3) return (int.type === InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE) ? int.result([{ name: "Command is for users with linked characters (over level 40).", value: "ok" }]): int.deleteOriginal().then(() => { int.reply({ content: "This command is strictly available to users that have linked a level 40 character.", components, flags: 64 }) })
+                /*if (int.gateVerifiedChar > 2 && int.gateVerifiedChar < 5) {
+                    // TODO: set database value once
+                    if (client.warned === undefined) client.warned = [];
+                    else if (!client.warned.includes(interaction.user.id)) {
+                        client.warned.push(interaction.user.id)
 
-            //             return client.safeSend(interaction, 1)({ content: "" })
-            //         }
-            //     }*/
-            // }
+                        return client.safeSend(interaction, 1)({ content: "" })
+                    }
+                }*/
+            }
         } else if (cmd.opts.gateVerifiedChar === 69) {
-            // let wanked = await database.helper.getLinkedCharacters(interaction.user.id, false);
+            let wanked = await DatabaseManager.helper.getCharacterLinks(int.user.id);
 
             // if (wanked.error) return;
             // if (wanked.type !== 1) return;
 
-            // if (wanked.type === 1 && (wanked.result.length === 0 || !wanked.result.some(v => v.char.exp > 35922))) {
-            //     return (interaction.type === Constants.InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE) ? interaction.result([{ name: "Command is for users with linked characters (over level 40).", value: 102030405 }]): interaction.createMessage({ content: "This command is strictly available to users that have linked a level 40 character!", components, flags: 64 });
-            // }
+            if (wanked.length === 0 || !wanked.some(v => v.exp > 35922)) {
+                return (int.type === InteractionTypes.APPLICATION_COMMAND_AUTOCOMPLETE) ? int.result([{ name: "Command is for users with linked characters (over level 40).", value: "ok" }]): int.reply({ content: "This command is strictly available to users that have linked a level 40 character!", components, flags: 64 });
+            }
         }
     }
 
@@ -147,8 +149,8 @@ async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivate
             switch (load) {
                 case "DATABASE": return false; // !database.initialised;
                 case "DESIGNNOTE": return false; // !designnote.initialised;
-                case "EPICDUEL": return false; // !(epicduel.initialised && epicduel.client.smartFox.connected);
-                case "LOBBY": return false; // !(epicduel.client && epicduel.client.lobbyInit);
+                case "EPICDUEL": return Swarm.getClient(v => v.connected) === undefined;//false; // !(epicduel.initialised && epicduel.client.smartFox.connected);
+                case "LOBBY": return Swarm.getClient(v => v.connected && v.lobbyInit) === undefined;//false; // !(epicduel.client && epicduel.client.lobbyInit);
                 default: return false;
             }
         })
@@ -165,7 +167,7 @@ async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivate
         //     // return client.safeSend(interaction, 1)({content, flags: 64});
         // }
 
-        if (first) return int.reply({ content: `The bot has just connected, it's currently loading up the following manager/s or module/s: ${pass.map(a => '`' + a + '`').join(', ')}.\nThis command will be executed once they're done.`, flags: 64 });
+        if (first) int.reply({ content: `The bot has just connected, it's currently loading up the following manager/s or module/s: ${pass.map(a => '`' + a + '`').join(', ')}.\nThis command will be executed once they're done.`, flags: 64 });
 
         setTimeout(() => {
             executeCommand.bind(this)(int, cmd, variables, false);
@@ -279,7 +281,7 @@ export default new ClientEvent("interactionCreate", function (int) {
                 //     return;// int.createMessage({ content: "You've used a type of command not recognised by the bot!", flags: 64 });
             }
 
-            return;
+            return int.result([{ name: "meow", value: "1234" }]);
         case InteractionTypes.MODAL_SUBMIT:
             // I'm not simplifying this with component because of the exclusion of .componentType... yes I could simplify further but i cba
             let coomId = matchCustomID(CommandHandler.compKeys, int.data.customID);
@@ -300,5 +302,5 @@ export default new ClientEvent("interactionCreate", function (int) {
     }
 
     // We have a functional command, now let's check for everything before using.
-    executeCommand.bind(this)(int, cmd, vars ?? {}, false);
+    executeCommand.bind(this)(int, cmd, vars ?? {}, true);
 });

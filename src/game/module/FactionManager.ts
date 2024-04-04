@@ -1,3 +1,5 @@
+import CacheManager from "../../manager/cache.js";
+import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import Constants, { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
@@ -146,6 +148,7 @@ export default class FactionManager extends BaseModule {
 
         fact.members = fctCharRecords;
 
+        CacheManager.update("faction", fctId, fact);
         this.client.smartFox.emit("faction_data", fact, fctId);
         // this.client.manager.logEmit("epicduel_faction_register", this.cache[fctId]);
         // this.client.smartFox.emit("factionData", fctId, this.cache[fctId]);
@@ -167,7 +170,18 @@ export default class FactionManager extends BaseModule {
         return obj;
     }
 
-    alignmentName(alignId: number) {
+    static alignmentName(alignId: number) {
         return alignId == 0 ? "None" : alignId == Constants.EXILE_ID ? "Exile" : alignId == Constants.LEGION_ID ? "Legion" : "Unknown";
+    }
+
+    getFaction(id: number) : Promise<WaitForResult<Faction>> {
+        const cache = CacheManager.check("faction", id);
+
+        if (cache.valid) return Promise.resolve({ success: true, value: cache.value });
+
+        const wait = waitFor(this.client.smartFox, "faction_data", [1, id], 4000);
+        this.getFactionData(id);
+
+        return wait;
     }
 }

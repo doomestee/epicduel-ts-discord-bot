@@ -451,7 +451,116 @@ export default class Hydra extends Client {
                     description: "The user to get the linked characters from.", name: "user",
                     required: false
                 }]
+            }, {
+                name: "link",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "Links ED character in game to your discord user (UNOFFICIAL).",
             }]
+        }, {
+            name: "faction",
+            type: ApplicationCommandTypes.CHAT_INPUT,
+            description: "Factional.",
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                name: "view", description: "The faction to look up details for!",
+                options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER, autocomplete: true,
+                    name: "name", description: "The name of the faction (or ID).", required: true
+                }]
+            }],
+        }, {
+            name: "battle-pass", description: "Battle pass stuff",
+            type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "view", description: "Checks the battle pass and it's challenges etc.",
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "mission", description: "Mission",
+            type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "daily", description: "Lists all of the daily mission chains."
+            }, {
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "recent", description: "Lists the newly added mission chains."
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "help", description: "Get the list of available (slash) commands.",
+            type: ApplicationCommandTypes.CHAT_INPUT,
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            type: ApplicationCommandTypes.USER, name: "Linked Character(s)", nameLocalizations: {
+                "tr": "Bağlantılı Karakterler",
+                "hi": "जुड़े हुए पात्र"
+            },
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "leaderboard", description: "leading the soldiers!", type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch", description: "Fetches the leaderboard.",
+                options: [{
+                    name: "type", description: "Type of leaders to fetch (DEFAULT: 1v1)", type: ApplicationCommandOptionTypes.INTEGER,
+                    choices: lbs.flat(1).map((v, i) => {return {name: v, value: correspondingIndexes[i]}})//['All - 1v1 Wins', 'All - 2v2 Wins', 'Daily - 1v1 Wins', 'Daily - 2v2 Wins', 'Daily - Faction 1v1 Wins', 'Daily - Faction 2v2 Wins', 'All - World Dominations', 'All - Faction 1v1 Champions', 'All - Faction 2v2 Champions', 'All - War Upgrades', 'All - Personal Influence', 'All - Faction Influence', 'All - Inventory Rarity', 'All - Fame', 'Daily - Fame', 'All - Juggernaut Wins', 'Daily - Juggernaut Wins', 'Daily - Faction Juggernaut Wins', 'All - Faction Juggernaut Champions', 'Daily - Code Redeems', 'All - Code Redeems', 'All - Player Rating'].map((v, i) => { return { name: v, value: i + 1}; })
+                }] 
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "tournament", description: "tourney time", type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch",
+                description: "Fetches the current tournament leaders."
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "core", description: "Core stuff!", type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Search for details of a core.",
+                name: "search", options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "Name of the core to search for.",
+                    name: "name", autocomplete: true, required: true
+                }]
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "item", description: "Item stuff!", type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about an item!",
+                name: "search", options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "Name of the item to search for.",
+                    name: "name", autocomplete: true, required: true
+                }]
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "npc", description: "NPC stuff...", type: ApplicationCommandTypes.CHAT_INPUT, options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about a particular NPC!",
+                name: "search", options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "ID of the NPC (name via autocomplete)",
+                    name: "id", autocomplete: true, required: true,
+                }]
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "gifting", description: "Gifting stuff...", type: ApplicationCommandTypes.CHAT_INPUT, options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP, description: "Grouppppp",
+                name: "board", options: [{
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the current top 10 gifting leaders.",
+                    name: "fetch"
+                }],
+            }],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
         }, {
             name: "youre-gay",
             type: ApplicationCommandTypes.CHAT_INPUT,
@@ -464,7 +573,7 @@ export default class Hydra extends Client {
             }]
         });
 
-        if (commands.length !== 5) process.exit(1);
+        // if (commands.length !== 5) process.exit(1);
 
         return this.rest.applications.bulkEditGlobalCommands(applicationId ?? this.application.id, commands);
     }

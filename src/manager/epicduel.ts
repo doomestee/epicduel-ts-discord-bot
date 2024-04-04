@@ -212,10 +212,27 @@ export default class Swarm {
 
             for (let i = 0, len = this.purgatory.length; i < len; i++) {
                 if (typeof id !== "number") {
-                    if (this.clients[i].connected) return this.clients[i];
+                    if (this.purgatory[i].connected) return this.purgatory[i];
                     else continue;
                 }
                 if (this.purgatory[i].settings.id === id) return this.purgatory[i];
+            }
+        }
+
+        return undefined;
+    }
+
+    /**
+     * This will pick the first client that meets the requirement as indicated by the given predicate function.
+     */
+    static getClient(pred: (cli: Client) => boolean, fromPurgatoryToo=true) {
+        for (let i = 0, len = this.clients.length; i < len; i++) {
+            if (pred(this.clients[i])) return this.clients[i];
+        }
+
+        if (fromPurgatoryToo) {
+            for (let i = 0, len = this.purgatory.length; i < len; i++) {
+                if (pred(this.purgatory[i])) return this.purgatory[i];
             }
         }
 
