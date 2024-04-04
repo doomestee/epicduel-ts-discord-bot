@@ -124,6 +124,6 @@ export default class Logger {
     static getLoggerP(id: number | Client) {//}, ...names: Array<string>) {
         if (typeof id !== "number") id = id.settings.id;
 
-        return this.getLogger("Puppet: " + id);//this._log.child({ name: [name, ...names] });
+        return this.getLogger("Puppet " + id);//this._log.child({ name: [name, ...names] });
     }
 }

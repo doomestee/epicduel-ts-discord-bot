@@ -1,4 +1,4 @@
-import { Client, Member, User, Constants, ActivityTypes, Permissions } from "oceanic.js";
+import { Client, Member, User, ActivityTypes, Permissions, ApplicationCommandTypes, ApplicationCommandOptionTypes, InteractionContextTypes, ApplicationIntegrationTypes, ChannelTypes } from "oceanic.js";
 import type { AnyCommandInteraction, AnyComponentInteraction, CreateApplicationCommandOptions } from "oceanic.js";
 import MessageStorage from "../structures/storage/MessageStorage.js";
 import Config from "../config/index.js";
@@ -166,24 +166,24 @@ export default class Hydra extends Client {
         let correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 3, 4, 17, 5, 6, 18, 15, 20, 666] as const;
 
         const commands: CreateApplicationCommandOptions[] = [{
-            name: "war", description: "War commands.", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "war", description: "War commands.", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
                 name: "current", description: "Shows the current status of the war.",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
             }, {
                 name: "leader", description: "Shows the current top 20 leaders of the war.",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
                 options: [{
                     name: "alignment", description: "See the leaders of the given alignment, DEFAULT: Exile.", required: false,
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    type: ApplicationCommandOptionTypes.INTEGER,
                     choices: [{ name: "Exile (default)", value: 1}, { name: "Legion", value: 2}],
                 }, {
                     name: "mode", description: "The type of leaderboard. Daily is default, unless war has ended then Overall.", required: false,
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    type: ApplicationCommandOptionTypes.INTEGER,
                     choices: [{ name: "Daily", value: 1}, {name: "Overall", value: 2}]
                 }, {
                     name: "region", description: "The region of the war to fetch leaders from. Default is the current war region.", required: false,
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    type: ApplicationCommandOptionTypes.INTEGER,
                     choices: [{
                         name: "Fortune City", value: 1
                     }, {
@@ -207,64 +207,64 @@ export default class Hydra extends Client {
                     }]
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "character", description: "ed character stuff", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "character", description: "ed character stuff", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
                 name: "link", description: "Links ED character in game to your discord user (UNOFFICIAL).",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND
+                type: ApplicationCommandOptionTypes.SUB_COMMAND
             }, {
                 name: "unlink", description: "Unlinks ED character.",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND
+                type: ApplicationCommandOptionTypes.SUB_COMMAND
             }, { 
                 name: "list", description: "Lists all of your characters linked.",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
                 options: [{
-                    required: false, type: Constants.ApplicationCommandOptionTypes.USER, name: "user", description: "The user to get the linked characters from.",
+                    required: false, type: ApplicationCommandOptionTypes.USER, name: "user", description: "The user to get the linked characters from.",
                 }]
             }, {
                 name: "search", description: "Search for a character by their name!",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
                 options: [{
-                    required: true, type: Constants.ApplicationCommandOptionTypes.STRING, name: "name", description: "The exact, case-insensitive name of the character to find."
+                    required: true, type: ApplicationCommandOptionTypes.STRING, name: "name", description: "The exact, case-insensitive name of the character to find."
                 }]
             }, {
                 name: "manage", description: "Manage your linked characters.",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND
+                type: ApplicationCommandOptionTypes.SUB_COMMAND
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "notification", description: "Notifying mummy", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "notification", description: "Notifying mummy", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
                 name: "rally", description: "Rally notifications",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
                 options: [{
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
                     description: "Creates a rally notification",
                     name: "create", options: [{
-                        type: Constants.ApplicationCommandOptionTypes.STRING,
+                        type: ApplicationCommandOptionTypes.STRING,
                         name: "type", description: "The type of the rally", required: true, choices: [{name: "Legion", value: "warRallyLegion"}, {name: "Exile", value: "warRallyExile"}]
                     }, {
-                        type: Constants.ApplicationCommandOptionTypes.STRING,
+                        type: ApplicationCommandOptionTypes.STRING,
                         name: "message", description: "Message to send when there's a rally.", required: true
                     }, {
-                        type: Constants.ApplicationCommandOptionTypes.CHANNEL,
+                        type: ApplicationCommandOptionTypes.CHANNEL,
                         name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
-                        channelTypes: [Constants.ChannelTypes.GUILD_TEXT, Constants.ChannelTypes.PUBLIC_THREAD, Constants.ChannelTypes.PRIVATE_THREAD]
+                        channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
                     }]
                 }, {
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
                     description: "Removes a rally notification",
                     name: "delete", options: [{
-                        type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                        type: ApplicationCommandOptionTypes.INTEGER,
                         name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
                     }]
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
             name: "faction", description: "Fascism!", type: 1, options: [{
                 type: 1, name: "view", description: "The faction to look up details for!", options: [{
@@ -272,26 +272,26 @@ export default class Hydra extends Client {
                     name: "name", description: "The name of the faction (or ID).", required: true
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
             name: "battle-pass", description: "Battle pass stuff", type: 1, options: [{
                 type: 1, name: "view", description: "Checks the battle pass and it's challenges etc.",
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
             name: "mission", description: "Mission", type: 1, options: [{
                 type: 1, name: "daily", description: "Lists all of the daily mission chains."
             }, {
                 type: 1, name: "recent", description: "Lists the newly added mission chains."
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
             name: "help", description: "Get the list of available (slash) commands.", type: 1,
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
             name: "note", description: "Design deez nu- i mean notes.", type: 1, options: [{
                 name: "register",
@@ -301,80 +301,80 @@ export default class Hydra extends Client {
                     type: 7, name: 'channel', description: 'The channel to pool.', required: true, channelTypes: [0]
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            type: Constants.ApplicationCommandTypes.USER, name: "Linked Character(s)", nameLocalizations: {
+            type: ApplicationCommandTypes.USER, name: "Linked Character(s)", nameLocalizations: {
                 "tr": "Bağlantılı Karakterler",
                 "hi": "जुड़े हुए पात्र"
             },
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "leaderboard", description: "leading the soldiers!", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "leaderboard", description: "leading the soldiers!", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch", description: "Fetches the leaderboard.",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch", description: "Fetches the leaderboard.",
                 options: [{
-                    name: "type", description: "Type of leaders to fetch (DEFAULT: 1v1)", type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    name: "type", description: "Type of leaders to fetch (DEFAULT: 1v1)", type: ApplicationCommandOptionTypes.INTEGER,
                     choices: lbs.flat(1).map((v, i) => {return {name: v, value: correspondingIndexes[i]}})//['All - 1v1 Wins', 'All - 2v2 Wins', 'Daily - 1v1 Wins', 'Daily - 2v2 Wins', 'Daily - Faction 1v1 Wins', 'Daily - Faction 2v2 Wins', 'All - World Dominations', 'All - Faction 1v1 Champions', 'All - Faction 2v2 Champions', 'All - War Upgrades', 'All - Personal Influence', 'All - Faction Influence', 'All - Inventory Rarity', 'All - Fame', 'Daily - Fame', 'All - Juggernaut Wins', 'Daily - Juggernaut Wins', 'Daily - Faction Juggernaut Wins', 'All - Faction Juggernaut Champions', 'Daily - Code Redeems', 'All - Code Redeems', 'All - Player Rating'].map((v, i) => { return { name: v, value: i + 1}; })
                 }] 
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "tournament", description: "tourney time", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "tournament", description: "tourney time", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "fetch",
                 description: "Fetches the current tournament leaders."
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "core", description: "Core stuff!", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "core", description: "Core stuff!", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, description: "Search for details of a core.",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Search for details of a core.",
                 name: "search", options: [{
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER, description: "Name of the core to search for.",
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "Name of the core to search for.",
                     name: "name", autocomplete: true, required: true
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "item", description: "Item stuff!", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            name: "item", description: "Item stuff!", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about an item!",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about an item!",
                 name: "search", options: [{
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER, description: "Name of the item to search for.",
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "Name of the item to search for.",
                     name: "name", autocomplete: true, required: true
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "npc", description: "NPC stuff...", type: Constants.ApplicationCommandTypes.CHAT_INPUT, options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about a particular NPC!",
+            name: "npc", description: "NPC stuff...", type: ApplicationCommandTypes.CHAT_INPUT, options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "See more information about a particular NPC!",
                 name: "search", options: [{
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER, description: "ID of the NPC (name via autocomplete)",
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "ID of the NPC (name via autocomplete)",
                     name: "id", autocomplete: true, required: true,
                 }]
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "gifting", description: "Gifting stuff...", type: Constants.ApplicationCommandTypes.CHAT_INPUT, options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP, description: "Grouppppp",
+            name: "gifting", description: "Gifting stuff...", type: ApplicationCommandTypes.CHAT_INPUT, options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP, description: "Grouppppp",
                 name: "board", options: [{
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the current top 10 gifting leaders.",
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the current top 10 gifting leaders.",
                     name: "fetch"
                 }],
             }],
-            contexts: [Constants.InteractionContextTypes.GUILD],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }, {
-            name: "track", description: "MISC", type: Constants.ApplicationCommandTypes.CHAT_INPUT,
-            contexts: [Constants.InteractionContextTypes.GUILD, Constants.InteractionContextTypes.BOT_DM],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL],
+            name: "track", description: "MISC", type: ApplicationCommandTypes.CHAT_INPUT,
+            contexts: [InteractionContextTypes.GUILD, InteractionContextTypes.BOT_DM],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         }];
 
         commands.splice(0);
@@ -382,38 +382,38 @@ export default class Hydra extends Client {
         commands.push({
             name: "test",
             description: "test",
-            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            type: ApplicationCommandTypes.CHAT_INPUT,
         }, {
             name: "testa",
             description: "testa",
-            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
                 name: "bcd", description: "ok",
                 options: [{
-                    type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
                     name: "efg", description: "nice"
                 }]
             }]
         }, {
             name: "admin",
             description: "Administration stuff.",
-            contexts: [Constants.InteractionContextTypes.GUILD],
+            contexts: [InteractionContextTypes.GUILD],
             defaultMemberPermissions: "8",
-            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
                 name: "eval",
                 description: "yes",
                 options: [{
                     name: "msg",
                     description: "yeah",
-                    type: Constants.ApplicationCommandOptionTypes.STRING,
+                    type: ApplicationCommandOptionTypes.STRING,
                     required: true
                 }, {
                     name: "async",
                     description: "yeah",
-                    type: Constants.ApplicationCommandOptionTypes.INTEGER,
+                    type: ApplicationCommandOptionTypes.INTEGER,
                     choices: [{
                         name: "True - Return",
                         value: 1
@@ -425,28 +425,41 @@ export default class Hydra extends Client {
             }]
         }, {
             name: "character",
-            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            type: ApplicationCommandTypes.CHAT_INPUT,
             description: "characterise",
-            contexts: [Constants.InteractionContextTypes.BOT_DM, Constants.InteractionContextTypes.GUILD, Constants.InteractionContextTypes.PRIVATE_CHANNEL],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL, Constants.ApplicationIntegrationTypes.USER_INSTALL],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
             options: [{
                 name: "search",
-                type: Constants.ApplicationCommandOptionTypes.SUB_COMMAND,
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
                 description: "DEV",
                 options: [{
-                    type: Constants.ApplicationCommandOptionTypes.STRING,
+                    type: ApplicationCommandOptionTypes.STRING,
                     description: "DEV", name: "name", required: true,
                     minLength: 1, maxLength: 50
+                }]
+            }, {
+                name: "manage",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "DEV",
+            }, {
+                name: "list",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "DEV",
+                options: [{
+                    type: ApplicationCommandOptionTypes.USER,
+                    description: "The user to get the linked characters from.", name: "user",
+                    required: false
                 }]
             }]
         }, {
             name: "youre-gay",
-            type: Constants.ApplicationCommandTypes.CHAT_INPUT,
+            type: ApplicationCommandTypes.CHAT_INPUT,
             description: "test",
-            contexts: [Constants.InteractionContextTypes.BOT_DM, Constants.InteractionContextTypes.GUILD, Constants.InteractionContextTypes.PRIVATE_CHANNEL],
-            integrationTypes: [Constants.ApplicationIntegrationTypes.GUILD_INSTALL, Constants.ApplicationIntegrationTypes.USER_INSTALL],
+            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
             options: [{
-                type: Constants.ApplicationCommandOptionTypes.STRING,
+                type: ApplicationCommandOptionTypes.STRING,
                 description: "DEV", name: "a", required: true
             }]
         });

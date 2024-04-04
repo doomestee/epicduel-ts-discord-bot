@@ -4,6 +4,7 @@ import CommandHandler from "../../handler/command.js";
 import type Command from "../../util/Command.js";
 import type Hydra from "../../manager/discord.js";
 import { CommandType, AnyCommand } from "../../util/Command.js";
+import Logger from "../../manager/logger.js";
 
 async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivateInteraction, cmd: AnyCommand, variables: Record<string, string>, first = true) {
     // For type narrowing.
@@ -241,6 +242,7 @@ export default new ClientEvent("interactionCreate", function (int) {
                     }
                     break;
                 default:
+                    Logger.getLogger("Discord").warn("Unrecognised application command was used: " + commandName);
                     return int.createMessage({ content: "You've used a type of command not recognised by the bot!", flags: 64 });
             }
             break;
@@ -249,13 +251,17 @@ export default new ClientEvent("interactionCreate", function (int) {
                 case ComponentTypes.BUTTON: case ComponentTypes.STRING_SELECT:
                     let coomId = matchCustomID(CommandHandler.compKeys, int.data.customID);
 
-                    if (!coomId.match) return int.createMessage({content: "The bot does not recognise this component, sorry! :c", flags: 64});
+                    if (!coomId.match) {
+                        Logger.getLogger("Discord").warn("Unrecognised component was invoked: " + int.data.customID);
+                        return int.createMessage({content: "The bot does not recognise this component, sorry! :c", flags: 64});
+                    }
 
                     cmd = CommandHandler.componentCmdMap[coomId.id];
                     vars = coomId.variables;
 
                     break;
                 default:
+                    Logger.getLogger("Discord").warn("Unrecognised component type was invoked: " + int.data.customID + ", type: " + int.data.componentType);
                     return int.createMessage({ content: "You've used a type of component not recognised by the bot!", flags: 64 });
             }
             break;
@@ -278,7 +284,10 @@ export default new ClientEvent("interactionCreate", function (int) {
             // I'm not simplifying this with component because of the exclusion of .componentType... yes I could simplify further but i cba
             let coomId = matchCustomID(CommandHandler.compKeys, int.data.customID);
 
-            if (!coomId.match) return int.createMessage({content: "The bot does not recognise this component, sorry! :c", flags: 64});
+            if (!coomId.match) {
+                Logger.getLogger("Discord").warn("Unrecognised component was invoked: " + int.data.customID);
+                return int.createMessage({content: "The bot does not recognise this component, sorry! :c", flags: 64});
+            }
 
             cmd = CommandHandler.componentCmdMap[coomId.id];
             vars = coomId.variables;

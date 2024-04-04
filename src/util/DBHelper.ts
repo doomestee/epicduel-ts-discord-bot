@@ -10,6 +10,9 @@ import { IRally } from "../Models/Rally.js";
 import { IUserSettings } from "../Models/UserSettings.js";
 import type DatabaseManager from "../manager/database.js";
 
+export type CharLink = ICharacterLink & ICharacter & { flagsLink: number };
+export type CharLinkFact = ICharacter & { discord_id: string, link_date: Date, link_flags: number, fact_name: string, fact_alignment: 1|2 };
+
 export default class DBHelper {
     #db: typeof DatabaseManager;
 
@@ -67,7 +70,7 @@ export default class DBHelper {
     /**
      * @param id If string, it'll be used as discord ID (which can return multiple character links). If number, it will be used as character ID (thus can only return one character link, still in array). If object, it'll be used wholly as a where clause.
      */
-    getCharacterLinks(id: string | number | Record<string, string|number|Date>) {
+    getCharacterLinks(id: string | number | Record<string, string|number|Date>) : Promise<CharLink[]> {
         let keys:string[] = [];
 
         if (typeof(id) === "string") keys = ['link.discord_id'];
@@ -75,8 +78,15 @@ export default class DBHelper {
         else if (typeof(id) === "object") keys = Object.keys(id);
         else throw Error("Unknown type for ID passed.");
 
-        return this.#cli.query<ICharacterLink & ICharacter & { flagsLink: number }>(`SELECT character.*, link.flags as flagsLink, link.discord_id, link.last_famed FROM character INNER JOIN characterlink AS link ON character.id = link.id WHERE ${keys.map((v, i) => v + " = $" + (i + 1)).join(" AND ")}`, typeof(id) === "object" ? Object.values(id) : [id])
+        return this.#cli.query<ICharacterLink & ICharacter & { flagsLink: number }>(`SELECT character.*, link.flags as flagsLink, link.discord_id, link.link_date, link.last_famed FROM character INNER JOIN characterlink AS link ON character.id = link.id WHERE ${keys.map((v, i) => v + " = $" + (i + 1)).join(" AND ")}`, typeof(id) === "object" ? Object.values(id) : [id])
             .then(r => r.rows);
+    }
+
+    getCharacterFactLinks(discordId: string) : Promise<CharLinkFact[]>;
+    getCharacterFactLinks(charId: number) : Promise<CharLinkFact[]>;
+    getCharacterFactLinks(charId: number | string) {
+        return this.#cli.query<CharLinkFact>(`select char.*, link.discord_id, link.link_date as link_date, link.flags as link_flags, faction.name as fact_name, faction.alignment as fact_alignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where ${typeof charId === "string" ? "link.discord_id" : "char.id"} = $1`, [charId])
+            .then(v => v.rows);
     }
 
     /**

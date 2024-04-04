@@ -1,8 +1,10 @@
-import { ButtonStyles, ComponentTypes } from "oceanic.js";
 import Command, { CommandType } from "../../util/Command.js";
 import DatabaseManager from "../../manager/database.js";
 import Character, { ICharacter } from "../../Models/Character.js";
 import { ICharacterName } from "../../Models/CharacterName.js";
+import { discordDate, getCharPage, getHighestTime } from "../../util/Misc.js";
+import { IUserRecord } from "../../Models/UserRecord.js";
+import ItemUtil from "../../util/Item.js";
 
 export default new Command(CommandType.Application, { cmd: ["character", "search"], cooldown: 3000 })
     .attach("run", async ({ client, interaction }) => {
@@ -27,7 +29,45 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
             const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [results[0].id]).then(v => v.rows);
             // const fact = 
 
-            return interaction.createFollowup(Character.respondify(results[0], names, { id: results[0].factid ?? undefined, name: results[0].factname ?? undefined, alignment: results[0].factalignment ?? undefined }));
+            const charPg = await getCharPage(charName);
+
+            const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [results[0].id]).then(v => v.rows);
+
+            const response = (Character.respondify(results[0], names, { id: results[0].factid ?? undefined, name: results[0].factname ?? undefined, alignment: results[0].factalignment ?? undefined }, charPg.success ? charPg.result : null));
+
+            if (response.embeds) {
+                if (charPg.success) {
+                    response.embeds[0].fields?.push({
+                        name: "Item(s)",
+                        value: `Armor: ${ItemUtil.getLinkage(parseInt(charPg.result.charArm))}\nPrimary: ${ItemUtil.getLinkage(charPg.result.wpnLink)}\nSidearm: ${ItemUtil.getLinkage(charPg.result.gunLink)}\nAuxiliary: ${ItemUtil.getLinkage(charPg.result.auxLink)}`
+                    });
+                }
+
+                if (recard) {
+                    let percent = <T extends 1 | 2 | "j" = 1 | 2 | "j">(prefix: T) => { let wins = recard["w" + prefix as `w${T}`]; let losses = recard["l" + prefix as `l${T}`]; return Math.round(wins/(wins + losses)*10000)/100 + "%"; }
+
+                    response.embeds[0].fields?.push({
+                        name: "Records (Database)",
+                        value: `1v1 Wins: ${recard.w1}, Losses: ${recard.l1}, ${percent(1)}\n2v2 Wins: ${recard.w2}, Losses: ${recard.l2}, ${percent(2)}\n2v1 Wins: ${recard.wj}, Losses: ${recard.lj}, ${percent("j")}\nNPC Wins: ${recard.npc}\nRetrieved at ${discordDate(recard.last_fetched)}`,//`Retrieved at ${lazyFormatTime(userRec.last_fetched)``
+                        inline: true,
+                    })
+                }
+
+                if (charPg.success) {
+                    response.embeds[0].fields?.push({
+                        name: "Records (Char Page)",
+                        value: `1v1 Wins: ${charPg.result.charWins1}\n2v2 Wins: ${charPg.result.charWins2}\n2v1 Wins: ${charPg.result.charJug}`,//`Retrieved at ${lazyFormatTime(userRec.last_fetched)``
+                        inline: true,
+                    })
+                }
+
+                response.embeds[0]["footer"] = {
+                    text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}, populated at`
+                };
+                response.embeds[0].timestamp = new Date().toISOString();
+            }
+
+            return interaction.reply(response);
         }
 
         if (results.length === 0) return interaction.createFollowup({

@@ -3,6 +3,7 @@ import { CharPageResult, discordDate, emojiStarCount, emojis, getHighestTime, ge
 import { IFaction } from "./Faction.js";
 import { ICharacterName } from "./CharacterName.js";
 import ClassBox from "../game/box/ClassBox.js";
+import { CharLink, CharLinkFact } from "../util/DBHelper.js";
 
 export interface ICharacter {
     /**
@@ -68,7 +69,11 @@ export default class Character implements ICharacter {
     /**
      * For non populated.
      */
-    static respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult) : InteractionContent {
+    static respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult | null) : InteractionContent {
+        if (char && "link_flags" in char && typeof char["link_flags"] === "number") {
+            if (char["link_flags"] & 1 << 4) return { embeds: [{ title: "Hidden Character", description: "You just tried to search for a hidden character." }] }
+        }
+
         const components:ActionRowBase<MessageComponent>[] = [{
             type: ComponentTypes.ACTION_ROW, components: [{
                 type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char?.name ?? partial?.charName as string),
@@ -107,8 +112,12 @@ export default class Character implements ICharacter {
 
         let levelText = "";
 
-        if (partial?.charLvl) levelText = "\nLevel " + partial?.charLvl;
-        if (char?.exp) levelText = "\nLevel " + getUserLevelByExp(char.exp) + (char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : "")
+        if ((char === undefined && partial?.charLvl) || (partial && char && parseInt(partial.charLvl) > getUserLevelByExp(char.exp))) levelText = "\nLevel " + partial?.charLvl;
+        else if (char?.exp) levelText = "\nLevel " + getUserLevelByExp(char.exp) + (char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : "")
+
+        if (partial === null) {
+            fields.push({ name: "Notice", value: "The character may have changed their name, as their character page is inaccessible." });
+        }
 
         return {
             embeds: [{
@@ -161,5 +170,65 @@ export default class Character implements ICharacter {
                 }]
             }]
         }
+    }
+
+    static manageify(index: number, linkChars: CharLink[]) : InteractionContent {
+        let char = linkChars[index];
+
+        return {
+            embeds: [{
+                title: "Managing Character",
+                description: `Name: **${char.name}**\nID: ${char.id}\nLinked at: <t:${Math.round(char.link_date.getTime()/1000)}:F>\n\nFlags: ${char.flags}`,
+            }],
+            components: [{
+                type: ComponentTypes.ACTION_ROW, components: [{
+                    type: ComponentTypes.STRING_SELECT, customID: "manage_1_" + char.discord_id, options: linkChars.map((v, i) => {
+                        return {
+                            label: v.name,
+                            description: "Lvl: " + getUserLevelByExp(v.exp) + ", ID: " + v.id,
+                            value: v.id.toString(),
+                            default: i === index, emoji: { name: emojis.letters[i] }
+                        }
+                    })
+                }]
+            }, {
+                type: ComponentTypes.ACTION_ROW, components: [{
+                    type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char.name),
+                    emoji: { id: "1212507121636085800", name: "exilegion" }
+                }, {
+                    type: ComponentTypes.BUTTON, label: "Fame", style: ButtonStyles.SECONDARY, customID: "fame_0_" + char.id, disabled: true
+                }, {
+                    type: ComponentTypes.BUTTON, label: "Unlink", style: ButtonStyles.DANGER, customID: "unlink_0_" + char.id + "_" + Math.round(Date.now() + 30000)
+                }, {
+                    type: ComponentTypes.BUTTON, label: "Flags?", style: ButtonStyles.SECONDARY, customID: "help_1_" + char.flags
+                }]
+            }],
+            flags: 64
+        }
+    }
+
+    static linskify(discordId: string, invokerId: string, char: CharLinkFact | undefined, linkChars: CharLinkFact[], names: ICharacterName[], partial?: CharPageResult | null) : InteractionContent {
+        const result = this.respondify(char, names, { id: char?.faction_id, alignment: char?.fact_alignment, name: char?.fact_name }, partial ?? null);
+
+        result.components?.push({
+            type: ComponentTypes.ACTION_ROW, components: [{
+                type: ComponentTypes.STRING_SELECT, minValues: 1, maxValues: 1, customID: "character_select_" + discordId + "_" + invokerId,
+                options: linkChars.map((v, i) => {
+                    let hidden = (v.link_flags & 1 << 4);
+    
+                    return {
+                        label: hidden ? "Hidden Character" : ((v.id === 2254324) ? "🗑️ (trrrrash)" : v.name),
+                        value: hidden ? "h" + Math.round((Math.random()*1000) + (Date.now()/50000)) : String(v.id),
+                        default: (char) ? v.id === char.id : i === 0,
+                        description: hidden ? "N/A" : "Lvl " + getUserLevelByExp(v.exp) + ", ID: " + v.id,
+                        emoji: { name: emojis.letters[i] }
+                    }
+                })
+            }]
+        });
+
+        result.components?.reverse();
+
+        return result;
     }
 }
