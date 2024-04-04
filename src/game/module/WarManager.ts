@@ -18,7 +18,7 @@ let removeLeadingAndEndingChar = (str='', removeChar=',') => {
     return str;
 }
 
-interface WarObjective {
+export interface WarObjective {
     objectiveId: number, points: number, maxPoints: number, alignmentId: number
 }
 
@@ -59,7 +59,7 @@ export default class WarManager extends BaseModule {
     _loadedAlignId = 0;
     _loadedRegionId = 0;
 
-    cache = {
+    static cache = {
         /**
          * Mapped by region ID.
          * @type {}[]}
@@ -209,7 +209,7 @@ export default class WarManager extends BaseModule {
      * custom
      * @param {-1|1|2} alignId If -1, it will return all of the current objectives. 1 for Exile, 2 for Legion.
      */
-    currentObjectives(alignId: -1 | 1 | 2) {
+    currentObjectives(alignId: -1 | 1 | 2 = -1) {
         let list = this.client.boxes.war.getObjectivesByRegionId(this.activeRegionId);
         let objs = this.warObjectiveDataList.filter(v => list.some(l => l.objectiveId == v.objectiveId));
 
@@ -288,12 +288,13 @@ export default class WarManager extends BaseModule {
      * @param {boolean} forceSkipCache 
      * @returns {Promise<undefined|{player: [string, number][], faction: [string, number][], time: number, mode: 1|2, regionId: number}>}
      */
-    async fetchLeaders(alignId: 1 | 2, mode: 1 | 2, regionId: number, forceSkipCache=false) : Promise<WaitForResult<WarSide & { mode: 1 | 2, regionId: number }>> {
-        this._loadedAlignId = alignId;
-        this._loadedRegionId = regionId;
+    async fetchLeaders(alignId: 1 | 2 | undefined, mode: 1 | 2, regionId?: number, forceSkipCache=false) : Promise<WaitForResult<WarSide & { mode: 1 | 2, regionId: number }>> {
 
         if (alignId === undefined) alignId = 1;
         if (regionId === undefined) regionId = this.activeRegionId;
+
+        this._loadedAlignId = alignId;
+        this._loadedRegionId = regionId;
 
         let obj = {
             regionId, alignId
@@ -308,7 +309,7 @@ export default class WarManager extends BaseModule {
         }
 
         if (mode === 1) {
-            let cache = this.cache.daily[regionId]?.[alignId == Constants.EXILE_ID ? "exile" : "legion"];
+            let cache = WarManager.cache.daily[regionId]?.[alignId == Constants.EXILE_ID ? "exile" : "legion"];
             let now = Date.now();
 
             if (cache === undefined || (now - cache.time) > 60000 || forceSkipCache) {
@@ -323,19 +324,19 @@ export default class WarManager extends BaseModule {
                     return result;
                 }
 
-                if (this.cache["daily"][regionId] === undefined) {
+                if (WarManager.cache["daily"][regionId] === undefined) {
                     //@ts-expect-error                    
-                    this.cache["daily"][regionId] = {
+                    WarManager.cache["daily"][regionId] = {
                         [alignId === 1 ? "exile" : "legion"]: {
                             ...result.value
                         }
                     };
-                } else this.cache["daily"][regionId][alignId === 1 ? "exile" : "legion"] = { ...result.value };
+                } else WarManager.cache["daily"][regionId][alignId === 1 ? "exile" : "legion"] = { ...result.value };
 
                 return { success: true, value: { ...result.value, mode, regionId } } //{...res[0], mode, regionId};
             } else return { success: true, value: { ...cache, mode, regionId } };
         } else if (mode === 2) {
-            let cache = this.cache.overall[regionId]?.[(alignId == Constants.EXILE_ID ? "exile" : "legion")];
+            let cache = WarManager.cache.overall[regionId]?.[(alignId == Constants.EXILE_ID ? "exile" : "legion")];
             let now = Date.now();
 
             if (cache === undefined || (now - cache.time) > 60000 || forceSkipCache) {
@@ -350,19 +351,43 @@ export default class WarManager extends BaseModule {
                     return result;
                 }
 
-                if (this.cache["overall"][regionId] === undefined) {
+                if (WarManager.cache["overall"][regionId] === undefined) {
                     //@ts-expect-error
-                    this.cache["overall"][regionId] = {
+                    WarManager.cache["overall"][regionId] = {
                         [alignId === 1 ? "exile" : "legion"]: {
                             ...result.value
                         }
                     };
-                } else this.cache["overall"][regionId][alignId === 1 ? "exile" : "legion"] = { ...result.value };
+                } else WarManager.cache["overall"][regionId][alignId === 1 ? "exile" : "legion"] = { ...result.value };
 
                 return { success: true, value: { ...result.value, mode, regionId } } //{...res[0], mode, regionId};
             } else return { success: true, value: { ...cache, mode, regionId } };
         }
 
         throw Error("unknown mode");
+    }
+
+    warPoints() {
+        let currObjs = this.currentObjectives();
+
+        let points = {
+            current: [
+                currObjs.reduce((a, b) => a + ((b.alignmentId == 1) ? (b.points) : 0), 0),
+                currObjs.reduce((a, b) => a + ((b.alignmentId == 2) ? (b.points) : 0), 0)
+            ], max: [
+                currObjs.reduce((a, b) => a + ((b.alignmentId == 1) ? (b.maxPoints) : 0), 0),
+                currObjs.reduce((a, b) => a + ((b.alignmentId == 2) ? (b.maxPoints) : 0), 0)
+            ],
+            remaining: [0, 0],
+            currentPercent: ["0%", "0%"]
+        }
+
+        points.remaining[0] = points.max[0] - points.current[0];
+        points.remaining[1] = points.max[1] - points.current[1];
+
+        points.currentPercent[0] = Math.round((points.current[0] / points.max[0]) * 10000) / 100 + "%";
+        points.currentPercent[1] = Math.round((points.current[1] / points.max[1]) * 10000) / 100 + "%";
+
+        return points;
     }
 }

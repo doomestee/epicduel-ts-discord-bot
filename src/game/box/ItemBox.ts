@@ -6,7 +6,6 @@ import { BotItemRecord } from "../record/item/BotRecord.js";
 import ArmorItemRecord from "../record/item/ArmorRecord.js";
 import CoreItemRecord from "../record/item/CoreRecord.js";
 import WeaponRecord from "../record/item/WeaponRecord.js";
-import MissionRecord from "../record/mission/SelfRecord.js";
 import User from "../sfs/data/User.js";
 
 export type AnyItemRecordsExceptSelf = MissionItemRecord | BikeItemRecord | BotItemRecord | ArmorItemRecord | CoreItemRecord | WeaponRecord;
@@ -240,7 +239,7 @@ export default class ItemSBox {
                     craft(new ItemRecord(record));//this.buildRecord(record, this.getItemDetails(itemId, this.items.veh)));
                     break;
                 case ItemSBox.ITEM_CATEGORY_MISSION_ID:
-                    craft(new MissionRecord(this.buildRecord(record, this.getItemDetails(itemId, this.items.mission))));
+                    craft(new MissionItemRecord(this.buildRecord(record, this.getItemDetails(itemId, this.items.mission))));
                     break;
             }
         }

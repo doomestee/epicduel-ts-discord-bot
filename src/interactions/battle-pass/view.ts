@@ -68,7 +68,7 @@ export default new Command(CommandType.Application, { cmd: ["battle-pass", "view
         });
 
         let result = () => { 
-            return interaction.createFollowup({
+            return interaction.reply({
                 embeds: [{
                     title: "Battle Pass: " + cli.modules.BattlePass.name,
                     description: "Active challenges:",
@@ -96,6 +96,7 @@ export default new Command(CommandType.Application, { cmd: ["battle-pass", "view
 
         // Refresh challenges if empty
         if (cli.modules.BattlePass.challenges.daily.length === 0 || ((cli.modules.BattlePass.lastCached + 3600000) < Date.now()) || (cli.modules.BattlePass.lastCachedD.getDay() !== new Date().getDay())) {
+            await interaction.defer();
             cli.modules.BattlePass.openChallenges();
 
             let refreshed = 0;
