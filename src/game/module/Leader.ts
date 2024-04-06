@@ -10,7 +10,7 @@ import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 
 // export type LeaderTypeToType<T> = T extends 
 
-export interface LeaderTypeToList {
+export type LeaderTypeToList = {
     1: CacheTypings.PlayerLeaderPvp;
     2: CacheTypings.PlayerLeaderPvp;
     16: CacheTypings.PlayerLeaderPvp;
@@ -46,6 +46,8 @@ export interface LeaderTypeToList {
 }
 
 export type LeaderType = keyof LeaderTypeToList;
+
+export type FactionLeaderType = 7 | 10 | 8 | 9 | 19 | 12 | 5 | 6 | 18;
 
 export default class Leader extends BaseModule {
     static Indexes = {
@@ -85,6 +87,7 @@ export default class Leader extends BaseModule {
         },
         All: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
         Faction: [7, 10, 8, 9, 19, 12, 5, 6, 18],
+        Char: [1, 2, 16, 11, 14, 13, 21, 22, 3, 4, 17, 15, 20]
     };
 
     constructor(public client: Client) {

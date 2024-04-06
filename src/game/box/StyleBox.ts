@@ -4,8 +4,14 @@ import ClassBox from "./ClassBox.js";
 import type Client from "../Proximus.js";
 import { Requests } from "../Constants.js";
 
+const objMap = new Collection<number, StyleRecord>();
+
 export default class StyleBox {
     objMap = new Collection<number, StyleRecord>();
+    
+    static get objMap() {
+        return objMap;
+    }
 
     ready = false;
     _gotOwnedHairStyles = -1;
@@ -27,6 +33,7 @@ export default class StyleBox {
             let rec = new StyleRecord(obj);
 
             this.objMap.set(rec.styleId, rec);
+            objMap.set(rec.styleId, rec);
             i++;
         }
 
@@ -42,6 +49,30 @@ export default class StyleBox {
     getStyleRecord(classId: number) : StyleRecord | null;
     getStyleRecord(classId: number, styleIndex: number, gender: "M" | "F") : StyleRecord | null;
     getStyleRecord(classId: number, styleIndex?: number, gender?: "M" | "F")  : StyleRecord | null {
+        const adjusted = ClassBox.getAdjustedClassId(classId);
+
+        const list = this.objMap.toArray();
+
+        for (let i = 0; i < list.length; i++) {
+            let style = list[i];
+
+            if ((styleIndex === undefined  &&  style.styleId === classId) || (style.styleClassId === adjusted  &&  style.styleIndex === styleIndex  &&  style.styleGender === gender)) {
+                return style;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param {number} classId If this is the only parameter given, it will be used as the style ID.
+     * @param {number} styleIndex
+     * @param {"M"|"F"} gender
+     * @returns 
+     */
+    static getStyleRecord(classId: number) : StyleRecord | null;
+    static getStyleRecord(classId: number, styleIndex: number, gender: "M" | "F") : StyleRecord | null;
+    static getStyleRecord(classId: number, styleIndex?: number, gender?: "M" | "F")  : StyleRecord | null {
         const adjusted = ClassBox.getAdjustedClassId(classId);
 
         const list = this.objMap.toArray();

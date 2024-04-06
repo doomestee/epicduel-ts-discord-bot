@@ -13,7 +13,7 @@ export default class StyleRecord {
     styleIndex: number;
     styleCredits: number;
     styleVarium: number;
-    styleHasAbove: number;
+    styleHasAbove: boolean;
 
     private _owned = false;
 
@@ -24,7 +24,7 @@ export default class StyleRecord {
         this.styleIndex = parseInt(obj[StyleRecord.FIELD_styleIndex]);
         this.styleCredits = parseInt(obj[StyleRecord.FIELD_styleCredits]);
         this.styleVarium = parseInt(obj[StyleRecord.FIELD_styleVarium]);
-        this.styleHasAbove = parseInt(obj[StyleRecord.FIELD_styleHasAbove]);
+        this.styleHasAbove = (obj[StyleRecord.FIELD_styleHasAbove]) == "1";
 
         /**
          * @private

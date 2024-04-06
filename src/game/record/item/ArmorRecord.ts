@@ -6,9 +6,9 @@ export default class ArmorItemRecord extends ItemRecord {
     itemSexReq: string;
     itemClass: number;
     customHeadLink: string;
-    noHead: number;
-    noHip: number;
-    defaultLimbs: number;
+    noHead: boolean;
+    noHip: boolean;
+    defaultLimbs: boolean;
     corePassiveItemId: number;
     coreActiveItemId: number;
     corePassiveLock: number;
@@ -20,9 +20,9 @@ export default class ArmorItemRecord extends ItemRecord {
         this.itemSexReq = lazyParse(data['itemSexReq'], "");
         this.itemClass = lazyParse(data['itemClass'], 0);
         this.customHeadLink = lazyParse(data['customHeadLink'], "");
-        this.noHead = lazyParse(data['noHead'], 0);
-        this.noHip = lazyParse(data['noHip'], 0);
-        this.defaultLimbs = lazyParse(data['defaultLimbs'], 0);
+        this.noHead = lazyParse(data['noHead'], 0) === 1;
+        this.noHip = lazyParse(data['noHip'], 0) === 1;
+        this.defaultLimbs = lazyParse(data['defaultLimbs'], 0) === 1;
         this.corePassiveItemId = lazyParse(data['corePassiveItemId'], 0);
         this.coreActiveItemId = lazyParse(data['coreActiveItemId'], 0);
         this.corePassiveLock = lazyParse(data['corePassiveLock'], 0);

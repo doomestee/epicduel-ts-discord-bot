@@ -17,7 +17,7 @@ export function headings(index: number) {
 }
 
 // Yes this is wrong, but the only other way I can think of is to put type inside each of the leader object, which I do not want to do, so ty, pls take off my ts developer badge.
-function lazyFuck<T>(obj: any, types: number | number[], type: number) : obj is T {
+export function lazyFuck<T>(obj: any, types: number | number[], type: number) : obj is T {
     if (!Array.isArray(types)) return types === type;
 
     for (let i = 0, len = types.length; i < len; i++) {
