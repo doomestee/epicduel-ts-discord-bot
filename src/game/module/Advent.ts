@@ -93,7 +93,6 @@ export default class Advent extends BaseModule {
         // this.lastFetched = Date.now();
 
         CacheManager.update("gifts", { complete: data, daily, season });
-
         this.client.smartFox.emit("leader_gift", { complete: data, daily, season });
     }
 

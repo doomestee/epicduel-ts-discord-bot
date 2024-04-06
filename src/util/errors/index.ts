@@ -8,19 +8,22 @@ export class SwarmError extends Error {
         super(message)
     }
 
-    static noClient(time?: bigint) : InteractionContent {
+    static noClient(time: bigint, ephemeral?: boolean) : InteractionContent;
+    static noClient(ephemeral?: boolean) : InteractionContent;
+    static noClient(time?: bigint | boolean, ephemeral=false) : InteractionContent {
         let footer = {} as {} | { footer: { text: string } };
-        if (typeof time !== "undefined") {
+        if (typeof time === "bigint") {
             footer = {
                 footer: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
             }
-        }
+        } else if (typeof time === "boolean") ephemeral = time;
 
         return {
             embeds: [{
                 description: "There's no available clients that the bot can use to respond to your query.",
                 ...footer
-            }]
+            }],
+            flags: ephemeral ? 64 : 0
         }
     }
 }

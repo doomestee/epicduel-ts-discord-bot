@@ -58,6 +58,8 @@ export default class CacheManager {
         achievement: new Collection(),
         faction: new Collection(),
         merchant: new Collection(),
+        //@ts-expect-error TODO: make val optional
+        tourney: { _lastGot: 0, val: {} }
     };
 
     public static settings:CacheSettingsInternal = {

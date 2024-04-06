@@ -908,6 +908,7 @@ export default class Client {
             switch (dataObj[0]) {
                 case Responses.RESPONSE_INIT_BATTLEPASS:
                     // this.OMG_GAMEMODE_ENABLED = Boolean(dataObj[2]);
+                    this.modules.Tournament.request("details");
                     this.modules.BattlePass.active = Boolean(dataObj[3]);
                     if (this.modules.BattlePass.active) {
                         this.modules.BattlePass.name = String(dataObj[4]);
@@ -1370,6 +1371,7 @@ export default class Client {
                     this.modules.Advent.receiveGiveGiftResponse(dataObj);
                     break;
                 case Requests.REQUEST_TOURNAMENT_LEADERS:
+                    this.modules.Tournament["receiveTournamentLeadersResponse"](dataObj);
                     // this.smartFox.emit('tournament_leaders', ...dataObj); // i hate myself for spreading this
 
                     //this.cache["tournament_leaders"] = [Date.now(), dataObj];
@@ -1377,12 +1379,14 @@ export default class Client {
                     // TODO: tournament leaders!!!!!
                     break;
                 case Requests.REQUEST_TOURNAMENT_DETAILS:
+                    this.modules.Tournament["receiveTournamentDetailsResponse"](dataObj);
                     // this.smartFox.emit('tournament_details', ...dataObj); // i hate myself for spreading this
                     //this.cache["tournament_details"] = [Date.now(), dataObj];
                     //TournamentModule.instance.receiveTournamentDetailsResponse(_loc3_ as Array);
                     // TOURNAMENT STUFF!!!!
                     break;
                 case Requests.REQUEST_MY_TOURNAMENT_SCORE:
+                    this.modules.Tournament["receiveTournamentScoreResponse"](dataObj);
                     //TournamentModule.instance.receiveTournamentScoreResponse(_loc3_ as Array);
                     // no
                     break;

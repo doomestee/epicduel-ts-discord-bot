@@ -26,9 +26,12 @@ export default new Command(CommandType.Application, { cmd: ["war", "leader"], de
 
         const result = response.value;
 
+        console.log(result);
+        console.log(ed.boxes.war.getRegionById(result.regionId));
+
         return interaction.reply({
             embeds: [{
-                title: (result.mode === 1 ? "Daily " : "Overall ") + ed.boxes.war.getRegionById(result.regionId)?.['warTitle'] + " Leaders" + (alignId === 1 ? " - Exile" : " - Legion"),
+                title: (result.mode === 1 ? "Daily " : "Overall ") + ed.boxes.war.getRegionById(result.regionId)?.warTitle + " Leaders" + (alignId === 1 ? " - Exile" : " - Legion"),
                 author: {
                     name: interaction.user.username,
                     iconURL: interaction.user.avatarURL()

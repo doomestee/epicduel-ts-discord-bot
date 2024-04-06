@@ -8,8 +8,8 @@ export default class WarSMBox extends SharedMultipleBox<{ objective: WarObjectiv
             objective: ["objectiveId", "regionId", "isMainObj", "objTitle", "objType", "objStates", "objDesc"],
             region: ["regionId", "warTitle", "warDesc", "defenseObjAction", "offenseObjAction", "defenseUnit", "offenseUnit", "defenseItemId", "defenseSuperItemId", "offenseItemId", "offenseSuperItemId", "defenseVictory", "offenseVictory", "defenseNotification", "offenseNotification"],
         }, {
-            objective: null,
-            region: null
+            objective: WarObjectiveStaticRecord,
+            region: WarRegionRecord
         });
     }
 
