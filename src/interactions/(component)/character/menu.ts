@@ -133,7 +133,7 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
         const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [charId]).then(v => v.rows);
         const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [charId]).then(v => v.rows);
 
-        const result = Character.respondify(charLinkFact, names, { id: charLinkFact?.faction_id ?? 0, alignment: charLinkFact?.factalignment ?? null, name: charLinkFact?.factname ?? null }, charPg.success ? charPg.result : null);
+        const result = await Character.respondify(charLinkFact, names, { id: charLinkFact?.faction_id ?? 0, alignment: charLinkFact?.factalignment ?? null, name: charLinkFact?.factname ?? null }, charPg.success ? charPg.result : null);
 
         if (result.embeds) {
             if (charPg.success) {

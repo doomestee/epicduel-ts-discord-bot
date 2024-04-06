@@ -7,6 +7,10 @@ import Hydra from "./manager/discord.js";
 import { readFile } from "fs/promises";
 import Swarm from "./manager/epicduel.js";
 
+// This will just let the image manager load.
+import "./manager/image.js";
+import { SwarmError } from "./util/errors/index.js";
+
 Logger._saveToRotatingFile(Config.logsDirectory);
 
 const bot = new Hydra();
@@ -31,9 +35,17 @@ process
 
 await DatabaseManager.initialise();
 await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
-    Logger.getLogger("SWARM").debug("Connected, as user Id: " + cli.user.userid);
+    Logger.getLogger("Swarm").debug("Connected, as user Id: " + cli.user.userid);
     cli.settings.reconnectable = true;
     cli["connect"]();
+}).catch(sike => {
+    if (sike instanceof SwarmError) {
+        if (sike.type === "NO_SERVER") {
+            Swarm.probing = true;
+        }
+    }
+    Swarm.getClientById(1, true)?.selfDestruct(false);
+    Logger.getLogger("Swarm").error(sike);
 });
 
 // console.log(await readFile(Config.baseDir + "/migrations/vendie_2024-03-23_164614.sql").then(v => DatabaseManager.cli.query(v.toString())));

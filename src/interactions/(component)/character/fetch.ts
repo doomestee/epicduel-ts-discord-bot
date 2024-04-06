@@ -141,7 +141,7 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
         const [charLinkFact] = await DatabaseManager.cli.query<ICharacter & { discord_id: string, linkflags: number, factname: string, factalignment: 1|2 }>(`select char.*, link.discord_id, link.flags as linkflags, faction.name as factName, faction.alignment as factAlignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where char.id = $1`, [charPg.result.charId]).then(v => v.rows);
         const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [charPg.result.charId]).then(v => v.rows);
 
-        const result = Character.respondify(charLinkFact, names, { id: charLinkFact?.faction_id ?? 0, alignment: charLinkFact?.factalignment ?? null, name: charLinkFact?.factname ?? null }, charPg.result);
+        const result = await Character.respondify(charLinkFact, names, { id: charLinkFact?.faction_id ?? 0, alignment: charLinkFact?.factalignment ?? null, name: charLinkFact?.factname ?? null }, charPg.result);
 
         if (result.embeds) {
             // if (charLinkFact) {

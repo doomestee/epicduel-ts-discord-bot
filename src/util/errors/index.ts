@@ -1,7 +1,7 @@
 import { InteractionContent } from "oceanic.js";
 import { getHighestTime } from "../Misc.js";
 
-type SwarmErrorType = "LOGIN_FAILED" | "RATELIMITED";
+type SwarmErrorType = "LOGIN_FAILED" | "RATELIMITED" | "NO_SERVER";
 
 export class SwarmError extends Error {
     constructor(public type: SwarmErrorType, message: string, public extra?: any) {

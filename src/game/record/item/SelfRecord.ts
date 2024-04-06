@@ -33,11 +33,11 @@ export default class ItemRecord {
      * .swf not included at the end, nor the url at the start (up until after .com/).
      * @param {1|2|3|4|5|6} classId Only for mutates, or armors.
      */
-    getAssetPool(classId=1, armorExtra={g: "M"}) : any {
+    getAssetPool(classId?: number, armorExtra={g: "M"}) : any {
         /**
          * @type {1|2|3}
          */
-        let adjusted = classId;
+        let adjusted = classId ?? 0;
         if (adjusted > 3) adjusted = adjusted - 3;
 
         // Mutate
@@ -46,6 +46,17 @@ export default class ItemRecord {
                 return {
                     left: "assets/blades/item_BH_" + this.itemId + "L",
                     right: "assets/blades/item_BH_" + this.itemId + "R",
+                }
+            } else if (adjusted === 2) {
+                return "assets/swords/" + this.itemLinkage;
+            } else if (adjusted === 3) {
+                return "assets/staffs/" + this.itemLinkage;
+            } else if (adjusted === 0) {
+                return {
+                    bhl: "assets/blades/item_BH_" + this.itemId + "L",
+                    bhr: "assets/blades/item_BH_" + this.itemId + "R",
+                    mc: "assets/swords/" + this.itemLinkage,
+                    tm: "assets/staffs/" + this.itemLinkage,
                 }
             }
 
@@ -58,7 +69,7 @@ export default class ItemRecord {
         }
 
         if (this.isArmorItemRecord()) {
-            let armorMutation = ((adjusted === 1) ? "BH" : (adjusted === 2) ? "MC" : "TM") + "_" + armorExtra.g//EpicDuel.getMyUser().charGender;
+            let armorMutation = ((adjusted < 2) ? "BH" : (adjusted === 2) ? "MC" : "TM") + "_" + armorExtra.g//EpicDuel.getMyUser().charGender;
             let armorLinkage: string = this.itemLinkage === "Mutate" ? armorMutation : this.itemLinkage;
 
             if(this.itemId == 1) armorLinkage = "Basic_" + armorLinkage;
@@ -68,18 +79,18 @@ export default class ItemRecord {
 
             let assets = {
                 body: "assets/armors/" + armorLinkage + "_Body_" + getArmorStyleById,
-                hip: (this.noHip == 0) ? "assets/armors/" + armorLinkage + "_Hip_" + getArmorStyleById : null,
-                bicepR: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Bicep_R_" + getArmorStyleById : null,
-                forearmR: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Forearm_R_" + getArmorStyleById : null,
-                shinR: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Shin_R_" + getArmorStyleById : null,
-                footR: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Foot_R_" + getArmorStyleById : null,
-                thighR: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Thigh_R_" + getArmorStyleById : null,
+                hip: !this.noHip ? "assets/armors/" + armorLinkage + "_Hip_" + getArmorStyleById : null,
+                bicepR: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Bicep_R_" + getArmorStyleById : null,
+                forearmR: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Forearm_R_" + getArmorStyleById : null,
+                shinR: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Shin_R_" + getArmorStyleById : null,
+                footR: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Foot_R_" + getArmorStyleById : null,
+                thighR: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Thigh_R_" + getArmorStyleById : null,
 
-                bicepL: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Bicep_L_" + getArmorStyleById : null,
-                forearmL: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Forearm_L_" + getArmorStyleById : null,
-                shinL: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Shin_L_" + getArmorStyleById : null,
-                footL: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Foot_L_" + getArmorStyleById : null,
-                thighL: (this.defaultLimbs == 0) ? "assets/armors/" + armorLinkage + "_Thigh_L_" + getArmorStyleById : null,
+                bicepL: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Bicep_L_" + getArmorStyleById : null,
+                forearmL: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Forearm_L_" + getArmorStyleById : null,
+                shinL: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Shin_L_" + getArmorStyleById : null,
+                footL: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Foot_L_" + getArmorStyleById : null,
+                thighL: !this.defaultLimbs ? "assets/armors/" + armorLinkage + "_Thigh_L_" + getArmorStyleById : null,
             };
 
             return assets;

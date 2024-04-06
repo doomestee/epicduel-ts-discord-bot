@@ -77,6 +77,10 @@ export default class Config {
         return decodeURIComponent(new URL("../interactions", import.meta.url).pathname);
     }
 
+    static get cacheDirectory() {
+        return decodeURIComponent(new URL("../../cache", import.meta.url).pathname);
+    }
+
     // ED
     static get edBotEmail() {
         return process.env.ED_EMAIL;

@@ -196,7 +196,7 @@ export default class Swarm {
         return user;
     }
 
-    static getClientById(id: number, fromPurgatoryToo:boolean) : Client | undefined;
+    static getClientById(id: number, fromPurgatoryToo?:boolean) : Client | undefined;
     static getClientById(fromPurgatoryToo?:boolean) : Client | undefined;
     static getClientById(id?: number | boolean, fromPurgatoryToo=true) {
         for (let i = 0, len = this.clients.length; i < len; i++) {

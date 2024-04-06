@@ -53,6 +53,7 @@ import InventoryListItem from "./record/inventory/InventoryListItem.js";
 import MerchantRecord from "./record/MerchantRecord.js";
 import Logger from "../manager/logger.js";
 import Tournament from "./module/Tournament.js";
+import { SwarmError } from "../util/errors/index.js";
 
 export interface ClientSettings {
     id: number;
@@ -434,11 +435,11 @@ export default class Client {
         if (!this.initialised) throw Error("The client's not initialised!");
         if (this.connected) throw Error("The client's still connected!");
 
-        if (!this.user.servers.length) throw Error("There are no servers available to join?");
+        if (!this.user.servers.length) throw new SwarmError("NO_SERVER", "There are no servers available to join?");
 
         const server = this.user.servers.find(v => v.online);
 
-        if (!server) throw Error("None of the servers available are online.");
+        if (!server) throw new SwarmError("NO_SERVER", "None of the servers available are online.");
 
         this.smartFox.connect(server.ip, server.port);
         return true;
@@ -1355,6 +1356,7 @@ export default class Client {
                     this.modules.WarManager.handleLeaderData(dataObj, "overall");
                     break;
                 case Requests.REQUEST_GET_REGIONAL_LEADER_GFX:
+                    this.modules.WarManager.handleWarLeaderGfx(dataObj);
                     break;
                 case Requests.REQUEST_GET_DAILY_INFLUENCE_LEADERS:
                     this.modules.WarManager.handleLeaderData(dataObj, "daily");

@@ -48,7 +48,7 @@ export default new Command(CommandType.Application, { cmd: ["character", "list"]
         //     url: client.endpoints.avatar(urlo)//"attachment://image.png"
         // };
 
-        const result = Character.linskify(discordId, interaction.user.id, dom, chars, names, charPg?.success ? charPg.result : null);
+        const result = await Character.linskify(discordId, interaction.user.id, dom, chars, names, charPg?.success ? charPg.result : null);
 
         if (result.embeds && dom) {
             const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [dom.id]).then(v => v.rows);

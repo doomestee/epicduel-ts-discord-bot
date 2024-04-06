@@ -3,7 +3,7 @@ import { Faction } from "../game/module/FactionManager.ts";
 import { LeaderTypeToStruct } from "../game/module/Leader.ts";
 import { Shop } from "../game/module/Merchant.ts";
 import { TournamentLeader } from "../game/module/Tournament.ts";
-import { WarSide } from "../game/module/WarManager.ts";
+import { WarSide, WarSideGFX } from "../game/module/WarManager.ts";
 import SFSEvent from "../game/sfs/SFSEvent.ts";
 import Room from "../game/sfs/data/Room.ts";
 import User from "../game/sfs/data/User.ts";
@@ -49,6 +49,7 @@ export interface CustomSFSClientEvents {
     merch_item: [result: Shop, id: number];
     war_status: [result: { type: "rally", align: number, status: "ongoing" | "start" | "end" } | { type: "char_used", name: string, influence: number, usedItemId: number } | {  type: "end", align: number }],
     leader_war: [result: WarSide, type: "overall" | "daily"],
+    leader_war_gfx: [result: WarSideGFX],
     advent_gift: [result: { status: number, prize: number, value: number, credits: number }],
     leader_gift: [result: CacheTypings.GiftingLeader];
 

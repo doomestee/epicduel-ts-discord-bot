@@ -33,7 +33,7 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
 
             const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [results[0].id]).then(v => v.rows);
 
-            const response = (Character.respondify(results[0], names, { id: results[0].factid ?? undefined, name: results[0].factname ?? undefined, alignment: results[0].factalignment ?? undefined }, charPg.success ? charPg.result : null));
+            const response = await (Character.respondify(results[0], names, { id: results[0].factid ?? undefined, name: results[0].factname ?? undefined, alignment: results[0].factalignment ?? undefined }, charPg.success ? charPg.result : null));
 
             if (response.embeds) {
                 if (charPg.success) {

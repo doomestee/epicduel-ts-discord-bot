@@ -118,4 +118,6 @@ declare namespace CacheTypings {
             point: number, name: string
         }[]
     }
+
+    // export type isFaction<Type, Result1, Result2> = Type extends AnyFactionLeaders ? Result1 : Result2;
 }

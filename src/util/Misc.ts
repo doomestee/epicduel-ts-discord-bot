@@ -373,7 +373,7 @@ export const letters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", "B", "C", "D", "E", 
 
 export interface CharPageResult {
     armClass: string,
-    armGender: string,
+    armGender: "M" | "F",
     armMutate: string,
     auxLink: string,
     charAccnt: string,
@@ -381,7 +381,7 @@ export interface CharPageResult {
     charArm: string,
     charClassId: string,
     charEye: string,
-    charGender: string,
+    charGender: "M" | "F",
     charHair: string,
     charHairS: string,
     charId: string,

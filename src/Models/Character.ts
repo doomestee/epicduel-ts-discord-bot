@@ -4,6 +4,7 @@ import { IFaction } from "./Faction.js";
 import { ICharacterName } from "./CharacterName.js";
 import ClassBox from "../game/box/ClassBox.js";
 import { CharLink, CharLinkFact } from "../util/DBHelper.js";
+import ImageManager from "../manager/image.js";
 
 export interface ICharacter {
     /**
@@ -69,7 +70,7 @@ export default class Character implements ICharacter {
     /**
      * For non populated.
      */
-    static respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult | null) : InteractionContent {
+    static async respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult | null) : Promise<InteractionContent> {
         if (char && "link_flags" in char && typeof char["link_flags"] === "number") {
             if (char["link_flags"] & 1 << 4) return { embeds: [{ title: "Hidden Character", description: "You just tried to search for a hidden character." }] }
         }
@@ -115,17 +116,29 @@ export default class Character implements ICharacter {
         if ((char === undefined && partial?.charLvl) || (partial && char && parseInt(partial.charLvl) > getUserLevelByExp(char.exp))) levelText = "\nLevel " + partial?.charLvl;
         else if (char?.exp) levelText = "\nLevel " + getUserLevelByExp(char.exp) + (char.exp > levels[39] ? ` - Leg Rank ${getLegendRankByExp(char.exp)}` : "")
 
+        const files:import("oceanic.js").File[] = [];
+
         if (partial === null) {
-            fields.push({ name: "Notice", value: "The character may have changed their name, as their character page is inaccessible." });
+            fields.push({ name: "Notice", value: "The character may have changed their name, as their character page is inaccessible.\nIn the case of Musashi, tell NW to fix his page." });
+        } else if (partial !== undefined) {
+            const buffer = await ImageManager.SVG.generator.char(partial);
+
+            files[0] = {
+                contents: buffer,
+                name: "char.png"
+            };
         }
 
         return {
             embeds: [{
                 title: char?.name ?? partial?.charName,
                 description: `ID: ${char?.id ?? partial?.charId}${char ? " (User: " + char.user_id + ")" : ""}${levelText}${char?.alignment != null ? "\nAlignment: " + (char?.alignment === 1 ? "Exile" : "Legion") : ""}`,
-                fields
+                fields,
+                thumbnail: {
+                    url: files.length ? "attachment://char.png" : ""
+                }
             }],
-            components
+            components, files
         }
     }
 
@@ -207,28 +220,28 @@ export default class Character implements ICharacter {
         }
     }
 
-    static linskify(discordId: string, invokerId: string, char: CharLinkFact | undefined, linkChars: CharLinkFact[], names: ICharacterName[], partial?: CharPageResult | null) : InteractionContent {
-        const result = this.respondify(char, names, { id: char?.faction_id, alignment: char?.fact_alignment, name: char?.fact_name }, partial ?? null);
+    static linskify(discordId: string, invokerId: string, char: CharLinkFact | undefined, linkChars: CharLinkFact[], names: ICharacterName[], partial?: CharPageResult | null) : Promise<InteractionContent> {
+        return this.respondify(char, names, { id: char?.faction_id, alignment: char?.fact_alignment, name: char?.fact_name }, partial ?? null).then(result => {
+            result.components?.push({
+                type: ComponentTypes.ACTION_ROW, components: [{
+                    type: ComponentTypes.STRING_SELECT, minValues: 1, maxValues: 1, customID: "character_select_" + discordId + "_" + invokerId,
+                    options: linkChars.map((v, i) => {
+                        let hidden = (v.link_flags & 1 << 4);
+        
+                        return {
+                            label: hidden ? "Hidden Character" : ((v.id === 2254324) ? "🗑️ (trrrrash)" : v.name),
+                            value: hidden ? "h" + Math.round((Math.random()*1000) + (Date.now()/50000)) : String(v.id),
+                            default: (char) ? v.id === char.id : i === 0,
+                            description: hidden ? "N/A" : "Lvl " + getUserLevelByExp(v.exp) + ", ID: " + v.id,
+                            emoji: { name: emojis.letters[i] }
+                        }
+                    })
+                }]
+            });
 
-        result.components?.push({
-            type: ComponentTypes.ACTION_ROW, components: [{
-                type: ComponentTypes.STRING_SELECT, minValues: 1, maxValues: 1, customID: "character_select_" + discordId + "_" + invokerId,
-                options: linkChars.map((v, i) => {
-                    let hidden = (v.link_flags & 1 << 4);
-    
-                    return {
-                        label: hidden ? "Hidden Character" : ((v.id === 2254324) ? "🗑️ (trrrrash)" : v.name),
-                        value: hidden ? "h" + Math.round((Math.random()*1000) + (Date.now()/50000)) : String(v.id),
-                        default: (char) ? v.id === char.id : i === 0,
-                        description: hidden ? "N/A" : "Lvl " + getUserLevelByExp(v.exp) + ", ID: " + v.id,
-                        emoji: { name: emojis.letters[i] }
-                    }
-                })
-            }]
+            result.components?.reverse();
+
+            return result;
         });
-
-        result.components?.reverse();
-
-        return result;
     }
 }

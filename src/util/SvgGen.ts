@@ -97,6 +97,23 @@ export default class SvgGen {
 
             this.initialised = true;
 
+            return Promise.allSettled(["/chars", "/flags"].map(v => readdir(Config.cacheDirectory + v, { withFileTypes: false })))
+        }).then((caches) => {
+            for (let i = 0, len = caches.length; i < len; i++) {
+                const cch = caches[i];
+
+                if (cch.status === "rejected") continue;
+
+                for (let j = 0, jen = cch.value.length; j < jen; j++) {
+                    const file = cch.value[j];
+
+                    if (!file.endsWith(".png") || !file.startsWith("D_")) continue;
+
+                    const name = file.slice(2, -4);
+
+                    this.cache[i === 0 ? "char" : "fact"][name] = true;
+                }
+            }
         }).catch((err) => {
             Logger.error("SVG").error(err);
         })
@@ -263,8 +280,8 @@ export type CharToGen = {
     noHead: string | boolean,
     styleHasAbove: string | boolean,
     defaultLimbs: string | boolean,
-    armClass: "0"|"1"|"2"|"3" | 0|1|2|3,
-    armGender: "M"|"F",
+    armClass: string | number;//"0"|"1"|"2"|"3" | 0|1|2|3,
+    armGender: string;//: "M"|"F",
     armMutate: string | boolean,
     bypass?: { body: string, bicepR: string }
 }
@@ -300,6 +317,7 @@ class Generator {
             if (typeof obj["armMutate"] === "string") obj["armMutate"] = (obj["armMutate"] === "1");
             if (typeof obj["styleHasAbove"] === "string") obj["styleHasAbove"] = (obj["styleHasAbove"] === "1");
             if (typeof obj["charClassId"] === "string") obj["charClassId"] = parseInt(obj["charClassId"]);
+            if (typeof obj["armClass"] === "string") obj["armClass"] = parseInt(obj["armClass"]);
 
             // for easier autocorrect idk
             const colours = {
@@ -315,7 +333,7 @@ class Generator {
             let adjustedClassId = ClassBox.getAdjustedClassId(obj.charClassId);// > 3) ? obj.charClassId - 3 : obj.charClassId;
             let classPrefix = ["", "BH", "MC", "TM"];
 
-            const prefix = obj.charArm == 1 || obj.defaultLimbs || obj.armMutate ? classPrefix[adjustedClassId] : obj.armClass == "0" ? "NC" : classPrefix[obj.armClass];
+            const prefix = obj.charArm == 1 || obj.defaultLimbs || obj.armMutate ? classPrefix[adjustedClassId] : obj.armClass == 0 ? "NC" : classPrefix[obj.armClass];
             let genderPrefix = (obj.charArm == 1 || obj.defaultLimbs || obj.armMutate ? obj.charGender : obj.armGender || " ") as string;
             genderPrefix = genderPrefix.length > 0 && genderPrefix != " " ? "_" + genderPrefix : "";
 
@@ -435,7 +453,7 @@ class Generator {
 
                     j = cl.blur(1).composite(j, 6, 6).crop(5, 5, 200, 200);
 
-                    if (storeInFileToo) return j.writeAsync("/app/cache/chars/D_" + fileName + ".png")
+                    if (storeInFileToo) return j.writeAsync(Config.cacheDirectory + "/chars/D_" + fileName + ".png")
                     else return Promise.resolve(j);
                 })
                 .then((r) => {
@@ -554,9 +572,9 @@ class Generator {
                         alpha: 0
                     }
                 }
-            }).composite(composites).toFile("/app/cache/flags/" + fileName + ".png");
+            }).composite(composites).toFile(Config.cacheDirectory + "/flags/" + fileName + ".png");
 
-            return readFile("/app/cache/flags/" + fileName + ".png")
+            return readFile(Config.cacheDirectory + "/flags/" + fileName + ".png")
                 .then((v) => Jimp.create(v))
                 .then((i) => {
                     // idek if they mutate to the same object lmao
@@ -564,7 +582,7 @@ class Generator {
 
                     if (hideFrame) j.crop(10, 10, 250, 260);
 
-                    if (storeInFileToo) return j.writeAsync("/app/cache/flags/D_" + fileName + ".png")
+                    if (storeInFileToo) return j.writeAsync(Config.cacheDirectory + "/flags/D_" + fileName + ".png")
                     else return Promise.resolve(j);
                 })
                 .then((r) => {
@@ -605,10 +623,10 @@ class Generator {
             }
 
             if (lazyFuck<CacheTypings.AnyPlayerLeaders>(thing, Leader.Indexes.Char, type)) {
-                const armor = ItemSBox.getItemById(thing.misc.arm);
+                const armor = ItemSBox.getItemById(thing.misc.arm, true);
                 const style = StyleBox.getStyleRecord(thing.misc.classId, thing.misc.hairS, thing.misc.gender as "M" | "F");//.objMap.find(v => v.styleIndex === char.misc.hairS && v.styleClassId === adj);
 
-                if (!armor || !armor.isArmorItemRecord() || !style) {
+                if (armor == null || !armor.isArmorItemRecord() || !style) {
                     images[x] = (readFile(Config.svgDir + "/misc/skull.png"));
                     continue;
                 }

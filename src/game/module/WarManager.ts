@@ -26,10 +26,45 @@ interface WarSide {
     player: [string, number][], faction: [string, number][], time: number
 }
 
-export interface RegionalWar {
-    legion: WarSide,
-    exile: WarSide
+interface WarSideGFX {
+    player: PlayerGFXData,
+    faction: FactionGFXData
 }
+
+interface PlayerGFXData {
+    charName: string;
+    charRegionInfluence: number;
+    charLvl: number;
+    charGender: string;
+    charClassId: number;
+    charPri: string;
+    charSec: string;
+    charHair: string;
+    charSkin: string;
+    charAccnt: string;
+    charAccnt2: string;
+    charEye: string;
+    charArm: number;
+    charHairS: number;
+}
+
+interface FactionGFXData {
+    fctName: string;
+    fctRegionInfluence: number;
+    fctAlign: number;
+    fctSymb: number;
+    fctSymbClr: string;
+    fctBack: number;
+    fctBackClr: string;
+    fctFlagClr: string;
+}
+
+export interface RegionalWar<T extends WarSide | WarSideGFX = WarSide> {
+    legion: T,
+    exile: T
+}
+
+export type RegionalWarGFX = RegionalWar<WarSideGFX> & { time: number };
 
 export default class WarManager extends BaseModule {
     static INFLUENCE_REQUIRED_FOR_PRIZE = 150;
@@ -59,6 +94,8 @@ export default class WarManager extends BaseModule {
     _loadedAlignId = 0;
     _loadedRegionId = 0;
 
+    gfxRegionId = 0;
+
     static cache = {
         /**
          * Mapped by region ID.
@@ -70,6 +107,8 @@ export default class WarManager extends BaseModule {
          * @type {{legion: { player: [string, number][], faction: [string, number][], time: -1 }, exile: { player: [string, number][], faction: [string, number][], time: -1 }}[]}
          */
         overall: [] as RegionalWar[],
+
+        gfx: [] as RegionalWarGFX[]
     }
 
     constructor(public client: Client) {
@@ -247,6 +286,111 @@ export default class WarManager extends BaseModule {
     // WarLeaders
 
     /**
+     * Well well isn't this fucking ironic, taken from EnvironmentObjects.
+     */
+    handleWarLeaderGfx(data: string[]) {
+        const time = Date.now();
+        // Sample data:
+        // ^xt^r112^-1^I Am Mr. Nice Guy^132680^40^M^5^000000^CC99FF^9999FF^C18624^CC99FF^000000^CCCCFF^4412^1^$^Lost World^370771^1^119^000000^43^000000^ffffff^$^Ahri^70486^40^F^1^000000^330000^CDBDAD^FFECDA^000000^FFFFFF^990000^6301^289^$^Souls Requiem^225439^2^12^ffffff^26^990000^000000^
+
+        // Although I'm following the code, the more I look at this code, the more I realise it's gonna error 99%...
+        let allData = String(data.slice(2));
+        let dataSets = allData.split("$");
+
+        let [exilePlayer, exileFaction, legionPlayer, legionFaction] = 
+        [dataSets[0], dataSets[1], dataSets[2], dataSets[3]].map(v => removeLeadingAndEndingChar(v, ',')).map(v => {
+            return (v == "undefined") ? [] : v.split(',');
+        });
+
+        const exile = {
+            player: {} as PlayerGFXData,
+            faction: {} as FactionGFXData
+        };
+
+        const legion = {
+            player: {} as PlayerGFXData,
+            faction: {} as FactionGFXData
+        };
+
+        if(exilePlayer.length > 1) {
+            exile.player = {
+                charName: exilePlayer[0],
+                charRegionInfluence: parseInt(exilePlayer[1]),
+                charLvl: parseInt(exilePlayer[2]),
+                charGender: exilePlayer[3],
+                charClassId: parseInt(exilePlayer[4]),
+                charPri: exilePlayer[5],
+                charSec: exilePlayer[6],
+                charHair: exilePlayer[7],
+                charSkin: exilePlayer[8],
+                charAccnt: exilePlayer[9],
+                charAccnt2: exilePlayer[10],
+                charEye: exilePlayer[11],
+                charArm: parseInt(exilePlayer[12]),
+                charHairS: parseInt(exilePlayer[13]),
+            }
+        }
+
+        if(exileFaction.length > 1) {
+            exile.faction = {
+                fctName: exileFaction[0],
+                fctRegionInfluence: parseInt(exileFaction[1]),
+                fctAlign: parseInt(exileFaction[2]),
+                fctSymb: parseInt(exileFaction[3]),
+                fctSymbClr: exileFaction[4],
+                fctBack: parseInt(exileFaction[5]),
+                fctBackClr: exileFaction[6],
+                fctFlagClr: exileFaction[7],
+            }
+        }
+
+        if(legionPlayer.length > 1) {
+            legion.player = {
+                charName: legionPlayer[0],
+                charRegionInfluence: parseInt(legionPlayer[1]),
+                charLvl: parseInt(legionPlayer[2]),
+                charGender: legionPlayer[3],
+                charClassId: parseInt(legionPlayer[4]),
+                charPri: legionPlayer[5],
+                charSec: legionPlayer[6],
+                charHair: legionPlayer[7],
+                charSkin: legionPlayer[8],
+                charAccnt: legionPlayer[9],
+                charAccnt2: legionPlayer[10],
+                charEye: legionPlayer[11],
+                charArm: parseInt(legionPlayer[12]),
+                charHairS: parseInt(legionPlayer[13]),
+            }
+        }
+
+        if(legionFaction.length > 1) {
+            legion.faction = {
+                fctName: legionFaction[0],
+                fctRegionInfluence: parseInt(legionFaction[1]),
+                fctAlign: parseInt(legionFaction[2]),
+                fctSymb: parseInt(legionFaction[3]),
+                fctSymbClr: legionFaction[4],
+                fctBack: parseInt(legionFaction[5]),
+                fctBackClr: legionFaction[6],
+                fctFlagClr: legionFaction[7],
+            }
+        }
+
+        this.client.smartFox.emit("leader_war_gfx", WarManager.cache.gfx[this.gfxRegionId] = { exile, legion, time });
+
+        //let record = RoomManager.getRoomRecord(this.client.user._currentRoomFileName)
+
+        //var record = RoomManager.getRoomRecord(CurrentUser.instance._currentRoomFileName);
+        /*if(record != null) {
+            this._cacheRegion = record.regionId;
+            this._cacheTimestamp = getTimer();
+            this._exileCache = exile;
+            this._legionCache = legion;
+            this.drawWarLeaders(exile,legion);
+        }*/
+    }
+
+    /**
      * @param {string[]} data
      * @param {"daily"|"overall"} type
      */
@@ -279,6 +423,24 @@ export default class WarManager extends BaseModule {
 
         this.client.smartFox.emit("leader_war", processed, type);
         // this.client.smartFox.emit('get_warleaders_' + type, { player: processed.player, faction: processed.faction, time: Date.now()});
+    }
+
+    async fetchGFXLeaders(regionId?: number) : Promise<WaitForResult<RegionalWarGFX>> {
+        if (regionId === undefined) regionId = this.activeRegionId;
+
+        const cache = WarManager.cache.gfx[regionId];
+        const time = Date.now();
+
+        // gfx cache for 1 hour
+        if (cache && (cache.time + 60000 * 60) > time) {
+            return { success: true, value: cache };
+        }
+
+        this.gfxRegionId = regionId;
+        const wait = waitFor(this.client.smartFox, "leader_war_gfx", undefined, 3000);
+        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_REGIONAL_LEADER_GFX, { regionId }, 1, "json");
+
+        return wait;
     }
 
     /**
@@ -379,14 +541,25 @@ export default class WarManager extends BaseModule {
                 currObjs.reduce((a, b) => a + ((b.alignmentId == 2) ? (b.maxPoints) : 0), 0)
             ],
             remaining: [0, 0],
-            currentPercent: ["0%", "0%"]
+            currentPercent: ["0%", "0%"],
+            gap: 0,
+            gapPt: "0%"
         }
+
+        // Math.abs(points.remaining[0] - points.remaining[1])
 
         points.remaining[0] = points.max[0] - points.current[0];
         points.remaining[1] = points.max[1] - points.current[1];
 
-        points.currentPercent[0] = Math.round((points.current[0] / points.max[0]) * 10000) / 100 + "%";
-        points.currentPercent[1] = Math.round((points.current[1] / points.max[1]) * 10000) / 100 + "%";
+        points.currentPercent[0] = Math.round((points.current[0] / points.max[0]) * 10000) / 100 as unknown as string;// + "%";
+        points.currentPercent[1] = Math.round((points.current[1] / points.max[1]) * 10000) / 100 as unknown as string;// + "%";
+
+        points.gap = Math.abs(points.remaining[0] - points.remaining[1]);
+        //@ts-expect-error
+        points.gapPt = Math.round(Math.abs(points.currentPercent[0] - points.currentPercent[1]) * 10000) / 100 + "%";
+
+        points.currentPercent[0] = points.currentPercent[0] + "%";
+        points.currentPercent[1] = points.currentPercent[1] + "%";
 
         return points;
     }

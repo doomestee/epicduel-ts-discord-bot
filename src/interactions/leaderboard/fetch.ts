@@ -11,6 +11,7 @@ import { AsciiTable3, AlignmentEnum } from "ascii-table3";
 import { IFaction } from "../../Models/Faction.js";
 import { ICharacter } from "../../Models/Character.js";
 import ClassBox from "../../game/box/ClassBox.js";
+import ImageManager from "../../manager/image.js";
 
 function sortFn<T extends Array<any> = Array<any>>(this: T, obj1: any, obj2: any) {
     let index0 = -1; let index1 = -1;
@@ -139,15 +140,15 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
             components[1].components.push({
             // components[components.findIndex(v => v.components[0].customID.startsWith("refresh"))].components.push({
                 type: ComponentTypes.BUTTON, style: 1, customID: `switch_view_lb_${interaction.user.id}_${type}_${userSetting.lb_view === 0 ? 1 : 0}_${cooldown}`, label: "Switch View",
-                emoji: { name: "📷" }// userSetting.lb_view === 1 ? "📰" : "📷" }
+                emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-            // if (userSetting.lb_view === 1) {
-            //     files = [{
-            //         contents: await svg.generateLb(leaderboard, type, epicduel),
-            //         name: "img.png"
-            //     }]; content = "";
-            // }
+        if (userSetting.lb_view === 1) {
+            files = [{
+                contents: await ImageManager.SVG.generator.lb(type, leaders),
+                name: "img.png"
+            }]; content = "";
+        }
         // }
 
         // In case there's nobody in it or smth
