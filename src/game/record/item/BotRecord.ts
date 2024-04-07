@@ -4,7 +4,7 @@ import ItemRecord, { lazyParse } from "./SelfRecord.js";
 
 //["itemId","itemDamage","itemDmgType","corePassiveItemId","coreActiveItemId","corePassiveLock","coreActiveLock"]
 
-export class BotItemRecord extends ItemRecord {
+export default class BotItemRecord extends ItemRecord<11> {
     itemDamage: number;
     itemDmgType: number;
     corePassiveItemId: number;

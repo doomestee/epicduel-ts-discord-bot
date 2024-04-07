@@ -89,9 +89,9 @@ export default class Homes extends BaseModule {
         if (!homeRecord) throw Error("Unknown home, ID: " + this.homeId);
 
         if (Boolean(data.saleFail)) {
-            // console.log(this.client.manager.languages["DYN_home_err_buyFail"]); return;
+            console.log(this.client.swarm.languages["DYN_home_err_buyFail"]); return;
         } if (Boolean(data.noSale)) {
-            // console.log(this.client.manager.languages["DYN_home_err_noMeetReqs"]); return;
+            console.log(this.client.swarm.languages["DYN_home_err_noMeetReqs"]); return;
         }
 
         if (mode === 1) {

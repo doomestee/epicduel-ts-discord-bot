@@ -52,7 +52,7 @@ export default class MapModule extends BaseModule {
     }
 
     joinWorldFailed() {
-        // console.log(this.client.manager.languages["DYN_map_err_worldFull"])
+        console.log(this.client.swarm.languages["DYN_map_err_worldFull"])
     }
 
     saveLocation() {

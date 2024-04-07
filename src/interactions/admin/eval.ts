@@ -4,6 +4,8 @@ import Config from "../../config/index.js";
 import { inspect } from "util";
 import DatabaseManager from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
+import ImageManager from "../../manager/image.js";
+import Logger from "../../manager/logger.js";
 
 export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
     .attach("run", async ({ client, interaction }) => {
@@ -44,6 +46,8 @@ export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
             // for some reason it just wouldnt work if I use DatabaseManager or Swarm.
             let db = DatabaseManager;
             let swarm = Swarm;
+            let image = ImageManager;
+            let logger = Logger;
 
             if (isAsync === 0) {
                 if (code.startsWith("cope")) {

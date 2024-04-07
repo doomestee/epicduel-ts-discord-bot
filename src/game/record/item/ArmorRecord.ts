@@ -2,7 +2,7 @@ import ItemRecord, { lazyParse } from "./SelfRecord.js";
 
 //["itemId","itemSexReq","itemClass","customHeadLink","noHead","noHip","defaultLimbs","corePassiveItemId","coreActiveItemId","corePassiveLock","coreActiveLock"]
 
-export default class ArmorItemRecord extends ItemRecord {
+export default class ArmorItemRecord extends ItemRecord<2> {
     itemSexReq: string;
     itemClass: number;
     customHeadLink: string;

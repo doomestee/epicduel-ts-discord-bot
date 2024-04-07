@@ -6,7 +6,7 @@ import ItemRecord from "./SelfRecord.js";
 
 //["itemId"]
 
-export default class BikeItemRecord extends ItemRecord {
+export default class BikeItemRecord extends ItemRecord<10> {
     constructor(data: any) {
         super(data);
     }

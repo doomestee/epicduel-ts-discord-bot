@@ -16,20 +16,25 @@ export class SharedBox<K extends string | number, T> {
      */
     postprocess?: (v: T) => boolean;
 
+    #staticMap?: Collection<K, T>;
+
     //@ts-expect-error I have no fucking idea, but why can't typeof type please work sob... well... shush
-    constructor(templates: string[], record: typeof T) {
+    constructor(templates: string[], record: typeof T, staticObj?: Collection<K, T>) {
         this.objMap = new Collection<K, T>();
         this.templates = templates;
 
         this.ready = false;
 
         this.record = record;
+
+        if (staticObj) this.#staticMap = staticObj;
     }
 
     populate(data: string[]) {
         if (this.ready) return;
 
         this.objMap.clear();
+        this.#staticMap?.clear();
         let i = 0; let count = data.length / this.templates.length;
 
         while (i < count) {
@@ -42,7 +47,10 @@ export class SharedBox<K extends string | number, T> {
 
             const rec = this.record == null ? obj : new (this.record as any)(obj);
 
-            if ((this.postprocess && this.postprocess(rec)) || this.postprocess == undefined) this.objMap.set(rec[this.templates[0]] as K, rec);//.push(rec);
+            if ((this.postprocess && this.postprocess(rec)) || this.postprocess == undefined) {
+                this.objMap.set(rec[this.templates[0]] as K, rec);//.push(rec);
+                this.#staticMap?.set(rec[this.templates[0]] as K, rec);//.push(rec);
+            }
 
             i++;
         }

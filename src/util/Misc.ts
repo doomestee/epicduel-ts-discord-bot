@@ -15,10 +15,10 @@ export const reversedLevels = levels.toReversed();
 // const { readFile } = require("fs/promises");
 // const { parseStringPromise } = require("xml2js");
 
-export async function requestLangFile(i: number | "backup") : Promise<[boolean, number]> {
+export async function requestLangFile(i: number | "backup", languages: Record<string, string>) : Promise<[boolean, number]> {
     let text: string;
 
-    if (i === "backup") text = await readFile(Config.dataDir + "/backup.xml", "utf-8");
+    if (i === "backup") text = await readFile(Config.cacheDirectory + "/backup.xml", "utf-8");
     else {
         try {
             const { body, statusCode } = await request("https://epicduelstage.artix.com/languages/en" + i + ".xml", { maxRedirections: 1});
@@ -41,6 +41,7 @@ export async function requestLangFile(i: number | "backup") : Promise<[boolean, 
         for (let i = 0; i < xmled.body.field.length; i++) {
             let field = xmled.body.field[i]['$'];
 
+            languages[field.id] = field.txt;
             // epicduel.languages[field.id] = DesignNoteManager.functions.replaceHTMLbits(field.txt);
         }
 
@@ -431,6 +432,23 @@ export async function getCharPage(charName: string) : Promise<{ success: true, r
     return { success: false, extra: { c: statusCode }};
 }
 
+export function filter<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) : T[] {
+    const res:T[] = [];
+
+    for (let i = 0, len = arr.length; i < len; i++) {
+        if (pred(arr[i], i, arr)) res.push(arr[i]);
+    }
+
+    return res;
+}
+
+export function find<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) : T | undefined {
+    for (let i = 0, len = arr.length; i < len; i++) {
+        if (pred(arr[i], i, arr)) return arr[i];
+    }
+    return undefined;
+}
+
 export function findLastIndex<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) {
     let l = arr.length;
     while (l--) {
@@ -503,4 +521,24 @@ export function getHighestTime(time: number | bigint, type: "s" | "ms" | "mi" | 
         case "ns": return time < 1000 ? time + "ns" : getHighestTime(time / 1000, "mi");
         default: return time + String(type);
     }
+}
+
+export function sleep(ms: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
+export function lazyTrimStringList(list: string[], limit=1024, limitByItem=false, separator="\n") {
+    let str = "";
+    let str2 = "";
+
+    for (let i = 0; i < list.length; i++) {
+        str2 += list[i] + separator;
+
+        if ((limitByItem && i === limit) || (!limitByItem && str2.length > limit)) {
+            str += "And " + (list.length - i) + " more.";
+            return str;
+        } str += list[i] + separator;
+    }; return str.slice(0, -separator.length);
 }

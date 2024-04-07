@@ -35,29 +35,29 @@ export default class Customize extends BaseModule {
      * @param {string[]} data
      */
     responseBoughtHair(data: string[]) {
-        // // this.client.smartFox.emit("hair_buy", styleId, cost);
-        // if (data[2] !== "1") return console.log(this.client.manager.languages["DYN_npc_err_buyHairFail"]);
+        // this.client.smartFox.emit("hair_buy", styleId, cost);
+        if (data[2] !== "1") return console.log(this.client.swarm.languages["DYN_npc_err_buyHairFail"]);
 
-        // let cost = {
-        //     credit: parseInt(data[3]),
-        //     varium: parseInt(data[4]),
-        // };
+        let cost = {
+            credit: parseInt(data[3]),
+            varium: parseInt(data[4]),
+        };
 
-        // let styleId = parseInt(data[5]);
+        let styleId = parseInt(data[5]);
 
-        // this.client.currency.credits -= cost.credit;
-        // this.client.currency.varium -= cost.varium;
+        this.client.currency.credits -= cost.credit;
+        this.client.currency.varium -= cost.varium;
 
         // this.client.smartFox.emit("hair_buy", styleId, cost);
 
-        // console.log("Successfully bought a hair (Style ID: %d) for %d credits, %d varium.", styleId, cost.credit, cost.varium);
+        console.log("Successfully bought a hair (Style ID: %d) for %d credits, %d varium.", styleId, cost.credit, cost.varium);
     }
 
     /**
      * @param {string[]} data
      */
     saveCharacterResponse(data: string[]) {
-        // if (data[5] == 1) {
+        // if (data[5] === "1") {
         //     let cost = {
         //         credit: parseInt(data[2]),
         //         varium: parseInt(data[3])

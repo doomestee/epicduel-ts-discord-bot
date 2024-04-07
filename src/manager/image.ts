@@ -27,10 +27,25 @@ export default class ImageManager {
 
         for (let i = 0, len = keys.length; i < len; i++) {
             readdir(Config.dataDir + "/assets/" + keys[i]).then(v => {
-                this.list[keys[i]] = v;
+                for (let j = 0, len = v.length; j < len; j++) {
+                    if (v[j].startsWith("._")) continue; // Fucking shitty macos with the ._file.ext
+
+                    this.list[keys[i]].push(v[j]);
+                }
+
+                // this.list[keys[i]] = v;
                 this.ready[keys[i]] = true;
             });
         }
+    }
+
+    static has(type: ImageItem, str: string) {
+        if (this.list[type] === undefined) return false;
+
+        for (let i = 0, len = this.list[type].length; i < len; i++) {
+            if (this.list[type][i] === str) return true;
+        }
+        return false;
     }
 }
 

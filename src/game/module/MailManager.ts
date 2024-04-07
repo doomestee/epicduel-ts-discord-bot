@@ -98,10 +98,10 @@ export default class MailManager extends BaseModule {
      * @returns
      */
     openCreateMail(recipients: string[]) {
-        // if (this.client.user._chatBlock) return { type: -1, v: this.client.manager.languages["DYN_mail_msg_muted"] };
-        // this.recipients = [];
+        if (this.client.user._chatBlock) return { type: -1, v: this.client.swarm.languages["DYN_mail_msg_muted"] };
+        this.recipients = [];
 
-        // if (recipients) {}
+        if (recipients) {}
     }
 
     replyToMail() {

@@ -556,7 +556,7 @@ export default class WarManager extends BaseModule {
 
         points.gap = Math.abs(points.remaining[0] - points.remaining[1]);
         //@ts-expect-error
-        points.gapPt = Math.round(Math.abs(points.currentPercent[0] - points.currentPercent[1]) * 10000) / 100 + "%";
+        points.gapPt = Math.round(Math.abs(points.currentPercent[0] - points.currentPercent[1]) * 10000) / 10000 + "%";
 
         points.currentPercent[0] = points.currentPercent[0] + "%";
         points.currentPercent[1] = points.currentPercent[1] + "%";

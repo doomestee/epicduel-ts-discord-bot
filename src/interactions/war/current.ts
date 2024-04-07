@@ -62,12 +62,12 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
         
         if (isInCoolDown) extFields.push({ name: "Cooldown", value: `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)`, inline: true });
 
-        let gapCmt = `There's a gap of **${points.gap}** influence (**${points.gapPt}**)`;
+        let gapCmt = `There is a gap of **${points.gap}** influence (**${points.gapPt}**)`;
 
         if (points.gap >= Math.round(points.max[0] / 100)) {
-            const losingAlign = (points.remaining[0] >= points.remaining[1]) ? "n Exile" : " Legion";
+            const losingAlign = (points.remaining[0] >= points.remaining[1]) ? " Legion" : "n Exile";
 
-            gapCmt += `\nThere is enough influence to reach the threshold for a${losingAlign} rally!`;
+            gapCmt += `\nThere is enough influence to reach the threshold for a${losingAlign} rally!\n(Provided it's been 6 hours since the last rally)`;
         } else gapCmt += "\nThe gap must be bigger than 1% for a rally to become feasible.";
 
         return interaction.createFollowup({

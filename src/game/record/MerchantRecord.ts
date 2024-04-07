@@ -57,7 +57,7 @@ export default class MerchantRecord {
             let parts = options[i].split("#");
             let id = parts[0];
 
-            if (parts.length === 2) result.push({ id: parseInt(id), args: parts[1].split(":") });
+            if (parts.length === 2) result.push({ id: parseInt(id), args: parts[1].split(":").map(Number) });
             else result.push({ id: parseInt(id), args: [] });
         }; return result;
     }

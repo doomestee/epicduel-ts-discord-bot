@@ -1,7 +1,9 @@
 import FactionManager from "../../game/module/FactionManager.js";
 import Swarm from "../../manager/epicduel.js";
+import ImageManager from "../../manager/image.js";
 import Command, { CommandType } from "../../util/Command.js";
 import { getHighestTime } from "../../util/Misc.js";
+import type { File } from "oceanic.js";
 
 export default new Command(CommandType.Application, { cmd: ["faction", "view"], waitFor: ["EPICDUEL"], cooldown: 3000, usableEdRestricted: false, gateVerifiedChar: 69 })
     .attach('run', async ({ client, interaction }) => {
@@ -25,6 +27,14 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
         if (!result.success) return interaction.createFollowup({ content: "The faction ID provided is invalid, or the server doesn't want to share, probably the former.", flags: 64 });
 
         const fact = result.value;
+
+        const files:File[] = [{
+            name: "flag.png",
+            contents: await ImageManager.SVG.generator.fact({
+                alignment: fact.alignment as 1 | 2,
+                ...fact.flag
+            })
+        }]
 
         return interaction.createFollowup({
             embeds: [{
@@ -56,10 +66,9 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
                     iconURL: interaction.user.avatarURL()
                 }, footer: {
                     text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
+                }, thumbnail: {
+                    url: "attachment://flag.png"
                 }
-                // }, thumbnail: {
-                //     url: "attachment://logo.png"
-                // }
             }], components: [{
                 type: 1,
                 components: [{
@@ -76,7 +85,7 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
                         emoji: { name: "👥" }
                     }]
                 }]
-            }]
+            }], files
             // }], files: [{
             //     name: "logo.png",
             //     contents: await svg.generateFact({ ...fact.flag, alignment: fact.alignment })

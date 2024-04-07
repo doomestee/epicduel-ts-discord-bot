@@ -25,7 +25,7 @@ export default class InventoryListItem {
 
             if ("coreId" in this.itemRecord) {
                 this.coreRecord = SkillsSMBox.recordById("core", this.itemRecord.coreId);
-                this.coreRecordSkill = SkillsSMBox.recordById("all", this.coreRecord.skillId);
+                this.coreRecordSkill = this.coreRecord ? SkillsSMBox.recordById("all", this.coreRecord.skillId) : undefined;
             }
         }
     }

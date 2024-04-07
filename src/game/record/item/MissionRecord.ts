@@ -4,7 +4,7 @@ import ItemRecord, { lazyParse } from "./SelfRecord.js";
 
 //["itemId","itemDesc"]
 
-export default class MissionItemRecord extends ItemRecord {
+export default class MissionItemRecord extends ItemRecord<12> {
     itemDesc: string;
 
     constructor(data: any) {

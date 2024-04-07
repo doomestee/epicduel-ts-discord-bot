@@ -4,7 +4,7 @@ import ItemRecord, { lazyParse } from "./SelfRecord.js";
 
 //["itemId","coreId","maxCharges"]
 
-export default class CoreItemRecord extends ItemRecord {
+export default class CoreItemRecord extends ItemRecord<9> {
     coreId: number;
     maxCharges: number;
 

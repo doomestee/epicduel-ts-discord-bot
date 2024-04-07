@@ -1,10 +1,12 @@
 //["itemId","itemName","itemCredits","itemVarium","itemLinkage","itemRareId","itemSrcId","itemBuyPerm","itemSellPerm","itemCat"]
 
 import type ArmorItemRecord from "./ArmorRecord.js";
+import type BotItemRecord from "./BotRecord.js";
 import type CoreItemRecord from "./CoreRecord.js";
 import type MissionItemRecord from "./MissionRecord.js";
+import type WeaponRecord from "./WeaponRecord.js";
 
-export default class ItemRecord {
+export default class ItemRecord<T extends number> {
     itemId: number;
     itemName: string;
     itemCredits: number;
@@ -14,7 +16,7 @@ export default class ItemRecord {
     itemSrcId: number;
     itemBuyPerm: number;
     itemSellPerm: number;
-    itemCat: number;
+    itemCat: T;
 
     constructor(data: any) {
         this.itemId = parseInt(data['itemId']);
@@ -26,7 +28,7 @@ export default class ItemRecord {
         this.itemSrcId = parseInt(data['itemSrcId']);
         this.itemBuyPerm = parseInt(data['itemBuyPerm']);
         this.itemSellPerm = parseInt(data['itemSellPerm']);
-        this.itemCat = parseInt(data['itemCat']);
+        this.itemCat = parseInt(data['itemCat']) as T;
     }
 
     /**
@@ -129,6 +131,18 @@ export default class ItemRecord {
             default:
                 return "";
         }
+    }
+
+    isBotItemId() : this is BotItemRecord {
+        return this.itemCat === 11;
+    }
+
+    isWeaponItemRecord() : this is WeaponRecord {
+        const list = [3, 4, 5, 6, 7, 8, 20, 21];
+
+        for (let i = 0, len = list.length; i < len; i++) {
+            if (list[i] === this.itemCat) return true;
+        } return false;
     }
 
     isArmorItemRecord() : this is ArmorItemRecord {

@@ -273,15 +273,13 @@ export default new ClientEvent("interactionCreate", function (int) {
                 int.data.options.raw[0].type === ApplicationCommandOptionTypes.SUB_COMMAND || int.data.options.raw[0].type === ApplicationCommandOptionTypes.SUB_COMMAND_GROUP ? int.data.options.getSubCommand()?.join(" ") : ""
             ) : int.data.name).trimEnd();
 
-            switch (int.data.type) {
-                case ApplicationCommandTypes.CHAT_INPUT:
-                    cmd = CommandHandler.autocompleteCmdMap[commandName + " " + int.data.options.getFocused(true)];
-                    break;
+            cmd = CommandHandler.autocompleteCmdMap[commandName + " " + int.data.options.getFocused(true).name];
                 // default:
                 //     return;// int.createMessage({ content: "You've used a type of command not recognised by the bot!", flags: 64 });
-            }
 
-            return int.result([{ name: "meow", value: "1234" }]);
+            return cmd ? executeCommand.bind(this)(int, cmd, {}, true) : undefined;
+
+            // return int.result([{ name: "meow", value: "1234" }]);
         case InteractionTypes.MODAL_SUBMIT:
             // I'm not simplifying this with component because of the exclusion of .componentType... yes I could simplify further but i cba
             let coomId = matchCustomID(CommandHandler.compKeys, int.data.customID);

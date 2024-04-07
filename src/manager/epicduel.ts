@@ -8,6 +8,7 @@ import { SFSClientEvents } from "../types/events.js";
 import { Requests } from "../game/Constants.js";
 import Logger from "./logger.js";
 import EDCycler from "../util/EDCycler.js";
+import SwarmResources from "../util/game/SwarmResources.js";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -237,6 +238,16 @@ export default class Swarm {
         }
 
         return undefined;
+    }
+
+    static readonly resources = new SwarmResources()
+
+    static get languages() {
+        return this.resources.languages;
+    }
+
+    static langCheck(key: string) {
+        return this.resources.languages[key] ?? key;
     }
 }
 

@@ -2,7 +2,7 @@ import { Collection } from "oceanic.js";
 import ItemRecord from "../record/item/SelfRecord.js";
 import MissionItemRecord from "../record/item/MissionRecord.js";
 import BikeItemRecord from "../record/item/BikeRecord.js";
-import { BotItemRecord } from "../record/item/BotRecord.js";
+import BotItemRecord from "../record/item/BotRecord.js";
 import ArmorItemRecord from "../record/item/ArmorRecord.js";
 import CoreItemRecord from "../record/item/CoreRecord.js";
 import WeaponRecord from "../record/item/WeaponRecord.js";
@@ -11,35 +11,36 @@ import User from "../sfs/data/User.js";
 export type AnyItemRecordsExceptSelf = MissionItemRecord | BikeItemRecord | BotItemRecord | ArmorItemRecord | CoreItemRecord | WeaponRecord;
 
 const _objMap = new Collection<number, AnyItemRecordsExceptSelf>();
-
+let _merchantInvList = [] as number[][]//unknown as [merchantId: number[]];// as { [merchantId: number]: number[] };
+let _itemMerchantList = [] as [npcId: number][];//unknown as Array<[itemId: number]>;//as { [itemId: number]: [npcId: number] };
 export default class ItemSBox {
     //#region Permission (Sell or Buy)
-    static SELL_PERM_NORMAL = 1;
-    static SELL_PERM_NO_SALE = 2;
+    static readonly SELL_PERM_NORMAL = 1;
+    static readonly SELL_PERM_NO_SALE = 2;
     
-    static BUY_PERM_NORMAL = 0;
-    static BUY_PERM_ONE = 1;
-    static BUY_PERM_UNAVAIL = 2;
+    static readonly BUY_PERM_NORMAL = 0;
+    static readonly BUY_PERM_ONE = 1;
+    static readonly BUY_PERM_UNAVAIL = 2;
     //#endregion
 
     //#region Source
-    static SOURCE_MERCHANT_SHOP = 0;
-    static SOURCE_LEGACY = 1;
-    static SOURCE_BATTLE_DROP = 2;
-    static SOURCE_PROMO = 3;
-    static SOURCE_NPC_ONLY = 4;
-    static SOURCE_ARCADE_PRIZE = 5;
-    static SOURCE_MISSION_ITEM = 6;
+    static readonly SOURCE_MERCHANT_SHOP = 0;
+    static readonly SOURCE_LEGACY = 1;
+    static readonly SOURCE_BATTLE_DROP = 2;
+    static readonly SOURCE_PROMO = 3;
+    static readonly SOURCE_NPC_ONLY = 4;
+    static readonly SOURCE_ARCADE_PRIZE = 5;
+    static readonly SOURCE_MISSION_ITEM = 6;
     //#endregion
 
     //#region Rare
-    static RARE_NORMAL = 0;
-    static RARE_SEASONAL = 1;
-    static RARE_LIMITED = 2;
-    static RARE_RARE = 3;
-    static RARE_ULTRA = 4;
-    static RARE_LEGENDARY = 5;
-    static RARE_BATTLEPASS = 6;
+    static readonly RARE_NORMAL = 0;
+    static readonly RARE_SEASONAL = 1;
+    static readonly RARE_LIMITED = 2;
+    static readonly RARE_RARE = 3;
+    static readonly RARE_ULTRA = 4;
+    static readonly RARE_LEGENDARY = 5;
+    static readonly RARE_BATTLEPASS = 6;
     //#endregion
 
     static ITEM_CATEGORY_ALL = "All";
@@ -56,22 +57,22 @@ export default class ItemSBox {
     static ITEM_CATEGORY_MISSION = "Mission";
     static ITEM_CATEGORY_PRIMARY = "Primary";
 
-    static ITEM_CATEGORY_ALL_ID = 1;
-    static ITEM_CATEGORY_ARMOR_ID = 2;
-    static ITEM_CATEGORY_SWORD_ID = 3;
-    static ITEM_CATEGORY_CLUB_ID = 4;
-    static ITEM_CATEGORY_STAFF_ID = 5;
-    static ITEM_CATEGORY_GUN_ID = 6;
-    static ITEM_CATEGORY_BLADE_ID = 7;
-    static ITEM_CATEGORY_AUXILIARY_ID = 8;
-    static ITEM_CATEGORY_CORE_ID = 9;
-    static ITEM_CATEGORY_VEHICLE_ID = 10;
-    static ITEM_CATEGORY_BOT_ID = 11;
-    static ITEM_CATEGORY_MISSION_ID = 12;
-    static ITEM_CATEGORY_MUTATE_ID = 20;
-    static ITEM_CATEGORY_PRIMARY_ID = 21;
+    static readonly ITEM_CATEGORY_ALL_ID = 1;
+    static readonly ITEM_CATEGORY_ARMOR_ID = 2;
+    static readonly ITEM_CATEGORY_SWORD_ID = 3;
+    static readonly ITEM_CATEGORY_CLUB_ID = 4;
+    static readonly ITEM_CATEGORY_STAFF_ID = 5;
+    static readonly ITEM_CATEGORY_GUN_ID = 6;
+    static readonly ITEM_CATEGORY_BLADE_ID = 7;
+    static readonly ITEM_CATEGORY_AUXILIARY_ID = 8;
+    static readonly ITEM_CATEGORY_CORE_ID = 9;
+    static readonly ITEM_CATEGORY_VEHICLE_ID = 10;
+    static readonly ITEM_CATEGORY_BOT_ID = 11;
+    static readonly ITEM_CATEGORY_MISSION_ID = 12;
+    static readonly ITEM_CATEGORY_MUTATE_ID = 20;
+    static readonly ITEM_CATEGORY_PRIMARY_ID = 21;
 
-    static ITEM_CATEGORY_MAPPED_BY_ID = [null, "All", "Armor", "Sword", "Club", "Staff", "Gun", "Blade", "Auxiliary", "Core", "Vehicle", "Bot", "Mission", null, null, null, null, null, null, null, "Mutate", "Primary"]
+    static readonly ITEM_CATEGORY_MAPPED_BY_ID = [null, "All", "Armor", "Sword", "Club", "Staff", "Gun", "Blade", "Auxiliary", "Core", "Vehicle", "Bot", "Mission", null, null, null, null, null, null, null, "Mutate", "Primary"]
 
     static PRIMARY_DAMAGE = [0,110,110,110,110,110,110,120,130,130,140,150,160,160,170,180,190,190,200,210,220,220,230,240,240,250,260,270,270,280,290,300,300,310,320,330,330,340,340,340,350];
     static GUN_DAMAGE = [0,110,110,110,110,110,120,130,130,140,150,160,160,170,180,190,190,200,210,210,220,230,240,240,250,260,270,270,280,290,300,300,310,320,320,330,340,340,340,350,350];
@@ -89,8 +90,24 @@ export default class ItemSBox {
 
     protected _data = [null, null, null, null] as unknown as [string[], string[], string[], string[]];
 
-    protected _merchantInvList = {} as { [merchantId: number]: number[] };
-    protected _itemMerchantList = {} as { [itemId: number]: [npcId: number] };
+    protected static get _merchantInvList() {
+        return _merchantInvList;
+    }
+
+    protected static get _itemMerchantList() {
+        return _itemMerchantList;
+    }
+
+    protected get _merchantInvList() {
+        return _merchantInvList;
+    }
+
+    protected get _itemMerchantList() {
+        return _itemMerchantList;
+    }
+
+    // protected _merchantInvList = {} as { [merchantId: number]: number[] };
+    // protected _itemMerchantList = {} as { [itemId: number]: [npcId: number] };
 
     templates = {
         self: ["itemId","itemName","itemCredits","itemVarium","itemLinkage","itemRareId","itemSrcId","itemBuyPerm","itemSellPerm","itemCat"],
@@ -125,8 +142,8 @@ export default class ItemSBox {
     }
 
     set merchantInvList(value) {
-        this._itemMerchantList = [];
-        this._merchantInvList = value;
+        _itemMerchantList.splice(0);// = [];
+        _merchantInvList = value;
 
         const items = Array.from(this.objMap.values());
 
@@ -146,6 +163,17 @@ export default class ItemSBox {
      * @returns {number[]}
      */
     getMerchantIdsForItem(itemId: number) : [npcId: number] | [] {
+        let i = this._itemMerchantList[itemId];
+        if (i != null && i.length > 0) return i;
+        return [];
+    }
+
+    /**
+     * Note that unfortunately, the game only gives one merchant id for each item, either that or just 0 if none sells it. If ther'es a multiple NPCs selling the same thing, the game only shows one.
+     * @param {*} itemId
+     * @returns {number[]}
+     */
+    static getMerchantIdsForItem(itemId: number) : [npcId: number] | [] {
         let i = this._itemMerchantList[itemId];
         if (i != null && i.length > 0) return i;
         return [];
@@ -471,7 +499,7 @@ export default class ItemSBox {
         return weaponCategories.indexOf(itemCat) != -1;
     }
 
-    static rareText(rareId=0, joiner='-') {
+    static rareText(rareId: number, joiner='-') {
         switch (rareId) {
             case this.RARE_NORMAL: return "Normal";
             case this.RARE_SEASONAL: return "Seasonal" + joiner + "Rare";
@@ -480,10 +508,10 @@ export default class ItemSBox {
             case this.RARE_ULTRA: return "Ultra" + joiner + "Rare";
             case this.RARE_LEGENDARY: return "Legendary" + joiner + "Rare";
             case this.RARE_BATTLEPASS: return "Battlepass";
-        }; return null;
+        }; return "Unknown rarity"; //throw Error("No valid rare ID");
     }
 
-    static sourceText(sourceId=0, pre=true) {
+    static sourceText(sourceId: number, pre=true) {
         switch (sourceId) {
             case this.SOURCE_MERCHANT_SHOP: return pre ? "This was/is from a merchant's shop." : "A Merchant's Shop";
             case this.SOURCE_LEGACY: return pre ? "This is a legacy item, no longer available." : "Legacy Item";
@@ -492,6 +520,6 @@ export default class ItemSBox {
             case this.SOURCE_NPC_ONLY: return pre ? "This was/is dropped from a NPC." : "NPC Drop...?";
             case this.SOURCE_ARCADE_PRIZE: return pre ? "This is a prize from an arcade." : "Arcade Prize";
             case this.SOURCE_MISSION_ITEM: return pre ? "This is an item rewarded from a mission..?" : "Mission Reward";
-        }
+        }; return "Unknown source";
     }
 }

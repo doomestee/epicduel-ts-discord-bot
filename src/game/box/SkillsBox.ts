@@ -11,6 +11,7 @@ import ImproveRulesRecord from "../record/skills/ImproveRulesRecord.js";
 import ClientRequirementsRecord from "../record/skills/ClientRequirementsRecord.js";
 import TreeRecord from "../record/skills/TreeRecord.js";
 import CoreRecord from "../record/skills/CoreRecord.js";
+import { BasicSkillObject, CoreSkillObject, Mode, TreeSkillObject } from "../record/SkillObject.js";
 
 const objMap = {
     all: new Collection<number, AllRecord>(),
@@ -222,17 +223,17 @@ export default class SkillsSMBox {
         }
     }
 
-    recordById(type: "all", id: number) : AllRecord;
-    recordById(type: "active", id: number) : ActiveRecord;
-    recordById(type: "activeMiscRules", id: number) : ActiveMiscRulesRecord;
-    recordById(type: "activeAttackRules", id: number) : ActiveAttackRulesRecord;
-    recordById(type: "activeTargetRules", id: number) : ActiveTargetRulesRecord;
-    recordById(type: "passive", id: number) : PassiveRecord;
-    recordById(type: "passiveMiscRules", id: number) : PassiveMiscRulesRecord;
-    recordById(type: "passiveStatRules", id: number) : PassiveStatRulesRecord;
-    recordById(type: "improveRules", id: number) : ImproveRulesRecord;
-    recordById(type: "clientRequirements", id: number) : ClientRequirementsRecord;
-    recordById(type: "core", id: number) : CoreRecord;
+    recordById(type: "all", id: number) : AllRecord | undefined;
+    recordById(type: "active", id: number) : ActiveRecord | undefined;
+    recordById(type: "activeMiscRules", id: number) : ActiveMiscRulesRecord | undefined;
+    recordById(type: "activeAttackRules", id: number) : ActiveAttackRulesRecord | undefined;
+    recordById(type: "activeTargetRules", id: number) : ActiveTargetRulesRecord | undefined;
+    recordById(type: "passive", id: number) : PassiveRecord | undefined;
+    recordById(type: "passiveMiscRules", id: number) : PassiveMiscRulesRecord | undefined;
+    recordById(type: "passiveStatRules", id: number) : PassiveStatRulesRecord | undefined;
+    recordById(type: "improveRules", id: number) : ImproveRulesRecord | undefined;
+    recordById(type: "clientRequirements", id: number) : ClientRequirementsRecord | undefined;
+    recordById(type: "core", id: number) : CoreRecord | undefined;
     recordById(type: Exclude<SkillTypes, "tree">, id: number) {
         let identifier = 'skillId';
 
@@ -242,20 +243,20 @@ export default class SkillsSMBox {
         if (type === "passiveStatRules") identifier = "statRulesId";
         if (type === "core") identifier = "coreId";
 
-        return this.objMap[type]?.get(id) ?? null;
+        return this.objMap[type]?.get(id);
     }
 
-    static recordById(type: "all", id: number) : AllRecord;
-    static recordById(type: "active", id: number) : ActiveRecord;
-    static recordById(type: "activeMiscRules", id: number) : ActiveMiscRulesRecord;
-    static recordById(type: "activeAttackRules", id: number) : ActiveAttackRulesRecord;
-    static recordById(type: "activeTargetRules", id: number) : ActiveTargetRulesRecord;
-    static recordById(type: "passive", id: number) : PassiveRecord;
-    static recordById(type: "passiveMiscRules", id: number) : PassiveMiscRulesRecord;
-    static recordById(type: "passiveStatRules", id: number) : PassiveStatRulesRecord;
-    static recordById(type: "improveRules", id: number) : ImproveRulesRecord;
-    static recordById(type: "clientRequirements", id: number) : ClientRequirementsRecord;
-    static recordById(type: "core", id: number) : CoreRecord;
+    static recordById(type: "all", id: number) : AllRecord | undefined;
+    static recordById(type: "active", id: number) : ActiveRecord | undefined;
+    static recordById(type: "activeMiscRules", id: number) : ActiveMiscRulesRecord | undefined;
+    static recordById(type: "activeAttackRules", id: number) : ActiveAttackRulesRecord | undefined;
+    static recordById(type: "activeTargetRules", id: number) : ActiveTargetRulesRecord | undefined;
+    static recordById(type: "passive", id: number) : PassiveRecord | undefined;
+    static recordById(type: "passiveMiscRules", id: number) : PassiveMiscRulesRecord | undefined;
+    static recordById(type: "passiveStatRules", id: number) : PassiveStatRulesRecord | undefined;
+    static recordById(type: "improveRules", id: number) : ImproveRulesRecord | undefined;
+    static recordById(type: "clientRequirements", id: number) : ClientRequirementsRecord | undefined;
+    static recordById(type: "core", id: number) : CoreRecord | undefined;
     static recordById(type: Exclude<SkillTypes, "tree">, id: number) {
         let identifier = 'skillId';
 
@@ -265,15 +266,16 @@ export default class SkillsSMBox {
         if (type === "passiveStatRules") identifier = "statRulesId";
         if (type === "core") identifier = "coreId";
 
-        return this.objMap[type]?.get(id) ?? null;
+        return this.objMap[type]?.get(id);
     }
 
-    recordBySkillId(type: "all", skillId: number) : AllRecord;
-    recordBySkillId(type: "active", skillId: number) : ActiveRecord;
-    recordBySkillId(type: "passive", skillId: number) : PassiveRecord;
-    recordBySkillId(type: "core", skillId: number) : CoreRecord;
-    recordBySkillId(type: "all" | "active" | "passive" | "core", skillId: number) {
-        const list = this.objMap[type].toArray();
+    recordBySkillId(type: "all", skillId: number) : AllRecord | null;
+    recordBySkillId(type: "active", skillId: number) : ActiveRecord | null;
+    recordBySkillId(type: "passive", skillId: number) : PassiveRecord | null;
+    recordBySkillId(type: "core", skillId: number) : CoreRecord | null;
+    recordBySkillId(type: "tree", skillId: number) : TreeRecord | null;
+    recordBySkillId(type: "all" | "active" | "passive" | "core" | "tree", skillId: number){
+        const list = type === "tree" ? this.objList[type] : this.objMap[type].toArray();
 
         for (let i = 0; i < list.length; i++) {
             if (list[i]["skillId"] == skillId) {
@@ -284,12 +286,13 @@ export default class SkillsSMBox {
         return null;
     }
 
-    static recordBySkillId(type: "all", skillId: number) : AllRecord;
-    static recordBySkillId(type: "active", skillId: number) : ActiveRecord;
-    static recordBySkillId(type: "passive", skillId: number) : PassiveRecord;
-    static recordBySkillId(type: "core", skillId: number) : CoreRecord;
-    static recordBySkillId(type: "all" | "active" | "passive" | "core", skillId: number) {
-        const list = this.objMap[type].toArray();
+    static recordBySkillId(type: "all", skillId: number) : AllRecord | null;
+    static recordBySkillId(type: "active", skillId: number) : ActiveRecord | null;
+    static recordBySkillId(type: "passive", skillId: number) : PassiveRecord | null;
+    static recordBySkillId(type: "core", skillId: number) : CoreRecord | null;
+    static recordBySkillId(type: "tree", skillId: number) : TreeRecord | null;
+    static recordBySkillId(type: "all" | "active" | "passive" | "core" | "tree", skillId: number) {
+        const list = type === "tree" ? this.objList[type] : this.objMap[type].toArray();
 
         for (let i = 0; i < list.length; i++) {
             if (list[i]["skillId"] == skillId) {
@@ -318,5 +321,32 @@ export default class SkillsSMBox {
         }
 
         return result;
+    }
+
+    /**
+     * @param id MUST BE SKILL ID
+     */
+    static getSkillInfoById(id: number) {
+        let mode = Mode.CORE;
+        let treeC = this.recordBySkillId("tree", id);
+        
+        if ([50, 691, 51, 52].some(v => v === id)) mode = Mode.BASIC;
+        else if (treeC) mode = Mode.TREE;
+
+        if (mode === Mode.CORE) {
+            const core = this.recordBySkillId("core", id);
+
+            if (core) return new CoreSkillObject(core.coreId, mode, 1, this);
+            else return null;//throw Error("Unknown skill info.");
+
+            // id = this.client.boxes.skills.recordBySkillId("core", id);
+
+            // if (id === null) return null;
+            // id = id.coreId;
+        } else if (mode === Mode.TREE) {
+            return treeC ? new TreeSkillObject(treeC, mode, 1, this) : null;
+        } else if (mode === Mode.BASIC) return new BasicSkillObject(id, mode, 1, this);
+        else return null;
+        // return new SkillObject(id, mode, 1, this.client.boxes.skills);
     }
 }

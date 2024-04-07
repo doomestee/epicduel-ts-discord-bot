@@ -99,7 +99,7 @@ export default class CommandHandler {
 
             if (cmd.type === CommandType.Application) countApp++;
             if (cmd.type === CommandType.Component || cmd.type === CommandType.Modal) countComp++;
-            if (cmd.type === CommandType.Modal) countAuto++;
+            if (cmd.type === CommandType.Autocomplete) countAuto++;
         }
 
         Logger.getLogger("Events").debug(`Successfully loaded ${countApp} application command(s), ${countComp} component(s) and ${countAuto} autocomplete(s).`);

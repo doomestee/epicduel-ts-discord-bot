@@ -1,5 +1,7 @@
+import Swarm from "../../../manager/epicduel.js";
 import type Client from "../../Proximus.js";
 import ItemSBox, { AnyItemRecordsExceptSelf } from "../../box/ItemBox.js";
+import MerchantSBox from "../../box/MerchantBox.js";
 import type MerchantRecord from "../MerchantRecord.js";
 
 export default class ItemFinderRecord {
@@ -19,7 +21,16 @@ export default class ItemFinderRecord {
         var: "",
     }
 
-    constructor(public itemRecord: AnyItemRecordsExceptSelf, client: Client) {
+    constructor(public itemRecord: AnyItemRecordsExceptSelf, client?: Client | { boxes: { item: typeof ItemSBox, merchant: typeof MerchantSBox } }) {
+        if (!client) {
+            client = {
+                boxes: {
+                    item: ItemSBox,
+                    merchant: MerchantSBox,
+                }
+            }
+        }
+
         if (typeof itemRecord === "number") this.itemRecord = client.boxes.item.objMap.get(itemRecord) as AnyItemRecordsExceptSelf;
 
         this.merchantIds = client.boxes.item.getMerchantIdsForItem(this.itemRecord.itemId);
@@ -27,7 +38,11 @@ export default class ItemFinderRecord {
         let merchants = [] as MerchantRecord[];
 
         if (this.merchantIds.length) {
-            merchants = client.boxes.merchant.objMap.filter(v => this.merchantIds.includes(v.merchantId));
+            const merchs = client.boxes.merchant.objMap.toArray();
+
+            for (let i = 0, len = merchs.length; i < len; i++) {
+                if (this.merchantIds.includes(merchs[i].merchantId)) merchants.push(merchs[i]);
+            } // merchants = client.boxes.merchant.objMap.filter(v => this.merchantIds.includes(v.merchantId));
 
             if (merchants.length) this.canJump = this.checkCanJump(merchants);
         }
@@ -42,9 +57,9 @@ export default class ItemFinderRecord {
             this.reason = "";
 
             switch (this.itemRecord.itemSrcId) {
-                // case ItemSBox.SOURCE_LEGACY: this.reason = client.manager.languages["DYN_inv_txt_srcLegacy"];
-                // case ItemSBox.SOURCE_BATTLE_DROP: this.reason = client.manager.languages["DYN_inv_txt_srcBattleDrop"];
-                // case ItemSBox.SOURCE_PROMO: this.reason = client.manager.languages["DYN_inv_txt_srcPromo"];
+                case ItemSBox.SOURCE_LEGACY: this.reason = Swarm.languages["DYN_inv_txt_srcLegacy"];
+                case ItemSBox.SOURCE_BATTLE_DROP: this.reason = Swarm.languages["DYN_inv_txt_srcBattleDrop"];
+                case ItemSBox.SOURCE_PROMO: this.reason = Swarm.languages["DYN_inv_txt_srcPromo"];
                 case ItemSBox.SOURCE_ARCADE_PRIZE: this.reason = "ARCADE TOKEN";
                 case ItemSBox.SOURCE_MISSION_ITEM: this.reason = "MISSION ITEM";
             }

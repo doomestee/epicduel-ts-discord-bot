@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@types/dot-object": "^2.1.6",
+    "@types/fuzzy-search": "^2.1.5",
     "@types/node": "^20.5.1",
     "@types/pg": "8.11.3",
     "@types/xml2js": "^0.4.14",
@@ -21,6 +22,7 @@
     "dotenv": "^16.4.5",
     "fast-xml-parser": "^4.3.6",
     "fastq": "^1.17.1",
+    "fuzzy-search": "^3.2.1",
     "glob": "^10.3.10",
     "iconv-lite": "^0.6.3",
     "jimp": "^0.22.12",

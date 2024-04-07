@@ -12,14 +12,15 @@ interface UserProcessState {
     refreshLb: boolean;
 }
 
-interface MainMessageStorage {
+export interface MainMessageStorage {
     track: { [characterId: string]: number },
     state: boolean,
     users: { [characterId: string]: string },
     whites: string[],
     aaa: boolean,
     autoBattle: { onPwHour: boolean, lastDone: number, left: number },
-    haltSnipe: boolean
+    haltSnipe: boolean,
+    noDonate: boolean
 }
 
 export default class Hydra extends Client {
