@@ -1,4 +1,4 @@
-import { ActionRowBase, AnyGuildInteraction, AnyPrivateInteraction, ApplicationCommandOptionTypes, ApplicationCommandTypes, ButtonStyles, CommandInteraction, ComponentTypes, InteractionTypes, MessageActionRow, MessageComponent } from "oceanic.js";
+import { ActionRowBase, AnyCommandInteraction, AnyGuildInteraction, AnyPrivateInteraction, ApplicationCommandOptionTypes, ApplicationCommandTypes, ButtonStyles, CommandInteraction, ComponentTypes, InteractionOptionsSubCommand, InteractionOptionsSubCommandGroup, InteractionOptionsWithValue, InteractionOptionsWrapper, InteractionTypes, MessageActionRow, MessageComponent } from "oceanic.js";
 import ClientEvent from "../../util/ClientEvent.js";
 import CommandHandler from "../../handler/command.js";
 import type Command from "../../util/Command.js";
@@ -7,6 +7,22 @@ import { CommandType, AnyCommand } from "../../util/Command.js";
 import Logger from "../../manager/logger.js";
 import DatabaseManager from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
+import { map } from "../../util/Misc.js";
+
+export function spitOptions(int: AnyCommandInteraction, cmdName?: string) {
+    cmdName = int.data.name;
+    let opts = int.data.options.raw;
+
+    if (opts.length === 0) return `/${cmdName}`;
+
+    // Checks if it is a group
+    let group = opts.find(a => a.type === 2) as InteractionOptionsSubCommandGroup;
+    let sub_cmd = (group) ? group.options?.find(a => a.type === 1) as InteractionOptionsSubCommand : opts.find(a => a.type === 1) as InteractionOptionsSubCommand;
+
+    if (group && sub_cmd) return `/${cmdName} ${group.name} ${sub_cmd.name} ${(sub_cmd.options) ? map(sub_cmd.options as InteractionOptionsWithValue[], a => `${a.name}:${a.value}`).join(' ') : ''}`.trim();
+    else if (sub_cmd)     return `/${cmdName} ${sub_cmd.name} ${(sub_cmd.options) ? map(sub_cmd.options as InteractionOptionsWithValue[], a => `${a.name}:${a.value}`).join(' ') : ''}`.trim();
+    else                  return `/${cmdName} ${(opts.length) ? map(opts as InteractionOptionsWithValue[], a => `${a.name}:${a.value}`).join(' ') : ''}`.trim();
+}
 
 async function executeCommand(this: Hydra, int: AnyGuildInteraction | AnyPrivateInteraction, cmd: AnyCommand, variables: Record<string, string>, first = true) {
     // For type narrowing.

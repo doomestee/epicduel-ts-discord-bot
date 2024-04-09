@@ -167,36 +167,6 @@ export default class Hydra extends Client {
         let correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 3, 4, 17, 5, 6, 18, 15, 20, 666] as const;
 
         const commands: CreateApplicationCommandOptions[] = [{
-            name: "notification", description: "Notifying mummy", type: ApplicationCommandTypes.CHAT_INPUT,
-            options: [{
-                name: "rally", description: "Rally notifications",
-                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-                options: [{
-                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    description: "Creates a rally notification",
-                    name: "create", options: [{
-                        type: ApplicationCommandOptionTypes.STRING,
-                        name: "type", description: "The type of the rally", required: true, choices: [{name: "Legion", value: "warRallyLegion"}, {name: "Exile", value: "warRallyExile"}]
-                    }, {
-                        type: ApplicationCommandOptionTypes.STRING,
-                        name: "message", description: "Message to send when there's a rally.", required: true
-                    }, {
-                        type: ApplicationCommandOptionTypes.CHANNEL,
-                        name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
-                        channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
-                    }]
-                }, {
-                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    description: "Removes a rally notification",
-                    name: "delete", options: [{
-                        type: ApplicationCommandOptionTypes.INTEGER,
-                        name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
-                    }]
-                }]
-            }],
-            contexts: [InteractionContextTypes.GUILD],
-            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
-        }, {
             name: "note", description: "Design deez nu- i mean notes.", type: 1, options: [{
                 name: "register",
                 description: "This will register the channel to receive design notes notifications.",
@@ -451,6 +421,48 @@ export default class Hydra extends Client {
             name: "track", description: "MISC", type: ApplicationCommandTypes.CHAT_INPUT,
             contexts: [InteractionContextTypes.PRIVATE_CHANNEL, InteractionContextTypes.BOT_DM],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
+        }, {
+            name: "notification", description: "Notifying mummy", type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                name: "rally", description: "Rally notifications",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+                options: [{
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                    description: "Creates a rally notification",
+                    name: "create", options: [{
+                        type: ApplicationCommandOptionTypes.STRING,
+                        name: "type", description: "The type of the rally", required: true, choices: [{name: "Legion", value: "warRallyLegion"}, {name: "Exile", value: "warRallyExile"}]
+                    }, {
+                        type: ApplicationCommandOptionTypes.STRING,
+                        name: "message", description: "Message to send when there's a rally.", required: true
+                    }, {
+                        type: ApplicationCommandOptionTypes.CHANNEL,
+                        name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
+                        channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
+                    }]
+                }, {
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                    description: "Removes a rally notification",
+                    name: "delete", options: [{
+                        type: ApplicationCommandOptionTypes.INTEGER,
+                        name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
+                    }]
+                }]
+            }, {
+                name: "note", description: "Note notifications (creates a webhook)",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+                options: [{
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                    description: "Creates a notification for design notes (uses a webhook)",
+                    name: "create", options: [{
+                        type: ApplicationCommandOptionTypes.CHANNEL, required: true,
+                        name: "channel", description: "The channel to receive new design notes.",
+                        channelTypes: [ChannelTypes.GUILD_TEXT]
+                    }]
+                }]
+            }],
+            contexts: [InteractionContextTypes.GUILD],
+            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
         });
 
         // if (commands.length !== 5) process.exit(1);
