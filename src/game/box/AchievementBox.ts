@@ -1,7 +1,8 @@
+import { Collection } from "oceanic.js";
 import AchievementRecord from "../record/AchievementRecord.js";
 import { SharedBox } from "./SharedBox.js";
 
-export default class AchievementBox extends SharedBox<number, AchievementRecord> {
+export default class AchievementSBox extends SharedBox<number, AchievementRecord> {
     static CATEGORY_ALL: -1;
     static CATEGORY_GENERAL: 1;
     static CATEGORY_WAR: 2;
@@ -14,8 +15,10 @@ export default class AchievementBox extends SharedBox<number, AchievementRecord>
 
     availList: AchievementRecord[];
 
+    static objMap = new Collection<number, AchievementRecord>();
+
     constructor() {
-        super(["achId", "achLink", "achName", "achDetails", "achRating", "achGroup", "hasBuyUpgrades", "achCredits", "achDisplayCountReq", "achGroupTier", "categoryId", "visibleWhenUnowned", "isBuyable", "rarityId"], AchievementRecord);
+        super(["achId", "achLink", "achName", "achDetails", "achRating", "achGroup", "hasBuyUpgrades", "achCredits", "achDisplayCountReq", "achGroupTier", "categoryId", "visibleWhenUnowned", "isBuyable", "rarityId"], AchievementRecord, AchievementSBox.objMap);
 
         this.availList = [];
 

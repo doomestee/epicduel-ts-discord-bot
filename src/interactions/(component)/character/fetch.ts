@@ -125,8 +125,6 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
 
         if (charPgName === "🗑️ (trrrrash)") charPgName = "Retro";
 
-        console.log(type, charPgName);
-
         let charPg = await getCharPage(charPgName);
 
         const respond = (type === "1") ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction);
@@ -134,8 +132,6 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
         if (!charPg.success) return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64 });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
 
         if (Object.keys(charPg.result).length < 2) return respond({ content: "The character doesn't exist" + (type === "1" ? ", may be using a different name now" : "") + ".\nCharacter searched: `" + charPgName + "`", components: []});
-
-        console.log(charPg.result);
 
         const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [charPg.result.charId]).then(v => v.rows);
         const [charLinkFact] = await DatabaseManager.cli.query<ICharacter & { discord_id: string, linkflags: number, factname: string, factalignment: 1|2 }>(`select char.*, link.discord_id, link.flags as linkflags, faction.name as factName, faction.alignment as factAlignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where char.id = $1`, [charPg.result.charId]).then(v => v.rows);

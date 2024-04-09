@@ -367,10 +367,13 @@ export const emojis = {
 
     letters: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴"],
 
-    alignment: ["", "exile:1085244911005208596", "legion:1085244935042764881"]
+    alignment: ["", "exile:1085244911005208596", "legion:1085244935042764881"],
+
+    numbers: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "keycap_eleven:1226302349169922190", "keycap_twelve:1226302356149244077", "keycap_thirteen:1226302407302975561", "keycap_fourteen:1226302423518154763", "keycap_fifteen:1226302448403087450", "keycap_sixteen:1226302620558163988", "keycap_seventeen:1226302640305209497", "keycap_eighteen:1226302655652036649", "keycap_nineteen:1226302676569165836", "keycap_twenty:1226302710618263552", "keycap_twenty_one:1226302813483565066", "keycap_twenty_two:1226302832672505887", "keycap_twenty_three:1226302847730061332", "keycap_twenty_four:1226302865698590740", "keycap_twenty_five:1226302905863377026"].map(v => { const a = v.split(":"); return a.length === 1 ? { id: null, name: a[0] } : { id: a[1], name: a[0] } }) as { id: string | null, name: string }[]
 };
 
 export const letters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
+export const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
 
 export interface CharPageResult {
     armClass: string,
@@ -432,7 +435,18 @@ export async function getCharPage(charName: string) : Promise<{ success: true, r
     return { success: false, extra: { c: statusCode }};
 }
 
-export function filter<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) : T[] {
+export function map<T, U>(arr: Array<T>, cb: (value: T, index: number, obj: T[]) => U) : U[] {
+    const res:U[] = [];
+
+    for (let i = 0, len = arr.length; i < len; i++) {
+        res[i] = cb(arr[i], i, arr);
+        // if (pred(arr[i], i, arr)) res.push(arr[i]);
+    }
+
+    return res;
+}
+
+export function filter<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean | number) : T[] {
     const res:T[] = [];
 
     for (let i = 0, len = arr.length; i < len; i++) {

@@ -141,7 +141,7 @@ export default class EDCycler {
             this.timer = setTimeout(this.checkForChanges.bind(this), this.interval).unref();
             this.mode = 0;
         } else {
-            if (this.timer === undefined) this.timer = setTimeout(this.checkForChanges.bind(this), this.mode === 0 ? this.interval : this.probing_interval);
+            if (this.timer === undefined) this.timer = setTimeout(this.checkForChanges.bind(this), this.mode === 0 ? this.interval : this.probing_interval).unref();
             else this.timer.refresh();
         }
     }

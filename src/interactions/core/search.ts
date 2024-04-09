@@ -101,7 +101,7 @@ export default new Command(CommandType.Application, { cmd: ["core", "search"], c
         return interaction.createFollowup({
             embeds: [{
                 title: parse(core.skill.skillName) + " (" + core.skill.skillId + ")",
-                description: parse(core.skill.skillDesc),
+                description: parse(core.skill.skillDesc).replace(/\#DMGPERCENT/, String(core.activeSkill?.damagePercent ? core.activeSkill.damagePercent + "%" : "N/A")),
                 thumbnail: {
                     url: (files.length) ? "attachment://core.png" : ""
                 }, author: {

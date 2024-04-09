@@ -1,3 +1,6 @@
+import AchievementSBox from "../../box/AchievementBox.js";
+import ItemSBox from "../../box/ItemBox.js";
+
 export default class MissionRecord {
     static FIELD_missionId = "missionId";
     static FIELD_missionName = "missionName";
@@ -82,34 +85,31 @@ export default class MissionRecord {
         return result;
     }
 
-    // /**
-    //  * @param {import("../../Client")} client
-    //  */
-    // rewardFull(client) {
-    //     let types = this.missionRwdType.split(",");
-    //     let refs = this.missionRwdRef.split(",");
+    rewardFull() {
+        let types = this.missionRwdType.split(",");
+        let refs = this.missionRwdRef.split(",");
 
-    //     /**
-    //      * 1 - Achievement
-    //      * 2 - Credits
-    //      * 3 - Home Item (lmao)
-    //      * 4 - Item
-    //      * 5 - XP
-    //      */
+        /**
+         * 1 - Achievement
+         * 2 - Credits
+         * 3 - Home Item (lmao)
+         * 4 - Item
+         * 5 - XP
+         */
 
-    //     let result = [];
+        let result = [];
 
-    //     for (let i = 0; i < types.length; i++) {
-    //         let type = parseInt(types[i]);
-    //         let ref = parseInt(refs[i]);
+        for (let i = 0; i < types.length; i++) {
+            let type = parseInt(types[i]);
+            let ref = parseInt(refs[i]);
 
-    //         switch (type) {
-    //             case 1: result.push({ t: type, v: client.boxes.achievement.objMap.get(ref) }); break;
-    //             case 2: case 3: case 5: result.push({ t: type, v: ref }); break;
-    //             case 4: result.push({ t: type, v: client.boxes.item.getItemById(ref) }); break;
-    //         }
-    //     }
+            switch (type) {
+                case 1: result.push({ t: type, v: AchievementSBox.objMap.get(ref) }); break;
+                case 2: case 3: case 5: result.push({ t: type, v: ref }); break;
+                case 4: result.push({ t: type, v: ItemSBox.getItemById(ref, true) }); break;
+            }
+        }
 
-    //     return result;
-    // }
+        return result;
+    }
 }

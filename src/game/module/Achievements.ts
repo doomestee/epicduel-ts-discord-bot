@@ -1,6 +1,8 @@
 import CacheManager from "../../manager/cache.js";
+import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
+import AchievementSBox from "../box/AchievementBox.js";
 import AchievementRecord from "../record/AchievementRecord.js";
 import BaseModule from "./Base.js";
 
@@ -9,7 +11,7 @@ export interface Cheevo {
     count: number;
 }
 
-export type CheevoPopulated = (AchievementRecord & { count: number }) | { achId: number, count: number, noAch: true };
+export type CheevoPopulated = (AchievementRecord & { count: number });// | { achId: number, count: number, noAch: true };
 
 export default class Achievements extends BaseModule {
     constructor(public client: Client) {
@@ -32,7 +34,7 @@ export default class Achievements extends BaseModule {
         if (init) return; // ???
     }
 
-    getPlayerAchievements(charId: number) {
+    sendRequest(charId: number) {
         if (!charId) throw Error("CharID not provided!");// || typeof charId != "number") throw Error("CharID provided not a number!");
 
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_PLAYER_ACHIEVEMENTS, {charId}, 1, "json");
@@ -44,11 +46,43 @@ export default class Achievements extends BaseModule {
         for (let i = 0; i < cheevos.length; i++) {
             let ach = this.client.boxes.achievement.objMap.get(cheevos[i].id);
 
-            if (!ach) result.push({achId: cheevos[i].id, count: cheevos[i].count, noAch: true});
-            else result.push({...ach, count: cheevos[i].count});
+            if (ach) result.push({ ...ach, count: cheevos[i].count });
+
+            // if (!ach) result.push({achId: cheevos[i].id, count: cheevos[i].count, noAch: true});
+            // else result.push({...ach, count: cheevos[i].count, noAch: false });
         }
 
         return result;
+    }
+
+    static populateCheevos(cheevos: Cheevo[]) : CheevoPopulated[] {
+        let result:CheevoPopulated[] = [];
+
+        for (let i = 0; i < cheevos.length; i++) {
+            let ach = AchievementSBox.objMap.get(cheevos[i].id);
+
+            if (ach) result.push({ ...ach, count: cheevos[i].count });
+
+            // if (!ach) result.push({achId: cheevos[i].id, count: cheevos[i].count, noAch: true});
+            // else result.push({...ach, count: cheevos[i].count, noAch: false });
+        }
+
+        return result;
+    }
+
+    async getAchievements(charId: number) : Promise<WaitForResult<CheevoPopulated[]>> {
+        const cache = CacheManager.check("achievement", charId);
+
+        if (cache.valid) return { success: true, value: this.populateCheevos(cache.value) }
+
+        const wait = waitFor(this.client.smartFox, "achieve_data", [1, charId], 3000);
+        this.sendRequest(charId);
+
+        return wait.then(v => {
+            if (v.success) {
+                return { success: true, value: this.populateCheevos(v.value) }
+            } else return v;
+        })
     }
 
     // /**

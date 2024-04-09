@@ -53,6 +53,6 @@ await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
 await bot.launch();
 Swarm.cycler.checkForChanges();
 
-setTimeout(() => {
-    Swarm["clients"][0].smartFox.disconnect();
-}, 60000);
+// setTimeout(() => {
+//     Swarm["clients"][0].smartFox.disconnect();
+// }, 60000);

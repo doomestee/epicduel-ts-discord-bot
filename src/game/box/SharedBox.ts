@@ -75,8 +75,12 @@ export class SharedMultipleBox<T> {
 
     templates: SMTemplates<T>;
 
-    constructor(templates: SMTemplates<T>, types: TypesToTypeof<T>) {
+    #staticMap?: { [K in keyof T]: Collection<number, T[K]> };
+
+    constructor(templates: SMTemplates<T>, types: TypesToTypeof<T>, staticObj?: { [K in keyof T]: Collection<number, T[K]> }) {
         this.templates = templates;
+
+        if (staticObj) this.#staticMap = staticObj;
 
         for (let type in types) {
             this.objMap[type] = new Collection();
@@ -89,6 +93,7 @@ export class SharedMultipleBox<T> {
         if (this.ready[type]) return this.objMap[type];
 
         this.objMap[type].clear();
+        this.#staticMap?.[type].clear();
         let i = 0; let count = data.length / this.templates[type].length;
 
         while (i < count) {
@@ -102,6 +107,7 @@ export class SharedMultipleBox<T> {
             const rec = this.record[type] == null ? obj : new (this.record[type] as any)(obj);
 
             this.objMap[type].set(rec[this.templates[type][0]], rec);//[type].push(rec);
+            this.#staticMap?.[type].set(rec[this.templates[type][0]], rec);
 
             i++;
         }
