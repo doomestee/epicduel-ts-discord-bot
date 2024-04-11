@@ -4,8 +4,8 @@ import Config from "./config/index.js";
 import Logger from "./manager/logger.js";
 import DatabaseManager  from "./manager/database.js";
 import Hydra from "./manager/discord.js";
-import { readFile } from "fs/promises";
 import Swarm from "./manager/epicduel.js";
+import DesignNoteManager from "./manager/designnote.js";
 
 // This will just let the image manager load.
 import "./manager/image.js";
@@ -15,9 +15,16 @@ Logger._saveToRotatingFile(Config.logsDirectory);
 
 const bot = new Hydra();
 
+DesignNoteManager.discord = bot;
+
 Logger.getLogger("Launch").info(`Mode: ${Config.isDevelopment ? "BETA" : "PROD"}`);
 Logger.getLogger("Launch").info(`Node Version: ${process.version}`);
 Logger.getLogger("Launch").info(`OS: ${process.platform} (Is On Docker: ${Config.isDocker})`);
+
+if (!Config.isDevelopment) {
+    DesignNoteManager.run();
+    Logger.getLogger("DNote").debug("Scraper is running.");
+} else Logger.getLogger("DNote").debug("Scraper is not running.");
 
 process
     .on("uncaughtException", err => Logger.getLogger("Uncaught Exception").error(err))

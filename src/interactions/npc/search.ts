@@ -72,7 +72,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                 /*image: {
                     url: "https://edwiki-image-proxy.cyclic.cloud/image?path=" + lang(merchant.mercName).replace(/[^a-zA-Z0-9]/g, "") + ".png"
                 },*/
-                title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ")",
+                title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchantId + ")",
                 description: Swarm.langCheck(merchant.mercChat),
                 author: {
                     name: interaction.user.username,

@@ -142,7 +142,7 @@ export default class Character implements ICharacter {
         }
     }
 
-    static listify(author: User, name: string, list: Array<ICharacter & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>, time: bigint) : InteractionContent {
+    static listify(author: User, name: string, list: Array<(ICharacter & { old_name: string }) & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>, time: bigint) : InteractionContent {
         // You can have up to 25 select options, but just for safety, 10 will be the maximum.
 
         const embeds:Embed[] = [{
@@ -152,7 +152,7 @@ export default class Character implements ICharacter {
         const options:SelectOption[] = [];// = [{  }]//StringSelectMenuOptions["options"] = [{}]
 
         for (let i = 0, len = list.length; i < len; i++) {
-            embeds[0].description += `\n\n${letters[i]} - **${list[i].name}** (ID: ${list[i].id} - User ID: ${list[i].user_id})\nFaction: ${list[i].factid === null ? "unknown." : `${list[i].alignment === null ? "❓ " : "<:" + emojis.alignment[list[i].alignment as 1 | 2] + "> "}**${list[i].factname}** (ID: ${list[i].factid})`}`
+            embeds[0].description += `\n\n${letters[i]} - **${list[i].old_name}** (ID: ${list[i].id} - User ID: ${list[i].user_id})${list[i].old_name !== list[i].name ? "\n*Current name: " + list[i].name + "*" : ""}\nFaction: ${list[i].factid === null ? "unknown." : `${list[i].alignment === null ? "❓ " : "<:" + emojis.alignment[list[i].alignment as 1 | 2] + "> "}**${list[i].factname}** (ID: ${list[i].factid})`}`
 
             options.push({
                 label: `${list[i].name}`,

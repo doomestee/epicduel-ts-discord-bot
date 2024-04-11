@@ -158,6 +158,27 @@ export default class SkillObject<T extends Mode = Mode> {
 
         return this.activeSkill.warmUp;
     }
+
+    toJSON() {
+        const obj:any = {
+            skill: this.skill,
+            cr: this.cr,
+            ir: this.ir,
+        
+            passiveSkill: this.passiveSkill,
+            passiveMiscRules: this.passiveMiscRules,
+        
+            activeSkill: this.activeSkill,
+            activeAttackRules: this.activeAttackRules,
+            activeMiscRules: this.activeMiscRules,
+            activeTargetRules: this.activeTargetRules,
+        };
+
+        if (this.isTree()) obj["tree"] = this.tree;
+        if (this.isCore()) obj["core"] = this.core;
+
+        return obj;
+    }
 }
 
 export class TreeSkillObject extends SkillObject<Mode.TREE> {

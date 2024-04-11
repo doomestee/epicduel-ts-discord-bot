@@ -6,6 +6,7 @@
     "test": "rimraf dist && tsc -p tsconfig.json && echo 'Dumped, running now.' && node dist/index.js"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.6",
     "@types/dot-object": "^2.1.6",
     "@types/fuzzy-search": "^2.1.5",
     "@types/node": "^20.5.1",
@@ -26,6 +27,7 @@
     "glob": "^10.3.10",
     "iconv-lite": "^0.6.3",
     "jimp": "^0.22.12",
+    "jsdom": "^24.0.0",
     "oceanic.js": "^1.10.0",
     "pg": "^8.11.3",
     "sharp": "^0.33.3",

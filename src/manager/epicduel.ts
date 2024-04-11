@@ -9,6 +9,8 @@ import { Requests } from "../game/Constants.js";
 import Logger from "./logger.js";
 import EDCycler from "../util/EDCycler.js";
 import SwarmResources from "../util/game/SwarmResources.js";
+import { IWar } from "../Models/War.js";
+import DatabaseManager from "./database.js";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -45,7 +47,7 @@ export default class Swarm {
     static cycler = new EDCycler(this);
 
     static get centralClient() {
-        return this.clients[0];
+        return this.getClientById(1);
     }
 
     /**
@@ -248,6 +250,96 @@ export default class Swarm {
 
     static langCheck(key: string) {
         return this.resources.languages[key] ?? key;
+    }
+
+
+    // TODO: move this somewhere
+
+    static activeWar = { done: false, war: {} } as { done: boolean, war: IWar };
+    static lastCheckedActiveWar = 0;
+
+    static get isWarActive() {
+        if ((this.getClient(v => v.connected && v.lobbyInit)?.modules.WarManager.cooldownHours ?? 1) > 0) return [false, -1];
+        return [!!(this.activeWar?.war.id), this.activeWar];
+    }
+
+    /**
+     * If in standalone, this can't be used and will throw error.
+     * Database war ID, not the region ID or anything, the game doesn't have one so we gotta identify stuff ourselves.
+     * @param refreshCache 
+     */
+    static async getActiveWar(refreshCache = false) : Promise<{ type: 1, result: IWar } | { type: 0, prev: IWar } | { type: -1, reasonType: number }> {
+        const ed = this.getClient(v => v.connected && v.lobbyInit);
+
+        if (!ed) return { reasonType: 0, type: -1 };
+
+        if (!refreshCache && this.activeWar.war.id) return { type: 1, result: this.activeWar.war };
+
+        const [sussy] = await DatabaseManager.cli.query<IWar>(`SELECT * FROM war ORDER BY id desc LIMIT 1`).then(v => v.rows);
+
+        if (ed.modules.WarManager.activeRegionId > 0 && ed.modules.WarManager.activeRegionId !== sussy.region_id) {
+            if (!sussy.ended_at) DatabaseManager.update("war", { id: sussy.id }, { ended_at: new Date() });
+            this.checkWar(true);
+
+            return { type: 1, result: { created_at: new Date(), ended_at: null, id: sussy.id + 1, max_points: ed.modules.WarManager.currentObjectives().reduce((a, b) => a + ((b.alignmentId === 1) ? b.maxPoints : 0), 0), region_id: ed.modules.WarManager.activeRegionId } };
+        }
+
+        if (sussy.ended_at) {
+            this.activeWar["war"] = sussy;
+            this.activeWar["done"] = true;
+
+            return { type: 0, prev: sussy };
+        }
+
+        this.activeWar = {
+            done: false,
+            war: sussy
+        };
+
+        return {
+            type: 1, result: sussy
+        };
+    }
+
+    static async checkWar(newWar=false) {
+        const ed = this.getClient(v => v.connected && v.lobbyInit);
+
+        if (!ed) return false;// { reasonType: 0, type: -1 };
+        // if (this.standalone) throw Error("EpicDuel manager in standalone mode. Database access restricted.");
+        
+        if (newWar) {
+            return DatabaseManager.insert("war", {
+                region_id: ed.modules.WarManager.activeRegionId,
+                max_points: ed.modules.WarManager.currentObjectives().reduce((a, b) => a + ((b.alignmentId == 1) ? (b.maxPoints) : 0), 0),
+                created_at: new Date()
+            });
+        }
+
+        // if (!ed.connected) return "NOT_CONNECTED";
+
+        let oh = (this.lastCheckedActiveWar === 0 || (this.lastCheckedActiveWar + 120000 < Date.now()))
+        let x = await this.getActiveWar(oh);
+
+        if (ed.modules.WarManager.cooldownHours > 0 && ed.modules.WarManager.activeRegionId != 0) {
+            if ((x.type === 1) && x.result.ended_at) {
+                DatabaseManager.update("war", { id: x.result.id }, { ended_at: new Date() })
+                    .then(() => {
+                        Logger.getLogger("War").debug("War ended at ease.");
+                        this.activeWar = {
+                            done: true,
+                            war: {} as IWar
+                        };
+                    });
+            }
+        }
+
+        if (oh) {this.lastCheckedActiveWar = Date.now()}
+        if (x.type === 0) return false;
+
+        // commenting out because this kind of check is already implemented in getting active war.
+        //if (x[1].id === this.client.modules.WarManager.activeRegionId)
+
+        return true;
     }
 }
 

@@ -34,10 +34,10 @@ export default class DatabaseManager {
         this.init = true;
 
         this.cli = new pg.Client({
-            host: Config.isDevelopment ? "localhost" : "postgres.containers.local",
-            port: 5432,
-            user: Config.isDevelopment ? "vendie" : "vendie",
-            password: undefined,
+            host: Config.dbHost,// "localhost" : "postgres.containers.local",
+            port: Config.dbPort,
+            user: Config.dbUser,// "vendie" : "vendie",
+            password: Config.dbPassword,//undefined,
             ssl: false, // This is a local database
             application_name: "VendBot"
         });

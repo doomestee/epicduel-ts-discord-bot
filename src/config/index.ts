@@ -32,7 +32,7 @@ export default class Config {
 
     // Database
     static get dbHost() {
-        return this.isDevelopment ? "postgres.container.local" : "postgres";
+        return this.isDevelopment ? "localhost" : "postgres.container.local";
     }
     static get dbPort() {
         return 5432;
@@ -41,8 +41,6 @@ export default class Config {
         return "vendie";
     }
     static get dbPassword() {
-        // we need to explicitly return undefined
-        // eslint-disable-next-line unicorn/no-useless-undefined
         return undefined;
     }
     static get dbSSL() {

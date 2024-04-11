@@ -3,7 +3,7 @@ import { WarObjective } from "../../game/module/WarManager.js";
 import DatabaseManager from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
 import Command, { CommandType } from "../../util/Command.js";
-import { rawHoursified } from "../../util/Misc.js";
+import { getTime, rawHoursified } from "../../util/Misc.js";
 import { SwarmError } from "../../util/errors/index.js";
 
 export default new Command(CommandType.Application, { cmd: ["war", "current"], description: "Sees the current state of the war that's been repeating for the 93rd time.", waitFor: ["EPICDUEL"], cooldown: 3000 })
@@ -22,12 +22,12 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
 
         // if (!ed.lobbyInit) return interaction.createFollowup({content: "Woops, the bot is still in the lobby, this means it hasn't joined a room yet... for some reason.", flags: 64});
 
-        let war = ed.modules.WarManager;
-        let points = war.warPoints();
+        let warM = ed.modules.WarManager;
+        let points = warM.warPoints();
 
-        let rally = (war.warRallyStatus == 0) ? "There's no active rally." : 
-                    (war.warRallyStatus == 1) ? "Exile rally is active!" :
-                    (war.warRallyStatus == 2) ? "Legion rally is active!" : "Unknown rally status.";
+        let rally = (warM.warRallyStatus == 0) ? "There's no active rally." : 
+                    (warM.warRallyStatus == 1) ? "Exile rally is active!" :
+                    (warM.warRallyStatus == 2) ? "Legion rally is active!" : "Unknown rally status.";
 
         let [prevRally] = await DatabaseManager.cli.query<IRally>(`SELECT * FROM rallies ORDER BY id desc LIMIT 1`).then(v => v.rows);
 
@@ -70,6 +70,8 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
             gapCmt += `\nThere is enough influence to reach the threshold for a${losingAlign} rally!\n(Provided it's been 6 hours since the last rally)`;
         } else gapCmt += "\nThe gap must be bigger than 1% for a rally to become feasible.";
 
+        const war = await Swarm.getActiveWar();
+
         return interaction.createFollowup({
             embeds: [{
                 title: obj.title,
@@ -77,7 +79,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
                     name: interaction.user.username,
                     iconURL: interaction.user.avatarURL()
                 },
-                description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : ""}`
+                description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : `\n\nThis war has been going on for **${getTime(war.type === 1 ? Date.now () - war.result.created_at.getTime() : 0, true, "", true)}.`}**`
                 //description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\nMain Objective: ${emojis[defAlignId]}\nHealth: **${obj.def[0].hp}** / **${obj.def[0].max}** - ${Math.round((obj.def[0].hp / obj.def[0].max) * 10000) / 100}%\n\n`
                 //+ obj.off.map(v => `Side Objective: ${emojis[defAlignId === 1 ? 2 : 1]}\nHealth: **${v.hp}** / **${v.max}** - ${Math.round((v.hp / v.max) * 10000) / 100}%`).join("\n\n"),
                 //fields: [{
@@ -97,9 +99,10 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
                     type: 2, label: "Refresh", style: 1, customID: "refresh_war_info_" + interaction.user.id,
                 //}, {
                 //    type: 2, style: 5, url: "https://doomester.grafana.net/d/xatJoSF4z/ed-war-influence?orgId=1", label: "Metrics", emoji: {name: "📈"}
-                }, {
-                    type: 2, style: 1, label: "(DEV) Chart Test 01", customID: "chart_0_" + interaction.user.id
                 }]
+                // }, {
+                //     type: 2, style: 1, label: "(DEV) Chart Test 01", customID: "chart_0_" + interaction.user.id
+                // }]
             }]
         });
     })

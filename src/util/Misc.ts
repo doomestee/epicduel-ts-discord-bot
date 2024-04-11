@@ -4,6 +4,7 @@ import { request } from "undici";
 import Logger from "../manager/logger.js";
 import Constants from "../game/Constants.js";
 import { parseStringPromise } from "xml2js";
+import type { Collection } from "oceanic.js";
 
 /**
  * Starts at level 1, even though the index is 0. Level 40 = 39th index
@@ -177,10 +178,10 @@ export const regexes = {
  * If shorten is true, it's better to put empty string for replace.
  * replace only works for hide.
  */
-export function getTime(milli: number, hide=false, replace=', ', shorten=false) {
+export function getTime(milli: number | Date, hide=false, replace=', ', shorten=false) {
     let result = [];
 
-    let time = new Date(milli);
+    let time = milli instanceof Date ? milli : new Date(milli);
     //let months = time.getUTCMonth();
     let days = (Math.floor(time.getTime()/(1000*60*60*24)));
     let hours = time.getUTCHours().toString().padStart(2, '0');
@@ -435,8 +436,10 @@ export async function getCharPage(charName: string) : Promise<{ success: true, r
     return { success: false, extra: { c: statusCode }};
 }
 
-export function map<T, U>(arr: Array<T>, cb: (value: T, index: number, obj: T[]) => U) : U[] {
+export function map<T, U>(arr: Array<T> | Collection<any, T>, cb: (value: T, index: number, obj: T[]) => U) : U[] {
     const res:U[] = [];
+
+    if (!Array.isArray(arr)) arr = arr.toArray();
 
     for (let i = 0, len = arr.length; i < len; i++) {
         res[i] = cb(arr[i], i, arr);
@@ -446,8 +449,10 @@ export function map<T, U>(arr: Array<T>, cb: (value: T, index: number, obj: T[])
     return res;
 }
 
-export function filter<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean | number) : T[] {
+export function filter<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean | number) : T[] {
     const res:T[] = [];
+
+    if (!Array.isArray(arr)) arr = arr.toArray();
 
     for (let i = 0, len = arr.length; i < len; i++) {
         if (pred(arr[i], i, arr)) res.push(arr[i]);
@@ -456,14 +461,27 @@ export function filter<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[
     return res;
 }
 
-export function find<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) : T | undefined {
+export function find<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean) : T | undefined {
+    if (!Array.isArray(arr)) arr = arr.toArray();
+
     for (let i = 0, len = arr.length; i < len; i++) {
         if (pred(arr[i], i, arr)) return arr[i];
     }
     return undefined;
 }
 
-export function findLastIndex<T>(arr: Array<T>, pred: (value: T, index: number, obj: T[]) => boolean) {
+export function findIndex<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean) : number {
+    if (!Array.isArray(arr)) arr = arr.toArray();
+
+    for (let i = 0, len = arr.length; i < len; i++) {
+        if (pred(arr[i], i, arr)) return i;
+    }
+    return -1;
+}
+
+export function findLastIndex<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean) {
+    if (!Array.isArray(arr)) arr = arr.toArray();
+
     let l = arr.length;
     while (l--) {
         if (pred(arr[l], l, arr))
@@ -472,23 +490,12 @@ export function findLastIndex<T>(arr: Array<T>, pred: (value: T, index: number, 
 }
 
 /**
- * 
- * @param list
- * @param limit
- * @param limitByItem If set to true, the limit will be used instead to limit how many items gets appended to str before it gets cut off.
- * @param separator Default: "\n"
+ * @param str
+ * @param length can't be lower than 3
  */
-export function trimString(list: string[], limit=1024, limitByItem=false, separator="\n") {
-    let str = ""; let str2 = "";
-
-    for (let i = 0, len = list.length; i < len; i++) {
-        str2 += list[i] + separator;
-
-        if ((limitByItem && i === limit) || (!limitByItem && str2.length > limit)) {
-            str += "And " + (list.length - i) + " more.";
-            return str;
-        } str += list[i] + separator;
-    }; return str.slice(0, -separator.length);
+export function trimString(str: string, length: number) {
+    str = str.trim();
+    return (str.length < length) ? str : str.slice(0, length-3) + '...';
 }
 
 /**

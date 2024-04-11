@@ -23,7 +23,7 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
             });
         }
 
-        const results = await DatabaseManager.cli.query<ICharacter & { similarity: number } & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>(`select distinct character.*, similarity(character_name.name, $1), faction.id as factId, faction.name as factName, faction.alignment as factAlignment from character_name join character on character.id = character_name.id left join faction on faction.id = character.faction_id where character_name.name ilike $2 order by similarity desc limit 10`, [charName, "%" + charName + "%"]).then(v => v.rows);
+        const results = await DatabaseManager.cli.query<ICharacter & { old_name: string, similarity: number } & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>(`select distinct character.*, character_name.name as old_name, similarity(character_name.name, $1), faction.id as factId, faction.name as factName, faction.alignment as factAlignment from character_name join character on character.id = character_name.id left join faction on faction.id = character.faction_id where character_name.name ilike $2 order by similarity desc limit 10`, [charName, "%" + charName + "%"]).then(v => v.rows);
 
         if (results.length === 1 && results[0].name.toLowerCase() === charName.toLowerCase()) {
             const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [results[0].id]).then(v => v.rows);

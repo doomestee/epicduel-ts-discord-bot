@@ -1,23 +1,23 @@
 import { ButtonStyles, ComponentTypes, MessageActionRow, File, EmbedField } from "oceanic.js";
-import SkillsSMBox from "../../game/box/SkillsBox.js";
-import Command, { CommandType } from "../../util/Command.js";
-import ImageManager from "../../manager/image.js";
+import SkillsSMBox from "../../../game/box/SkillsBox.js";
+import Command, { CommandType } from "../../../util/Command.js";
+import { SwarmError } from "../../../util/errors/index.js";
+import ImageManager from "../../../manager/image.js";
 import { readFile } from "fs/promises";
-import Config from "../../config/index.js";
-import ItemSBox from "../../game/box/ItemBox.js";
-import Swarm from "../../manager/epicduel.js";
-import { SwarmError } from "../../util/errors/index.js";
-import { getHighestTime } from "../../util/Misc.js";
+import Config from "../../../config/index.js";
+import ItemSBox from "../../../game/box/ItemBox.js";
+import Swarm from "../../../manager/epicduel.js";
+import { getHighestTime } from "../../../util/Misc.js";
 
-export default new Command(CommandType.Application, { cmd: ["core", "search"], cooldown: 5000, usableEdRestricted: true })
-    .attach('run', async ({ client, interaction }) => {
-        if (ItemSBox.objMap.size === 0) return interaction.reply(SwarmError.noClient());
+export default new Command(CommandType.Component, { custom_id: "core_open_<skillId>" })
+    .attach('run', async ({ client, interaction, variables }) => {
+        if (SkillsSMBox.objMap.all.size === 0) return interaction.reply(SwarmError.noClient());
 
         if (!interaction.acknowledged) await interaction.defer();
 
         const time = process.hrtime.bigint();
 
-        const skillId = interaction.data.options.getInteger("name") ?? -1;
+        const skillId = parseInt(variables.skillId);
 
         if (skillId < 0) return interaction.reply({ content: "unknown core id", flags: 64 });
 
@@ -112,9 +112,4 @@ export default new Command(CommandType.Application, { cmd: ["core", "search"], c
                 }
             }], files, components//[{ name: "core.png", contents: await readFile("/data/cores/" + core.skill.skillLink + ".png")}],
         })
-    });
-
-// const { readFile } = require("fs/promises");
-// const { ComponentTypes, ButtonStyles, ApplicationCommandTypes } = require("oceanic.js");
-// const Command = require("../../structures/Command");
-// const { ITEM_CATEGORY_MAPPED_BY_ID } = require("../../server/structures/box/ItemBox");
+    })

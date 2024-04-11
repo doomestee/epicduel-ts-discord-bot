@@ -331,6 +331,13 @@ export default class Hydra extends Client {
                 type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "daily", description: "Lists all of the daily mission chains."
             }, {
                 type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "recent", description: "Lists the newly added mission chains."
+            }, {
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "SEARCH FOR A MISSION",
+                name: "search", options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER, description: "ID of a mission, or name if autocomplete.",
+                    name: "id", autocomplete: true, required: true
+                }]
             }],
             contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],

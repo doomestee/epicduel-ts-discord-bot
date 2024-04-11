@@ -10,6 +10,7 @@ import { SwarmError } from "../../util/errors/index.js";
 import { AnyItemRecordsExceptSelf } from "../../game/box/ItemBox.js";
 import AchievementRecord from "../../game/record/AchievementRecord.js";
 import MissionRecord from "../../game/record/mission/SelfRecord.js";
+import { MissionTypes } from "../../game/Constants.js";
 
 type Reward = { xp: number, creds: number, items: AnyItemRecordsExceptSelf[], cheevos: AchievementRecord[], home: number };
 
@@ -56,6 +57,54 @@ export function rewardify(missions: MissionRecord[], parseText?: boolean) {
     }
 
     return result;
+}
+
+export function missionType(type: MissionTypes, quantity: number) {
+    const pluralify = (quan: number) => { return (quan > 1) ? "s" : ""; };
+
+    switch (type) {
+        case MissionTypes.TYPE_KILL_NPC: return quantity + " Kill" + pluralify(quantity) + " (NPC)";
+        case MissionTypes.TYPE_KILL_CHALLENGE: return quantity + " Challenge Win" + pluralify(quantity);
+        case MissionTypes.TYPE_ITEMS_TURN_IN: return "Turn in " + quantity + " item" + pluralify(quantity);
+        case MissionTypes.TYPE_1V1_WINS: return quantity + " 1v1 Win" + pluralify(quantity);
+        case MissionTypes.TYPE_2V2_WINS: return quantity + " 2v2 Win" + pluralify(quantity);
+        case MissionTypes.TYPE_PVP_WINS: return quantity + " PvP Win" + pluralify(quantity);
+        case MissionTypes.TYPE_WAR_WINS: return quantity + " War Win" + pluralify(quantity);
+        case MissionTypes.TYPE_ITEMS_REQUIRED: return "Obtain " + quantity + " item" + pluralify(quantity);
+        case MissionTypes.TYPE_PVP_BATTLES: return quantity + " PvP Battle" + pluralify(quantity);
+    }
+}
+
+export function objectify(mission: MissionRecord | Array<MissionRecord>) {
+    let result = "";
+
+    if (Array.isArray(mission)) {
+        let resultBeforeParsed = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        for (let i = 0; i < mission.length; i++) {
+            let miss = mission[i];
+
+            let quans = miss.missionQty.split(",");
+
+            for (let y = 0; y < quans.length; y++)
+                resultBeforeParsed[miss.missionType-1] += parseInt(quans[y]);
+        }
+
+        for (let i = 0; i < resultBeforeParsed.length; i++) {
+            if (resultBeforeParsed[i] === 0) continue;
+
+            result += "\n" + missionType(i + 1, resultBeforeParsed[i]);
+        }
+    } else {
+        const quantities = mission.missionQty.split(",");
+
+        // TODO: for items, show the items needed to turn in.
+        for (let i = 0; i < quantities.length; i++) {
+            result += "\n" + missionType(mission.missionType, parseInt(quantities[i]));
+        }
+    }
+
+    return result.trim();
 }
 
 export default new Command(CommandType.Application, { cmd: ["mission", "recent"], cooldown: 3000 })
