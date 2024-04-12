@@ -1,7 +1,7 @@
 import Swarm from "../../manager/epicduel.js";
 import ImageManager from "../../manager/image.js";
 import Command, { CommandType } from "../../util/Command.js";
-import { getHighestTime } from "../../util/Misc.js";
+import { getHighestTime, map } from "../../util/Misc.js";
 import { SwarmError } from "../../util/errors/index.js";
 
 export default new Command(CommandType.Application, { cmd: ["war", "leader"], description: "Sees who's currently leading the war.", waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 69 })
@@ -80,7 +80,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "leader"], de
                     name: interaction.user.username,
                     iconURL: interaction.user.avatarURL()
                 },
-                description: (result === undefined) ? "Sorry, there has been a problem fetching the war leaders, the developer has been notified." : result.player.map((v, i) => (i+1) + ". " +  v[0] + " - " + v[1]).join("\n"),
+                description: (result === undefined) ? "Sorry, there has been a problem fetching the war leaders, the developer has been notified." : map(result.player, (v, i) => (i+1) + ". " +  v[0] + " - " + v[1]).join("\n"),
                 footer: {
                     text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
                 },

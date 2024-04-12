@@ -32,10 +32,10 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
 
         const components:ButtonComponent[] = [{
             type: ComponentTypes.BUTTON, style: ButtonStyles.PRIMARY,
-            customID: "npc_0_" + merchant.merchantId + "_000",
+            customID: "shop_" + merchId + "_000",//"npc_0_" + merchant.merchantId + "_000",
             label: "Browse Wares", disabled: false,
             emoji: {
-                name: "mission", id: "1145385937086447776"
+                name: "shop", id: "1145385937086447776"
             }
         }, {
             type: ComponentTypes.BUTTON, style: ButtonStyles.PRIMARY,
@@ -46,7 +46,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
             }
         }, {
             type: ComponentTypes.BUTTON, style: ButtonStyles.PRIMARY,
-            customID: "npc_2_" + merchant.merchantId + "_000",
+            customID: "stat_0_" + merchant.merchantId + "_000",//"npc_2_" + merchant.merchantId + "_000",
             label: "Battle Stats (NPC)", disabled: false,
             emoji: {
                 name: "skull", id: "1145388316666105888"
@@ -56,7 +56,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
         if (merchant.opts.some(v => v.id === 9 && v.args[0] >= 100 && v.args[0] < 200)) {
             components.push({
                 type: ComponentTypes.BUTTON, style: ButtonStyles.PRIMARY,
-                customID: "npc_3_" + merchant.merchantId + "_000",
+                customID: "stat_1_" + merchant.merchantId + "_000",//"npc_3_" + merchant.merchantId + "_000",
                 label: "Battle Stats (Legendary NPC)", disabled: false,
                 emoji: {
                     name: "skull", id: "1145388316666105888"

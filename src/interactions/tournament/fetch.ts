@@ -1,4 +1,4 @@
-import { ButtonStyles, ComponentTypes, MessageComponent } from "oceanic.js";
+import { ButtonStyles, ComponentTypes, EmbedField, MessageComponent } from "oceanic.js";
 import Swarm from "../../manager/epicduel.js";
 import Command, { CommandType } from "../../util/Command.js";
 import { SwarmError } from "../../util/errors/index.js";
@@ -22,10 +22,7 @@ export default new Command(CommandType.Application, { cmd: ["tournament", "fetch
 
         const leaders = result.value;
 
-        /**
-         * @type {import("oceanic.js").EmbedField[]}
-         */
-        const aggregates = [{name: "Top 17", value: "", inline: true}];
+        const aggregates:EmbedField[] = [{name: "Top 17", value: "", inline: true}];
 
         let indexes = [0];
         let lastIndex = 0;
@@ -45,14 +42,14 @@ export default new Command(CommandType.Application, { cmd: ["tournament", "fetch
 
         let components:MessageComponent[] = [{
             type: ComponentTypes.BUTTON, style: ButtonStyles.PRIMARY,
-            label: "Refresh", customID: "refresh_" + interaction.user.id + "_tournament"
+            label: "Refresh", customID: "refresh_tourney_" + interaction.user.id// + "_tournament"
         }];
 
-        if (client.isMaintainer(interaction.user.id)) {
-            components.push({
-                type: 2, style: 2, label: "[DEV] Auto-Refresh", customID: "automatic_refresh_tournament"
-            }); components.reverse();
-        }
+        // if (client.isMaintainer(interaction.user.id)) {
+        //     components.push({
+        //         type: 2, style: 2, label: "[DEV] Auto-Refresh", customID: "automatic_refresh_tournament"
+        //     }); components.reverse();
+        // }
 
         return interaction.createFollowup({embeds: [{
             title: ed.modules.Tournament.name,

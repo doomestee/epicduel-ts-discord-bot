@@ -87,4 +87,12 @@ export default class Config {
     static get edBotPass() {
         return process.env.ED_PASS;
     }
+
+    static readonly webhooks = {
+        spyChat: {
+            id: process.env.SPY_CHAT_WEBHOOK_ID as string,
+            token: process.env.SPY_CHAT_WEBHOOK_TOKEN as string,
+        },
+
+    }
 }

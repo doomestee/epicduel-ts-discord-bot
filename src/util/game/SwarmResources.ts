@@ -1,3 +1,4 @@
+import { IUserRecord } from "../../Models/UserRecord.js";
 import Logger from "../../manager/logger.js";
 import { requestLangFile, sleep } from "../Misc.js";
 
@@ -73,4 +74,7 @@ export default class SwarmResources {
 
         return { index, success: finalSuccess };
     }
+
+    skills: { [userId: number]: { id: number, lvl: number }[] } = {};
+    records: { [userId: number]: IUserRecord } = {};
 }

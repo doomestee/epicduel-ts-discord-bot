@@ -1,3 +1,4 @@
+import { IFaction } from "../Models/Faction.ts";
 import { Cheevo } from "../game/module/Achievements.ts";
 import { Faction } from "../game/module/FactionManager.ts";
 import { LeaderTypeToStruct } from "../game/module/Leader.ts";
@@ -54,6 +55,28 @@ export interface CustomSFSClientEvents {
     leader_gift: [result: CacheTypings.GiftingLeader];
 
     tourney_leader: [result: TournamentLeader[]];
+}
+
+/**
+ * This is for the centralised events/epicduel/ stuff
+ */
+export interface MainEDEvents {
+    onAdminMessage: [event: { roomId: number, userId: number, message: string }];
+
+    onPrivateMessage: [event: { userId: number, userName: string, message: string, isFromMe: boolean }];
+    onPublicMessage: [event: { roomId: number, user: User, message: string }];
+
+    onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User }];
+
+    onFactionEncounter: [event: { fact: IFaction }];
+
+    onFriendStatus: [event: { charId: number, isOnline: boolean, sfsUserId: number, link: boolean, isMuted: boolean }];
+
+    onWarStatusChange: [event: { type: "rally", alignment: 1 | 2, status: "start"|"ongoing"|"end" } | { type: "start" } | { type: "end", alignment: 1 | 2 } | { type: "char_used", name: string, influence: number, usedItemId: number }];
+
+    onJoinRoom: [event: { room: Room | null }];
+
+    onComparisonUpdate: [];
 }
 
 export type BothSFSClientEvents = SFSClientEvents & CustomSFSClientEvents;

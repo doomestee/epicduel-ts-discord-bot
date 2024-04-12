@@ -49,9 +49,9 @@ export default class DBHelper {
         return this.#db.insert<string>("analytics", obj, "o_id");
     }
 
-    async linkCharacter(discordId: string, userId: number, characterId: number, obj?: { flags: number, rating: number }) : Promise<{ success: false, reason: string } | { success: true }> {
+    async linkCharacter(discordId: string, userId: number, characterId: number, obj?: { flags: number }) : Promise<{ success: false, reason: string } | { success: true }> {
         if (!(discordId && userId && characterId)) throw Error("Not all IDs been passed.");
-        if (!obj) obj = { flags: 0, rating: 0 };
+        if (!obj) obj = { flags: 0 };
 
         const result = {
             discord_id: discordId, user_id: userId, id: characterId,
@@ -131,7 +131,7 @@ export default class DBHelper {
         return this.#db.insert<string>("user_settings", obj);
     }
 
-    updateUserSettings(discordId: string, obj: Omit<IUserSettings, "id">) {
+    updateUserSettings(discordId: string, obj: Partial<Omit<IUserSettings, "id">>) {
         return this.#db.update("user_settings", { id: discordId }, obj);
     }
 
@@ -165,8 +165,8 @@ export default class DBHelper {
             .then(v => v.rows);
     }
 
-    getMerchant(id: number) {
+    getMerchant(id: number) : Promise<IMerchant | undefined> {
         return this.#cli.query<IMerchant>(`SELECT * FROM merchant WHERE id = $1`, [id])
-            .then(v => v.rows);
+            .then(v => v.rows[0]);
     }
 }

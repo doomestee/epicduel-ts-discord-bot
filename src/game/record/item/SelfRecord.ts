@@ -57,8 +57,8 @@ export default class ItemRecord<T extends number> {
                 return {
                     bhl: "assets/blades/item_BH_" + this.itemId + "L",
                     bhr: "assets/blades/item_BH_" + this.itemId + "R",
-                    mc: "assets/swords/" + this.itemLinkage,
-                    tm: "assets/staffs/" + this.itemLinkage,
+                    mc: "assets/swords/item_" + this.itemId,
+                    tm: "assets/staffs/item_" + this.itemId,
                 }
             }
 

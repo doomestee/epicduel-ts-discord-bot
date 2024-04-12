@@ -54,6 +54,7 @@ import MerchantRecord from "./record/MerchantRecord.js";
 import Logger from "../manager/logger.js";
 import Tournament from "./module/Tournament.js";
 import { SwarmError } from "../util/errors/index.js";
+import { waitFor } from "../util/WaitStream.js";
 
 export interface ClientSettings {
     id: number;
@@ -2216,18 +2217,18 @@ export default class Client {
     //  * @param {boolean} screwBattle
     //  * @returns {Promise<{ id: number, lvl: number }[]>}
     //  */
-    // async getUserSkills(userId, screwBattle=false) {
+    // async getUserSkills(userId: number, screwBattle=false) : Promise<{ id: number, lvl: number }[]> {
     //     if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
-    //         return this.user._mySkills.skills;
+    //         return [];//this.user._mySkills.skills;
     //     } else {
-    //         let playerSkills = this.user._playerSkills[String(userId)];
+    //         let playerSkills = this.swarm.resources.skills[userId];
     //         if (!this.battleOver && playerSkills != null && !screwBattle) {
-    //             return playerSkills.skills;
+    //             return playerSkills;
     //         } else {
     //             /**
     //              * @type {Array}
     //              */
-    //             let skills = WaitForStream(this.smartFox, "get_skills", [0, userId], [""], 3500).catch(err => { return {error: err} });
+    //             let skills = waitFor(this.smartFox, "get_skills", [0, userId], 3500).catch(err => { return {error: err} });
 
     //             //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
     //             this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_SKILLS, {userId}, 1, "json");

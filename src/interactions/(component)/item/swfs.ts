@@ -23,7 +23,7 @@ let parseCore = (coreId: number) => {
     return Swarm.langCheck(allRec.skillDesc);
 }
 
-export default new Command(CommandType.Component, { custom_id: "tem_swf_links_<itemId>" })
+export default new Command(CommandType.Component, { custom_id: "item_swf_links_<itemId>" })
     .attach('run', async ({ client, interaction, variables }) => {
         if (interaction.data.componentType !== ComponentTypes.BUTTON) return;
 

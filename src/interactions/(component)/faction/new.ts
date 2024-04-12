@@ -1,17 +1,32 @@
 import { ComponentTypes } from "oceanic.js";
 import Command, { CommandType } from "../../../util/Command.js";
 import Swarm from "../../../manager/epicduel.js";
-import { SwarmError } from "../../../util/errors/index.js";
+import { DiscordError, SwarmError } from "../../../util/errors/index.js";
 import FactionManager from "../../../game/module/FactionManager.js";
 import ImageManager from "../../../manager/image.js";
+import { getHighestTime } from "../../../util/Misc.js";
 
-export default new Command(CommandType.Component, { custom_id: "faction_open_<factId>", gateVerifiedChar: 69 })
-    .attach('run', async ({ client, interaction, variables }) => {
-        if (interaction.data.componentType !== ComponentTypes.BUTTON) return;
+export default new Command(CommandType.Component, { custom_id: ["faction_open_<factId>", "faction_select_<userId>"], waitFor: ["EPICDUEL", "LOBBY"], gateVerifiedChar: 69 })
+    .attach('run', async ({ client, interaction, variables: { factId, userId } }) => {
+        const time = process.hrtime.bigint();
 
-        const factId = parseInt(variables.factId);
+        // if (interaction.data.componentType !== ComponentTypes.BUTTON) return;
 
-        if (factId === 102030405 || factId === 0) {
+        if (userId !== undefined) {
+            let bypass = false;
+
+            if (userId === "000") bypass = true;
+            if (interaction.user.id === userId) bypass = true;
+            // if (!bypass && interaction.member.permissions.has("MANAGE_MESSAGES")) bypass = true;
+
+            if (!bypass) return interaction.createMessage(DiscordError.noBypass());
+        }
+
+        // const factId = parseInt(factId);
+
+        if (interaction.data.componentType === ComponentTypes.STRING_SELECT) {
+            if (interaction.data.values.raw[0].startsWith("u")) return interaction.reply({ flags: 64, content: "The bot has never seen the faction in game, if you know the ID, you can put it in /faction view." });
+        } else if (factId === "102030405" || factId === "0") {
             return interaction.reply({ content: "You need to provide a faction ID, or as for name, that must have existed in bot database.", flags: 64 });
         }
 
@@ -19,9 +34,9 @@ export default new Command(CommandType.Component, { custom_id: "faction_open_<fa
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 
-        await interaction.deferUpdate();
+        await interaction.defer();
 
-        const result = await ed.modules.FactionManager.getFaction(factId);
+        const result = await ed.modules.FactionManager.getFaction(parseInt(interaction.data.componentType === ComponentTypes.BUTTON ? factId : interaction.data.values.raw[0].slice(1)));
 
         if (!result.success) return interaction.createFollowup({ flags: 64, content: "There's been a problem trying to fetch a faction details, it may be that the server timed out?" });
 
@@ -57,6 +72,9 @@ export default new Command(CommandType.Component, { custom_id: "faction_open_<fa
                     iconURL: interaction.user.avatarURL()
                 }, thumbnail: {
                     url: "attachment://logo.png"
+                },
+                footer: {
+                    text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
                 }
             }], components: [{
                 type: 1,

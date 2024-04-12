@@ -1,5 +1,5 @@
 import Logger from "../../manager/logger.js";
-import ClientEvent from "../../util/ClientEvent.js";
+import ClientEvent from "../../util/events/ClientEvent.js";
 
 export default new ClientEvent("error", function (err, shard) {
     if (typeof err === "string") {

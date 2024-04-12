@@ -352,7 +352,7 @@ export default class DesignNoteManager {
         this.isRunning = false;
     }
 
-    static async addQueue(channelId: string, requestee: string, link: string) {
+    static async addQueue(channelId: string, requestee: string, link?: string) {
         if (!this.isRunning || this.stop) {
             let result = await this.extractNote(link);
 

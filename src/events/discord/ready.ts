@@ -1,6 +1,6 @@
 import { MainMessageStorage } from "../../manager/discord.js";
 import Logger from "../../manager/logger.js";
-import ClientEvent from "../../util/ClientEvent.js";
+import ClientEvent from "../../util/events/ClientEvent.js";
 
 let once = false;
 

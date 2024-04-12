@@ -1,7 +1,8 @@
 import { LeaderType, LeaderTypeToList } from "../game/module/Leader.js";
 
 export function headings(index: number) {
-    if ([1, 2, 16, 3, 4, 17, 5, 6, 18].some(v => v === index)) return ["Wins", "Total", "%", "Lvl"];
+    if ([1, 2, 16, 3, 4, 17].some(v => v === index)) return ["Wins", "Total", "%", "Lvl"];
+    if ([5, 6, 18].some(v => v === index)) return ["Wins", "Total", "%"];
     if (index === 7) return ["Doms", "Alignment"];
     if ([8, 9, 19].some(v => v === index)) return ["Leads", "Alignment"];
     if (index === 10) return ["Captures", "Alignment"];
@@ -31,7 +32,7 @@ export function transform<T extends LeaderType = LeaderType>(type: T, obj: Leade
         return [obj.wins, obj.bat, Math.round((obj.wins/obj.bat) * 1000) / 10 + '%', obj.misc && "lvl" in obj.misc ? obj.misc.lvl : ''];
     }
     if (lazyFuck<CacheTypings.FactionLeaderPvp>(obj, [5, 6, 18], type)) {
-        return [obj.wins, obj.bat, Math.round((obj.wins/obj.bat) * 1000) / 10 + '%', ''];
+        return [obj.wins, obj.bat, Math.round((obj.wins/obj.bat) * 1000) / 10 + '%'];
     }
     if (lazyFuck<CacheTypings.FactionLeaderDom>(obj, 7, type)) {
         return [obj.dom, obj.misc && obj.misc.align ? obj.misc.align : '']

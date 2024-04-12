@@ -1,11 +1,14 @@
 import { ComponentTypes, EmbedOptions, MessageActionRow, SelectMenuComponent, StringSelectMenu } from "oceanic.js";
 import Command, { CommandType } from "../../../util/Command.js";
 import Swarm from "../../../manager/epicduel.js";
-import { SwarmError } from "../../../util/errors/index.js";
+import { DiscordError, SwarmError } from "../../../util/errors/index.js";
 import FactionManager from "../../../game/module/FactionManager.js";
+import { getHighestTime } from "../../../util/Misc.js";
 
-export default new Command(CommandType.Component, { custom_id: 'faction_menu_<factId>_<userId>', gateVerifiedChar: 69 })
+export default new Command(CommandType.Component, { custom_id: 'faction_menu_<factId>_<userId>', waitFor: ["EPICDUEL", "LOBBY"], gateVerifiedChar: 69 })
     .attach('run', async ({ client, interaction, variables: { factId: strFactId, userId } }) => {
+        const time = process.hrtime.bigint();
+
         if (interaction.data.componentType !== ComponentTypes.STRING_SELECT) return;
 
         let bypass = false;
@@ -14,7 +17,7 @@ export default new Command(CommandType.Component, { custom_id: 'faction_menu_<fa
         if (interaction.user.id === userId) bypass = true;
         // if (!bypass && interaction.member.permissions.has("MANAGE_MESSAGES")) bypass = true;
 
-        if (!bypass) return interaction.createMessage({content: "You are not the person who've used the command, or lacks sufficient permission!", flags: 64});
+        if (!bypass) return interaction.createMessage(DiscordError.noBypass());
 
         const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
 
@@ -77,6 +80,9 @@ export default new Command(CommandType.Component, { custom_id: 'faction_menu_<fa
                     value: "```xl\n" + ((faction.members.filter(m => m.rank === 1).length) ? faction.members.filter(m => m.rank === 1).sort((a, b) => b.influence - a.influence).map(m => `${m.name} - ${m.title} - ${m.lastActive} days ago - ${m.influence}`).join("\n").slice(0, 1024) : 'None...') + "```",
                 }], thumbnail: {
                     url: "attachment://logo.png"
+                },
+                footer: {
+                    text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
                 }
             }]
         };

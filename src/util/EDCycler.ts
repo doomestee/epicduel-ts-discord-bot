@@ -65,11 +65,26 @@ export default class EDCycler {
                 const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotEmail, true);
 
                 if (attempt.servers.length === 0 || attempt.servers.length) {
+                    if (this.debug) Logger.getLogger("Cycler").debug("Probing attempt - no servers.");
                     // Still nothing, waiting another 3 minutes.
                     return this.reassignTimer();
                 }
 
+                if (this.debug) Logger.getLogger("Cycler").debug("Probing attempt - servers online!");
+
+                // For now since it's the same account
+                // this.#swarm.create(attempt);
+                
+                const central = this.#swarm.getClientById(1);//?.["regenerate"]
+
+                if (central) {
+                    central.selfDestruct(true);
+                    central.user.regenerate(attempt);
+                    central["init"](); central["connect"]();
+                }
+
                 // It is ready.
+                this.#swarm.probing = false;
             } catch (err) {
                 if (err instanceof SwarmError) {
                     switch (err.type) {
@@ -133,10 +148,14 @@ export default class EDCycler {
         // clearTimeout(this.timer);
 
         if (this.mode === 0 && this.#swarm.probing) {
+            Logger.getLogger("Cycler").debug("Probing activated");
+
             clearTimeout(this.timer);
             this.timer = setTimeout(this.checkForChanges.bind(this), this.probing_interval).unref();
             this.mode = 1;
         } else if (this.mode === 1 && !this.#swarm.probing) {
+            Logger.getLogger("Cycler").debug("Probing deactivated");
+
             clearTimeout(this.timer);
             this.timer = setTimeout(this.checkForChanges.bind(this), this.interval).unref();
             this.mode = 0;

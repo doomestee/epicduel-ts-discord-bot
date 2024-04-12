@@ -1,5 +1,5 @@
 import { ActionRowBase, ButtonStyles, ComponentTypes, Embed, EmbedField, EmbedOptions, InteractionContent, MessageComponent, SelectOption, StringSelectMenuOptions, User } from "oceanic.js";
-import { CharPageResult, discordDate, emojiStarCount, emojis, getHighestTime, getLegendRankByExp, getStarCount, getUserLevelByExp, letters, levels } from "../util/Misc.js";
+import { CharPage, discordDate, emojiStarCount, emojis, getHighestTime, getLegendRankByExp, getStarCount, getUserLevelByExp, letters, levels } from "../util/Misc.js";
 import { IFaction } from "./Faction.js";
 import { ICharacterName } from "./CharacterName.js";
 import ClassBox from "../game/box/ClassBox.js";
@@ -70,7 +70,7 @@ export default class Character implements ICharacter {
     /**
      * For non populated.
      */
-    static async respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPageResult | null) : Promise<InteractionContent> {
+    static async respondify(char: ICharacter | undefined, names: ICharacterName[], fact: Partial<IFaction>, partial?: CharPage | null) : Promise<InteractionContent> {
         if (char && "link_flags" in char && typeof char["link_flags"] === "number") {
             if (char["link_flags"] & 1 << 4) return { embeds: [{ title: "Hidden Character", description: "You just tried to search for a hidden character." }] }
         }
@@ -220,7 +220,7 @@ export default class Character implements ICharacter {
         }
     }
 
-    static linskify(discordId: string, invokerId: string, char: CharLinkFact | undefined, linkChars: CharLinkFact[], names: ICharacterName[], partial?: CharPageResult | null) : Promise<InteractionContent> {
+    static linskify(discordId: string, invokerId: string, char: CharLinkFact | undefined, linkChars: CharLinkFact[], names: ICharacterName[], partial?: CharPage | null) : Promise<InteractionContent> {
         return this.respondify(char, names, { id: char?.faction_id, alignment: char?.fact_alignment, name: char?.fact_name }, partial ?? null).then(result => {
             result.components?.push({
                 type: ComponentTypes.ACTION_ROW, components: [{

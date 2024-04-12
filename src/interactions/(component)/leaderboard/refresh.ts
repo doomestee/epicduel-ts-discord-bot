@@ -1,62 +1,52 @@
-import { ActionRowBase, ButtonComponent, ButtonStyles, ComponentTypes, MessageActionRow, SelectMenuComponent, SelectOption, StringSelectMenuOptions, TextButton, File } from "oceanic.js";
-import Leader, { LeaderType } from "../../game/module/Leader.js";
-import DatabaseManager, { quickDollars } from "../../manager/database.js";
-import Swarm from "../../manager/epicduel.js";
-import Command, { CommandType } from "../../util/Command.js";
-import { headings, transform } from "../../util/Leaderboard.js";
-import { emojis, find, getHighestTime, getUserLevelByExp, map } from "../../util/Misc.js";
-import { SwarmError } from "../../util/errors/index.js";
+import { AsciiTable3 } from "ascii-table3";
+import Leader, { LeaderType } from "../../../game/module/Leader.js";
+import Swarm from "../../../manager/epicduel.js";
+import Command, { CommandType } from "../../../util/Command.js";
+import { headings, transform } from "../../../util/Leaderboard.js";
+import { DiscordError, SwarmError } from "../../../util/errors/index.js";
+import DatabaseManager, { quickDollars } from "../../../manager/database.js";
+import { ActionRowBase, ButtonStyles, ComponentTypes, SelectMenuComponent, SelectOption, StringSelectMenuOptions, TextButton, File } from "oceanic.js";
+import { IFaction } from "../../../Models/Faction.js";
+import { ICharacter } from "../../../Models/Character.js";
+import { emojis, find, getHighestTime, getUserLevelByExp, map } from "../../../util/Misc.js";
+import { lbTypes, sortFn } from "../../leaderboard/fetch.js";
+import ImageManager from "../../../manager/image.js";
+import ClassBox from "../../../game/box/ClassBox.js";
 
-import { AsciiTable3, AlignmentEnum } from "ascii-table3";
-import { IFaction } from "../../Models/Faction.js";
-import { ICharacter } from "../../Models/Character.js";
-import ClassBox from "../../game/box/ClassBox.js";
-import ImageManager from "../../manager/image.js";
-
-export const lbNames = [map(["1v1 Wins", "2v2 Wins", "Juggernaut Wins", "Personal Influence", "Fame", "Inventory Rarity", "Faction 1v1 Champions", "Faction 2v2 Champions", "Faction Juggernaut Champions", "World Dominations", "War Upgrades", "Faction Influence", "Code Redeems", "Player Rating"], v => 'All - ' + v), map(["1v1 Wins (Default)", "2v2 Wins", "Juggernaut Wins", "Faction 1v1 Wins", "Faction 2v2 Wins", "Faction Juggernaut Wins", "Fame", "Code Redeems"], v => 'Daily - ' + v)].flat(1);
-export const correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 3, 4, 17, 5, 6, 18, 15, 20] as const;
-
-export const lbTypes = {} as { [x in LeaderType]: string };
-
-for (let i = 0, len = correspondingIndexes.length; i < len; i++) {
-    lbTypes[correspondingIndexes[i]] = lbNames[i];
-}
-
-/**
- * THIS ISN'T FOR ANY SORT FUNCTION, it only sorts leaderboards!
- */
-export function sortFn<T extends Array<any> = Array<any>>(this: T, obj1: any, obj2: any) {
-    let index0 = -1; let index1 = -1;
-
-    for (let i = 0, len = this.length; i < len; i++) {
-        if (this[i]["name"] === obj1["name"]) index0 = i;
-        if (this[i]["name"] === obj2["name"]) index1 = i;
-    }
-
-    return index0 - index1;
-}
-
-export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetch"], description: "Fetches the leaderboard!", waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 1 })
-    .attach('run', async ({ client, interaction }) => {
+export default new Command(CommandType.Component, { custom_id: "refresh_lb_<type>_<userId>_<time>", waitFor: ["EPICDUEL", "LOBBY"], gateVerifiedChar: 69 })
+    .attach('run', async ({ client, interaction, variables: { type: strType, userId, time: strTime }}) => {
         const time = process.hrtime.bigint();
         const cooldown = Math.round(Date.now());
+
+        let bypass = false;
+
+        if (interaction.user.id === userId) bypass = true;
+        if (!bypass && client.isMaintainer(interaction.user.id)) bypass = true;
+        //if (!bypass && interaction.user.permissions.has("manageGuild")) bypass = true;
+
+        if (!bypass) return interaction.reply(DiscordError.noBypass());
+        if (parseInt(strType) + 10000 > Date.now()) return interaction.reply({content: "Woah woah calm down, the buttons are on cooldown for 10 seconds, refresh after that time period.", flags: 64});
 
         const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 
-        const type = interaction.data.options.getInteger("type") as LeaderType ?? 3;
+        if (client.processing[interaction.user.id]) {
+            if (client.processing[interaction.user.id].refreshLb) return interaction.reply({content: "Cool down, a leaderboard is being refreshed by you.", flags: 64});
+            // else client.processing[interaction.user.id].refreshLb = true;
+        } else client.processing[interaction.user.id] = { refreshLb: false }//client.blankProcess();
 
-        // 666 is custom bot - fame for shame
-        if (type < 1 || (type > 22/* && type !== 666*/)) return interaction.reply({ content: "Invalid type! Valid types are 1-22." });
+        client.processing[interaction.user.id].refreshLb = true;
+        
+        if (!interaction.acknowledged) await interaction.deferUpdate();
 
-        const table = new AsciiTable3(lbTypes[type]).setAlignLeft(1).setStyle("unicode-double").setHeading("No.", "Name", ...headings(type));
+        const type = parseInt(strType) as LeaderType;//= focused.options.find(v => v.name === "type") ? focused.options.find(v => v.name === "type").value : 3;
 
-        if (!interaction.acknowledged) await interaction.defer();
+        const result = await ed.modules.Leader.fetch(type);//.catch((err) => {return {error: err}});
 
-        const result = await ed.modules.Leader.fetch(type);
+        if (!result.success) return interaction.reply({ embeds: [{ description: "The bot was unable to grab the leaderboard data, it may be that the server have timed out.", footer: { text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`} }] }).then(() => client.processing[interaction.user.id].refreshLb = false, () => client.processing[interaction.user.id].refreshLb = false);
 
-        if (!result.success) return interaction.reply({ embeds: [{ description: "The bot was unable to grab the leaderboard data, it may be that the server have timed out.", footer: { text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`} }] });
+        const table = new AsciiTable3(lbTypes[type]).setAlignLeft(1).setStyle("unicode-double").setHeading("No.", "Name", ...headings(type));//const table = new ascii().setAlign(LEFT).setBorder("║", "═", "╦", "╩").setHeading("No.", "Name", ...(spitOutStats(type, null, null, true)));//.setHeading("No.", "Name", "Wins", "Total", "Level");
 
         let userSetting = await DatabaseManager.helper.getUserSettings(interaction.user.id);
 
@@ -69,6 +59,11 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
         }
 
         const leaders = result.value;
+
+        // tis only a few kb's prob anyways
+        for (let i = 0; i < leaders.length; i++) {
+            table.addRow(i + 1, leaders[i].name, ...(transform(type, leaders[i])));
+        }
 
         const isFaction = Leader.Indexes.Faction.includes(type);
 
@@ -89,7 +84,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
 
         type ExtractValueType<T> = T extends Array<infer V> ? V : never;
 
-        const volues = await DatabaseManager.cli.query<IFaction | ICharacter>(`SELECT * FROM ${isFaction ? "faction" : "character"} WHERE name IN (${quickDollars(leaders.length)})${isFaction ? " ORDER BY id desc" : ""}`, leaders.map(v => v.name))
+        const volues = await DatabaseManager.cli.query<IFaction | ICharacter>(`SELECT * FROM ${isFaction ? "faction" : "character"} WHERE name IN (${quickDollars(leaders.length)})`, map(leaders, v => v.name))
             .then(v => v.rows);
 
         volues.sort(sortFn.bind(leaders));
@@ -103,7 +98,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
             else mergedArr.push({ ...leaders[i], available: false });
         }
 
-        // let indexice = table.getHeading().findIndex(v => v === "Lvl" || v === "Level");
+        let indexice = table.getHeading().findIndex(v => v === "Lvl" || v === "Level");
 
         for (let i = 0; i < mergedArr.length; i++) {
             const item = mergedArr[i]; const leaderItem = leaders[i];
@@ -118,7 +113,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
             //     }])
             // }
 
-            // if (indexice && !table.rows[i][indexice] && expL) table.rows[i][indexice] = expL !== 40 ? expL + "?" : expL;
+            if (indexice && !table.rows[i][indexice] && expL) table.rows[i][indexice] = expL !== 40 ? expL + "?" : expL;
 
             let classId = -1;
 
@@ -132,20 +127,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
                 value: isFaction ? (item.available ? "a" + item.id : "u" + item.name) : item.name,//item.available ? "a" + item.id : "u" + item.name,
                 emoji: emojis.numbers[i],
             };
-
-            // if (item.available) {
-                if (Leader.isFaction(type, leaderItem) && leaderItem["misc"] && item["available"]) {
-                    leaderItem.misc.align = item.alignment === 1 ? "Exile" : "Legion";
-                }
-            // }
-
-            table.addRow(i + 1, mergedArr[i].name, ...(transform(type, leaderItem)));
         }
-
-        // // tis only a few kb's prob anyways
-        // for (let i = 0; i < leaders.length; i++) {
-        //     table.addRow(i + 1, leaders[i].name, ...(transform(type, leaders[i])));
-        // }
 
         let files:File[] = [];
         let content = "```xl\n" + table.toString() + "```";//"\n**__" + lbnames[type] + "__**" + "\n```xl\n" + table.toString() + "```";//((type === 666) ? "The bot tracks any fame requests or phrases at vendbot, when it's there." : "")+ "\n**__" + lbnames[type] + "__**" + "\n```xl\n" + table.toString() + "```";
@@ -158,10 +140,15 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
             });
 
         if (userSetting.lb_view === 1) {
-            files = [{
-                contents: await ImageManager.SVG.generator.lb(type, leaders),
+            files[0] = {
+                contents: await ImageManager.SVG.generator.lb(type, leaders).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
                 name: "img.png"
-            }]; content = "";
+            }; content = "";
+
+            //@ts-expect-error
+            if (files[0].contents === false) return interaction.reply({
+                content: "error, unable to generate lb image", flags: 64
+            })
         }
         // }
 
@@ -175,8 +162,13 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
             components[0].components[0].disabled = true;
         }
 
-        return interaction.createFollowup({
+        // if (leaderboard.length === 0) {
+        //     content = `THERE'S NO ENTITY ON THE LEADERBOARD!`;
+        // }
+
+        return interaction.editOriginal({
             content, files,
             components,
-        });
+            attachments: []
+        }).then(() => client.processing[interaction.user.id].refreshLb = false, () => client.processing[interaction.user.id].refreshLb = false);
     })

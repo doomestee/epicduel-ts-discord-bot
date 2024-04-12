@@ -348,4 +348,8 @@ export default class Leader extends BaseModule {
         //@ts-expect-error
         return wait;
     }
+
+    static isFaction(type: LeaderType, arg: CacheTypings.AnyLeaders) : arg is CacheTypings.AnyFactionLeaders {
+        return this.Indexes.Faction.includes(type)
+    }
 }

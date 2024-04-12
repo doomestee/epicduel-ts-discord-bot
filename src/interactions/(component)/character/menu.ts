@@ -1,6 +1,6 @@
 import { ComponentTypes } from "oceanic.js";
 import Command, { CommandType } from "../../../util/Command.js";
-import { discordDate, getCharPage, getHighestTime } from "../../../util/Misc.js";
+import { CharPageResult, discordDate, getCharPage, getHighestTime } from "../../../util/Misc.js";
 import DatabaseManager from "../../../manager/database.js";
 import { IUserRecord } from "../../../Models/UserRecord.js";
 import ItemUtil from "../../../util/Item.js";
@@ -8,11 +8,9 @@ import Character, { ICharacter } from "../../../Models/Character.js";
 import { ICharacterName } from "../../../Models/CharacterName.js";
 
 export default new Command(CommandType.Component, { custom_id: "char_menu_<userId>_<arg>" })
-    .attach("run", async ({ client, interaction, variables }) => {
+    .attach("run", async ({ client, interaction, variables: { userId, arg } }) => {
         if (interaction.type !== 3) return;
         if (interaction.data.componentType !== ComponentTypes.STRING_SELECT) return;
-
-        const { userId } = variables;
 
         //let variables = {};// as Record<ParamsKey<"sussy_<baka>_<wanker>">, string>;
 
@@ -117,12 +115,23 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
 
         await interaction.defer();
 
+        let actualId = interaction.data.values.getStrings()[0];
+        let actualPg:CharPageResult | undefined;
+
+        // From leaderboard
+        if (arg === "1") {
+            actualPg = await getCharPage(actualId);
+
+            if (actualPg.success) actualId = actualPg.result.charId;
+            else return interaction.reply({ content: "The character must have changed their name, as the bot was unable to get the character page." });
+        }
+
         const time = process.hrtime.bigint();
 
-        const charId = Number(interaction.data.values.getStrings()[0]);
+        const charId = Number(actualId);
         const [charLinkFact] = await DatabaseManager.cli.query<ICharacter & { discord_id: string, linkflags: number, factname: string, factalignment: 1|2 }>(`select char.*, link.discord_id, link.flags as linkflags, faction.name as factName, faction.alignment as factAlignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where char.id = $1`, [charId]).then(v => v.rows);
 
-        let charPg = await getCharPage(charLinkFact.name);
+        let charPg = actualPg || await getCharPage(charLinkFact.name);
 
         // if (!charPg.success) return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64 });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
 

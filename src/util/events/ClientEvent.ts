@@ -1,7 +1,7 @@
-import type Hydra from "../manager/discord.js";
+import type Hydra from "../../manager/discord.js";
 import type { AnyGuildInteraction, AnyPrivateInteraction, ClientEvents } from "oceanic.js";
 
-export default class ClientEvent<K extends keyof ClientEvents = keyof ClientEvents> {
+export default class HydraEvent<K extends keyof ClientEvents = keyof ClientEvents> {
     listener: (this: Hydra, ...args: ClientEvents[K]) => void;
     name: K;
     constructor(event: "interactionCreate", listener: (this: Hydra, ...args: [interaction: AnyGuildInteraction | AnyPrivateInteraction]) => void);

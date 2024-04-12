@@ -376,7 +376,7 @@ export const emojis = {
 export const letters = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
 export const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
 
-export interface CharPageResult {
+export interface CharPage {
     armClass: string,
     armGender: "M" | "F",
     armMutate: string,
@@ -410,10 +410,12 @@ export interface CharPageResult {
     wpnLink: string
 }
 
-export async function getCharPage(charName: string) : Promise<{ success: true, result: CharPageResult } | { success: false, extra: { r: string } | { l: number } | { c: number } }> {
+export type CharPageResult = { success: true, result: CharPage } | { success: false, extra: { r: string } | { l: number } | { c: number } };
+
+export async function getCharPage(charName: string) : Promise<CharPageResult> {
     const { statusCode, body } = await request("https://epicduel.artix.com/charpage.asp?id=" + encodeURIComponent(charName), { method: "GET", maxRedirections: 2});
 
-    let result = {} as CharPageResult;
+    let result = {} as CharPage;
 
     if (statusCode >= 200 && statusCode < 300) {
         let html = await body.text();
@@ -428,7 +430,7 @@ export async function getCharPage(charName: string) : Promise<{ success: true, r
             result[v[0] as "rating"] = v[1];
         });
 
-        if (Object.keys(result).length === 1) return { success: true, result: {} as CharPageResult };
+        if (Object.keys(result).length === 1) return { success: true, result: {} as CharPage };
 
         return { success: true, result };
     }

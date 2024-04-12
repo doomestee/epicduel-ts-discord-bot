@@ -35,8 +35,6 @@ export default class User {
     _isMoving: boolean;
     _forceRetrain: boolean;
     _buddyListSize: number;
-    _playerSkills: never[];
-    _playerRecords: never[];
     _mySkills: {};
     _myRecord: {};
     _worldIndex: number;
@@ -122,10 +120,6 @@ export default class User {
         this._buddyListSize = -1;
         
         this._myBankLimit = -1;
-        
-        this._playerSkills = [];
-        
-        this._playerRecords = [];
         
         this._mySkills = {};
         

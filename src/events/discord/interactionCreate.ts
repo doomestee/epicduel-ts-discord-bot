@@ -1,5 +1,5 @@
 import { ActionRowBase, AnyCommandInteraction, AnyGuildInteraction, AnyPrivateInteraction, ApplicationCommandOptionTypes, ApplicationCommandTypes, ButtonStyles, CommandInteraction, ComponentTypes, InteractionOptionsSubCommand, InteractionOptionsSubCommandGroup, InteractionOptionsWithValue, InteractionOptionsWrapper, InteractionTypes, MessageActionRow, MessageComponent } from "oceanic.js";
-import ClientEvent from "../../util/ClientEvent.js";
+import ClientEvent from "../../util/events/ClientEvent.js";
 import CommandHandler from "../../handler/command.js";
 import type Command from "../../util/Command.js";
 import type Hydra from "../../manager/discord.js";

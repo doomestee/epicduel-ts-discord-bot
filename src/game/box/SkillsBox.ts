@@ -172,7 +172,7 @@ export default class SkillsSMBox {
                     let y = 0; let obj = {} as any;
 
                     while (y < (this.templates[type].length)) {
-                        obj[this.templates[type][y]] = list[y + y * this.templates[type].length];
+                        obj[this.templates[type][y]] = list[y + i * this.templates[type].length];
                         y++;
                     }
 

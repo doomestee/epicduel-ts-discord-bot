@@ -734,20 +734,20 @@ class Generator {
                 break;
             // Faction All-Time champions
             case 8: case 9: case 19:
-                converters = { "Leads": (v) => { return v.lead; }, "Alignment": (v) => { return v.misc.align ?? ""; } };
+                converters = { "Leads": (v) => { return v.lead; }, "Alignment": (v) => { return v.misc?.align ?? ""; } };
                 break;
             // I need to re-look at the specification
             case 7:
-                converters = { "Doms": (v) => v.dom, "Alignment": (v) => { return v.misc.align ?? ""; } };
+                converters = { "Doms": (v) => v.dom, "Alignment": (v) => { return v.misc?.align ?? ""; } };
                 break;
             case 10:
-                converters = { "Captures": (v) => v.cap, "Alignment": (v) => { return v.misc.align ?? ""; } };
+                converters = { "Captures": (v) => v.cap, "Alignment": (v) => { return v.misc?.align ?? ""; } };
                 break;
             case 11:
                 converters = { "Influence": (v) => v.influence, "Level": quickLvl };
                 break;
             case 12:
-                converters = { "Influence": (v) => v.influence, "Alignment": (v) => { return v.misc.align ?? ""; } };
+                converters = { "Influence": (v) => v.influence, "Alignment": (v) => { return v.misc?.align ?? ""; } };
                 break;
             case 13:
                 converters = { "Rarity Score": (v) => v.rarity, "Level": quickLvl };
