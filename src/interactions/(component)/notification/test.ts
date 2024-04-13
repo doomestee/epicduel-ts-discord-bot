@@ -34,6 +34,8 @@ export default new Command(CommandType.Component, { custom_id: "test_send_<notif
         //     }]
         // });
 
+        if (!interaction.acknowledged) await interaction.defer();
+
         /**
          * @type {{id: number, type: 1|2, guild_id: string, channel_id: string, thread_id: string?, message: string, creator_id: string}}
          */
