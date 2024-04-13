@@ -27,6 +27,7 @@ export default class AdminActionManager extends BaseModule {
                 
                 //let es = (!this.client.manager.standalone) ? this.client.manager.discord.emit : this.client.manager._logger;
 
+                this.client.swarm.execute("onAdminMessage", this.client, { type: 0, message: msg });
                 // idk why do i have these two
                 // this.client.manager.logEmit("epicduel_notification", {type: 0, message: "**" + msg + "**", args: [msg]});
                 // this.client.manager.logEmit("epicduel_message", {message: msg, type: 1}, true);
@@ -34,20 +35,23 @@ export default class AdminActionManager extends BaseModule {
                 break;
             // Announcement from an admin.
             case 2:
+                this.client.swarm.execute("onAdminMessage", this.client, { type: 0, message: msg });
                 // this.client.manager.logEmit("epicduel_notification", {type: 0, message: "**" + msg + "**", args: [msg]});
                 // this.client.manager.logEmit("epicduel_message", {message: msg, type: 2});
                 break;
             // Power hours / Hours left til end of day?
             case 3:
-                let msgParts = msg.split(',');
+                this.client.swarm.execute("onAdminMessage", this.client, { type: 2, message: msg, powerHourMultiplier: parseInt(data[4]) });
+                return;
+                // let msgParts = msg.split(',');
 
-                let sqlHour = parseInt(msgParts[0]);
-                let hoursLeft = sqlHour > 0 ? 24 - sqlHour : 0;
-                let soloName = msgParts[1];
-                let teamName = msgParts[2];
-                let juggName = msgParts[3];
+                // let sqlHour = parseInt(msgParts[0]);
+                // let hoursLeft = sqlHour > 0 ? 24 - sqlHour : 0;
+                // let soloName = msgParts[1];
+                // let teamName = msgParts[2];
+                // let juggName = msgParts[3];
 
-                if (hoursLeft == 0) {
+                if (false) { //hoursLeft == 0) {
                     // if (this.client.manager) this.client.manager.famed = {};
 
                     // if (this.client.manager.discord.ready) {
@@ -165,8 +169,10 @@ export default class AdminActionManager extends BaseModule {
                 break;
             // Victory
             case 6:
-                let winAlign = data[4];
-                this.client.smartFox.emit("war_status", { type: "end", align: parseInt(winAlign) });
+                // let winAlign = data[4];
+                // this.client.smartFox.emit("war_status", { type: "end", align: parseInt(winAlign) });
+
+                this.client.swarm.execute("onWarStatusChange", this.client, { type: "end", alignment: parseInt(data[4]) as 1 | 2 });
                 // this.client.manager.logEmit("epicduel_war", {type: "end", align: winAlign});
                 break;
             // War Rally
@@ -183,14 +189,16 @@ export default class AdminActionManager extends BaseModule {
                     //this.client.manager.discord.emit("epicduel_war_end", {type: "rally", align: winAlign});
                 }
 
-                this.client.smartFox.emit("war_status", { type: "rally", align: (alignId), status: "start" });
+                this.client.swarm.execute("onWarStatusChange", this.client, { type: "rally", alignment: parseInt(data[4]) as 1 | 2 , status: "start" });
+                // this.client.smartFox.emit("war_status", { type: "rally", align: (alignId), status: "start" });
                 // this.client.manager.logEmit("epicduel_war", {type: "rally", align: alignId, status: "start"});
                 break;
             // End of war rally
             case 8:
                 this.client.modules.WarManager.warRallyStatus = 0;
                 // this.client.manager.logEmit("epicduel_war", {type: "rally", status: "end"});
-                this.client.smartFox.emit("war_status", { type: "rally", align: (-1), status: "end" });
+                this.client.swarm.execute("onWarStatusChange", this.client, { type: "rally", status: "end" });
+                // this.client.smartFox.emit("war_status", { type: "rally", align: (-1), status: "end" });
                 break;
         }
     }

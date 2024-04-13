@@ -242,7 +242,7 @@ export default class User {
     
     get fctName()
     {
-        return this.getVariable<string>("fct")
+        return this.getVariable<string>("fctName")
     }
     
     get fctPerm()

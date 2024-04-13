@@ -39,7 +39,7 @@ export interface SFSClientEvents {
     // onPlayerSwitched: [event: {}];
     onUserCountChange: [event: { room: Room }];
     onUserEnterRoom: [event: { roomId: number, user: User }];
-    onUserLeaveRoom: [event: { roomId: number, userId: number, userName?: string }];
+    onUserLeaveRoom: [event: { roomId: number, userId: number, userName?: string, user: User | null }];
     onUserVariablesUpdate: [event: { user: User, changedVars: { [x: string]: boolean } }];
 };
 
@@ -48,35 +48,37 @@ export interface CustomSFSClientEvents {
     leader_lb: [result: (CacheTypings.AnyLeaders)[], type: number],
     faction_data: [result: (Faction), id: number],
     merch_item: [result: Shop, id: number];
-    war_status: [result: { type: "rally", align: number, status: "ongoing" | "start" | "end" } | { type: "char_used", name: string, influence: number, usedItemId: number } | {  type: "end", align: number }],
     leader_war: [result: WarSide, type: "overall" | "daily"],
     leader_war_gfx: [result: WarSideGFX],
     advent_gift: [result: { status: number, prize: number, value: number, credits: number }],
     leader_gift: [result: CacheTypings.GiftingLeader];
 
     tourney_leader: [result: TournamentLeader[]];
+
+    user_record: [result: Omit<IUserRecord, "char_id">, sfsId: number];
+    user_skills: [result: { id: number, lvl: number }[], sfsId: number];
 }
 
 /**
  * This is for the centralised events/epicduel/ stuff
  */
 export interface MainEDEvents {
-    onAdminMessage: [event: { roomId: number, userId: number, message: string }];
+    onAdminMessage: [event: { type: 0 | 1, message: string } | { type: 2, message: string, powerHourMultiplier: number }];
 
     onPrivateMessage: [event: { userId: number, userName: string, message: string, isFromMe: boolean }];
     onPublicMessage: [event: { roomId: number, user: User, message: string }];
 
-    onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User }];
+    onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User }];// | { type: 2, list: User[], user: User  }];
 
     onFactionEncounter: [event: { fact: IFaction }];
 
     onFriendStatus: [event: { charId: number, isOnline: boolean, sfsUserId: number, link: boolean, isMuted: boolean }];
 
-    onWarStatusChange: [event: { type: "rally", alignment: 1 | 2, status: "start"|"ongoing"|"end" } | { type: "start" } | { type: "end", alignment: 1 | 2 } | { type: "char_used", name: string, influence: number, usedItemId: number }];
+    onWarStatusChange: [event: { type: "rally", alignment: 1 | 2, status: "start"|"ongoing" } | { type: "rally", status: "end" } | { type: "start" } | { type: "end", alignment: 1 | 2 } | { type: "char_used", name: string, influence: number, usedItemId: number }];
 
     onJoinRoom: [event: { room: Room | null }];
 
-    onComparisonUpdate: [];
+    onComparisonUpdate: [event: { type: number, part: number }];
 }
 
 export type BothSFSClientEvents = SFSClientEvents & CustomSFSClientEvents;

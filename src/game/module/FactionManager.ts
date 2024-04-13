@@ -150,7 +150,7 @@ export default class FactionManager extends BaseModule {
 
         CacheManager.update("faction", fctId, fact);
         this.client.smartFox.emit("faction_data", fact, fctId);
-        // this.client.manager.logEmit("epicduel_faction_register", this.cache[fctId]);
+        this.client.swarm.execute("onFactionEncounter", this.client, { fact: { id: fact.id, name: fact.name, alignment: fact.alignment as 1 | 2 } });
         // this.client.smartFox.emit("factionData", fctId, this.cache[fctId]);
     }
 

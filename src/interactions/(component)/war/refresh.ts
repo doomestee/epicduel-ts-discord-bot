@@ -1,24 +1,30 @@
-import { IRally } from "../../Models/Rally.js";
-import { WarObjective } from "../../game/module/WarManager.js";
-import DatabaseManager from "../../manager/database.js";
-import Swarm from "../../manager/epicduel.js";
-import Command, { CommandType } from "../../util/Command.js";
-import { getHighestTime, getTime, rawHoursified } from "../../util/Misc.js";
-import { SwarmError } from "../../util/errors/index.js";
+import { ComponentTypes } from "oceanic.js";
+import Command, { CommandType } from "../../../util/Command.js";
+import { DiscordError, SwarmError } from "../../../util/errors/index.js";
+import Swarm from "../../../manager/epicduel.js";
+import DatabaseManager from "../../../manager/database.js";
+import { IRally } from "../../../Models/Rally.js";
+import { WarObjective } from "../../../game/module/WarManager.js";
+import { getHighestTime, getTime, rawHoursified } from "../../../util/Misc.js";
 
-export default new Command(CommandType.Application, { cmd: ["war", "current"], description: "Sees the current state of the war that's been repeating for the 93rd time.", waitFor: ["EPICDUEL"], cooldown: 3000 })
-    .attach('run', async ({ client, interaction }) => {
-        // For intellisense
-        if (interaction.type !== 2) return;
-        //if (!interaction.acknowledged) await interaction.defer();
+export default new Command(CommandType.Component, { custom_id: "refresh_war_info_<userId>", waitFor: ["EPICDUEL", "LOBBY"], gateVerifiedChar: 69 })
+    .attach('run', async ({ client, interaction, variables: { userId }}) => {
+        if (interaction.data.componentType !== ComponentTypes.BUTTON) return;
 
         const time = process.hrtime.bigint();
+
+        let bypass = false;
+
+        if (interaction.user.id === userId) bypass = true;
+        if (!bypass && client.isMaintainer(interaction.user.id)) bypass = true;
+
+        if (!bypass) return interaction.reply(DiscordError.noBypass());
 
         const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
 
         if (!ed) return interaction.reply(SwarmError.noClient());
 
-        if (!interaction.acknowledged) await interaction.defer();
+        if (!interaction.acknowledged) await interaction.deferUpdate();
 
         let isInCoolDown = ed.modules.WarManager.cooldownHours > 0;// && epicduel.sussyModeActivated !== true;
 
@@ -74,7 +80,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
 
         const war = await Swarm.getActiveWar();
 
-        return interaction.createFollowup({
+        return interaction.editOriginal({
             embeds: [{
                 title: obj.title,
                 author: {
@@ -109,5 +115,5 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
                 //     type: 2, style: 1, label: "(DEV) Chart Test 01", customID: "chart_0_" + interaction.user.id
                 // }]
             }]
-        });
-    })
+        })
+    });

@@ -200,9 +200,9 @@ export default class SysHandler {
             const usr = userListXml[usra];
 
             const [name, id, isMod, isSpec, pId] = [usr.n, Number(usr['@i']), usr['@m'] == "1", usr['@s'] == "1", usr['@p'] == null ? -1 : Number(usr['@p'])];
-            const user = new User(id, name);
+            const user = new User(id, name ?? ""); // shit ass ed server not sending name sometimes
 
-            user.isModerator//.setModerator(isMod);
+            user.setModerator(isMod);//.setModerator(isMod);
             user.setIsSpectator(isSpec);
             user.setPlayerId(pId);
 
@@ -218,6 +218,10 @@ export default class SysHandler {
             } else { 
                 currRoom?.addUser(user);
                 // this.client.client.manager.logEmit("epicduel_userlist_update", 1, {length: userListXml.length}, user, true);
+            }
+
+            if (user.name === "") {
+                user.name = "u" + user.userId;
             }
         }
 
@@ -263,11 +267,13 @@ export default class SysHandler {
         
         // this.client.client.manager.logEmit("epicduel_userlist_update", 2, theRoom.userList, theRoom.getUser(userId));
 
+        let user = theRoom.getUser(userId);
+
         if (theRoom != null) {
             theRoom.removeUser(userId);
         }
         
-        this.client.emit("onUserLeaveRoom", { roomId, userId, userName: uName });
+        this.client.emit("onUserLeaveRoom", { roomId, userId, userName: uName, user });
         // this.client.emit(SFSEvent.onUserLeaveRoom, new SFSEvent(SFSEvent.onUserLeaveRoom, {roomId: roomId, userId: userId, userName: uName}));
     }
 

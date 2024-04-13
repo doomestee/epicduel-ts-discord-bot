@@ -12,7 +12,7 @@ export default new Command(CommandType.Application, { cmd: ["notification", "ral
     .attach('run', async ({ client, interaction }) => {
         if (!interaction.inCachedGuildChannel()) return interaction.reply({ content: `This command can only be used in guilds.`, flags: 64 });
 
-        const [type, message] = [].map(v => process(interaction.data.options.getString(v, true))) as ["warRallyExile"|"warRallyLegion", string];
+        const [type, message] = ["type", "message"].map(v => process(interaction.data.options.getString(v, true))) as ["warRallyExile"|"warRallyLegion", string];
         const chnlPerms = interaction.data.options.getChannel("channel")?.appPermissions ?? interaction.channel.permissionsOf(client.user.id);
         const chnlId = interaction.data.options.getChannel("channel")?.id ?? interaction.channelID;
 

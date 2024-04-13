@@ -75,6 +75,10 @@ export default class SwarmResources {
         return { index, success: finalSuccess };
     }
 
-    skills: { [userId: number]: { id: number, lvl: number }[] } = {};
-    records: { [userId: number]: IUserRecord } = {};
+    skills: { [userId: number | number]: { id: number, lvl: number }[] | undefined } = {};
+    records: { [userId: number | number]: Omit<IUserRecord, "char_id"> | undefined } = {};
+
+    checkpoints = {
+        comparison: [0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] as [number, number[]]
+    }
 }

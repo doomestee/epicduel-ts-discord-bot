@@ -54,7 +54,8 @@ import MerchantRecord from "./record/MerchantRecord.js";
 import Logger from "../manager/logger.js";
 import Tournament from "./module/Tournament.js";
 import { SwarmError } from "../util/errors/index.js";
-import { waitFor } from "../util/WaitStream.js";
+import { WaitForResult, waitFor } from "../util/WaitStream.js";
+import { IUserRecord } from "../Models/UserRecord.js";
 
 export interface ClientSettings {
     id: number;
@@ -151,6 +152,8 @@ export default class Client {
     timer = {
         ping: new Timer(Constants.PING_INTERVAL, this.pingServer.bind(this))
     };
+
+    famed: { [id: string]: boolean } = {};
 
     //#endregion
 
@@ -542,7 +545,7 @@ export default class Client {
         if (this.boxes.item.ready && !this.hasSentItemOnce) {
             this.hasSentItemOnce = true;
             
-            // if (!this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 1);
+            this.swarm.execute("onComparisonUpdate", this, { part: 1, type: 1 });
         }
 
         if (!this.user.gameStarted) {
@@ -978,43 +981,43 @@ export default class Client {
                     }
                     break;
                 case Responses.RESPONSE_SEND_CLIENT_REQUIREMENTS:
-                    if (this.boxes.skills.populate("clientRequirements", dataObj.slice(2))) true;// === true && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 12);
+                    if (this.boxes.skills.populate("clientRequirements", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 12 });// === true && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 12);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_IMPROVE_RULES:
-                    if (this.boxes.skills.populate("improveRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 11);
+                    if (this.boxes.skills.populate("improveRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 11 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 11);
                     this.startGameCheck();
                     break; 
                 case Responses.RESPONSE_SEND_SKILLS_ACTIVE_ATTACK_RULES:
-                    if (this.boxes.skills.populate("activeAttackRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 5);
+                    if (this.boxes.skills.populate("activeAttackRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 5 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 5);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_ACTIVE_TARGET_RULES:
-                    if (this.boxes.skills.populate("activeTargetRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 7);
+                    if (this.boxes.skills.populate("activeTargetRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 7 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 7);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_PASSIVE_STAT_RULES:
-                    if (this.boxes.skills.populate("passiveStatRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 10);
+                    if (this.boxes.skills.populate("passiveStatRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 10 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 10);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_PASSIVE_MISC_RULES:
-                    if (this.boxes.skills.populate("passiveMiscRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 9);
+                    if (this.boxes.skills.populate("passiveMiscRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 9 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 9);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_ACTIVE_MISC_RULES:
-                    if (this.boxes.skills.populate("activeMiscRules", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 6);
+                    if (this.boxes.skills.populate("activeMiscRules", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 6 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 6);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_ACTIVE:
-                    if (this.boxes.skills.populate("active", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 4);
+                    if (this.boxes.skills.populate("active", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 4 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 4);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_SKILLS_PASSIVE: 
-                    if (this.boxes.skills.populate("passive", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 8);
+                    if (this.boxes.skills.populate("passive", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 8 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 8);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_SEND_CORES:
-                    if (this.boxes.skills.populate("core", dataObj.slice(2))) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 13);
+                    if (this.boxes.skills.populate("core", dataObj.slice(2)) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 13 });// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 13);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_GET_ITEMS:
@@ -1067,8 +1070,8 @@ export default class Client {
                     const allSkillData = skillData.slice(skillData.indexOf("$") + 1, skillData.indexOf("#"));
                     const skillTreeData = skillData.slice(skillData.indexOf("#") + 1);
 
-                    if (this.boxes.skills.populate("all", allSkillData) === true) true;// && !this.manager.standalone)   this.manager.discord.emit("epicduel_epicduel_comparison", 1, 2);
-                    if (this.boxes.skills.populate("tree", skillTreeData) === true) true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 3);
+                    if (this.boxes.skills.populate("all", allSkillData) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 2 });//true;// && !this.manager.standalone)   this.manager.discord.emit("epicduel_epicduel_comparison", 1, 2);
+                    if (this.boxes.skills.populate("tree", skillTreeData) === true) this.swarm.execute("onComparisonUpdate", this, { type: 1, part: 3 });//true;// && !this.manager.standalone) this.manager.discord.emit("epicduel_epicduel_comparison", 1, 3);
 
                     this.startGameCheck();
                     break; // ironic
@@ -1096,7 +1099,26 @@ export default class Client {
                     this.modules.Achievements.achievementDataReceived(dataObj);
                     break;
                 case Requests.REQUEST_GET_USER_RECORD:
-                    //if (!this.manager.standalone) {
+                    // if (!this.manager.standalone) {
+                    const rec:Omit<IUserRecord, "char_id"> = {
+                        last_fetched: new Date(),
+                        // b1: parseInt(dataObj[3]),
+                        // b2: parseInt(dataObj[4]),
+                        w1: parseInt(dataObj[5]),
+                        l1: parseInt(dataObj[3]) - parseInt(dataObj[5]),
+
+                        w2: parseInt(dataObj[6]),
+                        l2: parseInt(dataObj[4]) - parseInt(dataObj[6]),
+                        // bj: parseInt(dataObj[7]),
+                        wj: parseInt(dataObj[8]),
+                        lj: parseInt(dataObj[7]) - parseInt(dataObj[8]),
+
+                        npc: parseInt(dataObj[9]),
+                    };
+
+                    this.swarm.resources.records[dataObj[2]] = rec;
+                    this.smartFox.emit("user_record", rec, parseInt(dataObj[2]));
+
                     // this.manager.logEmit("epicduel_user", {
                     //     user: dataObj[2],
                     //     b1: dataObj[3],
@@ -1109,29 +1131,30 @@ export default class Client {
                     // });
 
                     // this.smartFox.emit("get_records", dataObj[2], dataObj.slice(2));
-                    // //}
+                    //}
                     break;
                 case Requests.REQUEST_GET_USER_SKILLS:
-                    // let loc48 = {};
-                    // loc48.userId = dataObj[2];
-                    // let loc49 = dataObj.slice(3);
-                    // let loc50 = 2; let loc51 = loc49.length / loc50;
-                    // let loc52 = [];
+                    const skills:{ id: number, lvl: number }[] = [];
 
-                    // for (let i = 0; i < loc51; i++) {
-                    //     loc52.push({
-                    //         id: loc49[0 + i * loc50],
-                    //         lvl: loc49[1 + i * loc50]
-                    //     });
-                    // }
+                    let loc49 = dataObj.slice(3);
+                    let loc50 = 2; let loc51 = loc49.length / loc50;
 
-                    // loc48.skills = loc52;
+                    for (let i = 0; i < loc51; i++) {
+                        skills.push({
+                            id: loc49[0 + i * loc50],
+                            lvl: loc49[1 + i * loc50]
+                        });
+                    }
+
+                    if (parseInt(dataObj[2]) === this.smartFox.myUserId) this.user._mySkills = skills;
+                    else this.swarm.resources.skills[dataObj[2]] = skills;
+
                     // if (dataObj[2] == this.smartFox.myUserId) {
                     //     this.user._mySkills = loc48;
                     // } else if (!this.battleOver) this.user._playerSkills[String(dataObj[2])] = loc48;
 
-                    // this.smartFox.emit("get_skills", dataObj[2], loc48);
-                    //StatsSkillsModule.instance.populateSkillsForSelectedUser(loc52);
+                    this.smartFox.emit("user_skills", skills, parseInt(dataObj[2]));
+                    // StatsSkillsModule.instance.populateSkillsForSelectedUser(loc52);
                     this.startGameCheck();
                     break;
                 case Responses.RESPONSE_GET_MY_ITEMS:
@@ -1437,6 +1460,14 @@ export default class Client {
 
         const [roomName, roomId] = [room.getName(), room.getId()];
 
+        const users = room.getUserList();
+
+        for (let i = 0, len = users.length; i < len; i++) {
+            this.swarm.execute("onUserListUpdate", this, { type: 1, list: users, user: users[i] });
+        }
+
+        this.swarm.execute("onJoinRoom", this, { room: room });
+
         // if (RoomManager.roomIsChallenge(room)) {
         //     if (this.battle.epbattle == null) {
         //         this.stopAFK_Timers();
@@ -1618,6 +1649,8 @@ export default class Client {
 
         if (sender == null) return;
 
+        this.swarm.execute("onPublicMessage", this, { roomId: evt.roomId, user: sender, message: msg });
+
         if (room.getName() != "Lobby") {
             //const targetPlayer = sender.charName;
 
@@ -1643,6 +1676,7 @@ export default class Client {
 
         let window = this.modules.Chat.list.find(v => v.userId === evt.userId);
         if (window) {
+            this.swarm.execute("onPrivateMessage", this, { message: msg, userId: evt.userId, userName: window.charName, isFromMe: false });
             // this.manager.discord.emit("epicduel_private_chat", msg, [window.charName, evt.params.userId], -1);
             window.appendMsg([window.charName, msg.slice(window.charName.length + 2)]);
         } else console.log(evt);
@@ -1667,19 +1701,24 @@ export default class Client {
          */
 
         const [user, roomId] = [evt.user, evt.roomId];
-        // const room = this.smartFox.getRoom(roomId);
+        const room = this.smartFox.getRoom(roomId);
 
-        // if (room && room.getName() != RoomManager.LOBBY) {
-        //     if (room.isBattle) {
-        //         // ++this.battle.epbattle._playerCount;
-        //         // this.battleLog("Player has joined - " + user.charName);
-        //     }
-        // }
+        if (room && room.getName() != RoomManager.LOBBY) {
+            this.swarm.execute("onUserListUpdate", this, { type: 1, list: room.getUserList(), user });
+            // if (room.isBattle) {
+            //     // ++this.battle.epbattle._playerCount;
+            //     // this.battleLog("Player has joined - " + user.charName);
+            // }
+        }
     }
 
     onUserLeaveRoomHandler(evt: SFSClientEvents["onUserLeaveRoom"][0]) {
-        const [userId, roomId] = [evt.userId, evt.roomId];
+        const [userId, roomId, user] = [evt.userId, evt.roomId, evt.user];
         const room = this.smartFox.getRoom(roomId);
+
+        if (user && room && room.getName() != RoomManager.LOBBY) {
+            this.swarm.execute("onUserListUpdate", this, { type: 2, list: room.getUserList(), user });
+        }
 
         // if (room && room.getName() != RoomManager.LOBBY) {
         //     if (room.isBattle) {
@@ -2212,102 +2251,66 @@ export default class Client {
     //     }; return val;
     // }
 
-    // /**
-    //  * @param {number} userId
-    //  * @param {boolean} screwBattle
-    //  * @returns {Promise<{ id: number, lvl: number }[]>}
-    //  */
-    // async getUserSkills(userId: number, screwBattle=false) : Promise<{ id: number, lvl: number }[]> {
-    //     if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
-    //         return [];//this.user._mySkills.skills;
-    //     } else {
-    //         let playerSkills = this.swarm.resources.skills[userId];
-    //         if (!this.battleOver && playerSkills != null && !screwBattle) {
-    //             return playerSkills;
-    //         } else {
-    //             /**
-    //              * @type {Array}
-    //              */
-    //             let skills = waitFor(this.smartFox, "get_skills", [0, userId], 3500).catch(err => { return {error: err} });
+    /**
+     * @param {number} userId
+     * @param {boolean} screwBattle
+     * @returns {Promise<{ id: number, lvl: number }[]>}
+     */
+    async getUserSkills(userId: number, screwBattle=false) : Promise<{ id: number, lvl: number }[]> {
+        if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
+            return [];//this.user._mySkills.skills;
+        } else {
+            let playerSkills = this.swarm.resources.skills[userId];
 
-    //             //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
-    //             this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_SKILLS, {userId}, 1, "json");
+            if (!this.battleOver && playerSkills != null && playerSkills && !screwBattle) {
+                return playerSkills;
+            } else {
+                /**
+                 * @type {Array}
+                 */
+                let skills = waitFor(this.smartFox, "user_skills", [1, userId], 3500);//.catch(err => { return {error: err} });
 
-    //             skills = await skills;
+                //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
+                this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_SKILLS, { userId }, 1, "json");
 
-    //             if (skills.error) return undefined;
+                return skills.then(v => {
+                    if (v.success) return v.value;
+                    else return [];
+                })
+            }
+        }
+    }
 
-    //             if (skills === null) {
-    //                 console.log("Undefined skills??? Prob non existent user");
-    //                 return undefined;
-    //             }
+    /**
+     * @param {number} userId
+     * @param {boolean} screwBattle
+     * @returns {Promise<{user: number, b1: number, b2: number, bj: number, w1: number, w2: number, wj: number, wn: number, fresh: boolean}>}
+     */
+    async getUserRecord(userId: number, screwBattle=true) : Promise<WaitForResult<Omit<IUserRecord, "char_id">>> {
+        // if (this.user._myRecord != null && userId == this.smartFox.myUserId) return this.user._myRecord;
 
-    //             if (skills[1]['skills']?.length) skills = skills[1]['skills'].map(v => { return { id: parseInt(v.id), lvl: parseInt(v.lvl)} });
+        // let loadFresh = screwBattle || (this.battleOver && !this.smartFox.getActiveRoom().isBattle);
 
-    //             return skills;
-    //         }
+        // if (!loadFresh) {
+        //     let playerRecord = this.user._playerRecords[userId];
 
-    //         this.smartFox.sendXtMessage("main", "r20", {targetId: 8776704}, 2, "json");
-    //     }
-    // }
+        //     if (playerRecord != null) return this.user._playerRecords[userId];
+        //     else loadFresh = true;
+        // }
 
-    // /**
-    //  * @param {number} userId
-    //  * @param {boolean} screwBattle
-    //  * @returns {Promise<{user: number, b1: number, b2: number, bj: number, w1: number, w2: number, wj: number, wn: number, fresh: boolean}>}
-    //  */
-    // async getUserRecord(userId, screwBattle=true) {
-    //     if (this.user._myRecord != null && userId == this.smartFox.myUserId) return this.user._myRecord;
+        let urr = this.swarm.resources.records[userId];
+        if (urr) {
+            // 1 hour cache
+            if ((urr.last_fetched.getTime() + 60000*60) > Date.now()) return { success: true, value: urr };//{...urr[1], fresh: false};
+        }
 
-    //     let loadFresh = screwBattle || (this.battleOver && !this.smartFox.getActiveRoom().isBattle);
+        const wait = waitFor(this.smartFox, "user_record", [1, userId], 3500);
 
-    //     if (!loadFresh) {
-    //         let playerRecord = this.user._playerRecords[userId];
+        //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
+        this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_RECORD, { userId }, 1, "json");
 
-    //         if (playerRecord != null) return this.user._playerRecords[userId];
-    //         else loadFresh = true;
-    //     }
-
-    //     if (loadFresh) {
-    //         if (screwBattle) {
-    //             if (this.manager.userRecords[userId]) {
-    //                 let urr = this.manager.userRecords[userId];
-    //                 if (urr[0] > Date.now()) return {...urr[1], fresh: false};
-    //             }
-    //         }
-
-    //         /**
-    //          * @type {Array}
-    //          */
-    //         let records = WaitForStream(this.smartFox, "get_records", [0, userId], [""], 3500);
-
-    //         //if (leaders == null || !Array.isArray(leaders)) return Promise.reject(new Error("Errored trying to fetch leaderboard", leaders));
-    //         this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_USER_RECORD, { userId }, 1, "json");
-
-    //         records = await records;
-
-    //         if (records === null) {
-    //             console.log("Undefined skills??? Prob non existent user");
-    //             return undefined;
-    //         }
-
-    //         let recording = records[1].map(v => parseInt(v));
-
-    //         const obj = {
-    //             user: recording[0],
-    //             b1: recording[1],
-    //             b2: recording[2],
-    //             w1: recording[3],
-    //             w2: recording[4],
-    //             bj: recording[5],
-    //             wj: recording[6],
-    //             wn: recording[7],
-    //         };
-
-    //         this.manager.userRecords[userId] = [Date.now() + 1000*60*30, obj];
-    //         return {...obj, fresh: true};
-    //     }
-    //   }
+        return wait;
+    }
       
 
     // /**

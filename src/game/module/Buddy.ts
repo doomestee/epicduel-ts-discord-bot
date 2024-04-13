@@ -69,6 +69,7 @@ export default class Buddy extends BaseModule {
         this.list[friendIndex].sfsUserId = sfsUserId;
         this.list[friendIndex].mute = isMuted;
 
+        this.client.swarm.execute("onFriendStatus", this.client, { charId, isMuted, isOnline, link, sfsUserId });
         // if (this.client.manager.discord) this.client.manager.discord.emit("epicduel_friend_status", { charId, isOnline, sfsUserId, link, isMuted });
     }
 

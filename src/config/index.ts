@@ -93,6 +93,13 @@ export default class Config {
             id: process.env.SPY_CHAT_WEBHOOK_ID as string,
             token: process.env.SPY_CHAT_WEBHOOK_TOKEN as string,
         },
-
+        updateTracker: {
+            id: process.env.UPDATE_TRACKER_WEBHOOK_ID as string,
+            token: process.env.UPDATE_TRACKER_WEBHOOK_TOKEN as string,
+        },
+        entryTracker: {
+            id: process.env.ENTRY_TRACKER_WEBHOOK_ID as string,
+            token: process.env.ENTRY_TRACKER_WEBHOOK_TOKEN as string,
+        },
     }
 }

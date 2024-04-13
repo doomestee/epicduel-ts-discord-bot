@@ -53,6 +53,7 @@ export default class ActiveChat {
 
         this.module.client.smartFox.sendXtMessage("main", Requests.REQUEST_SEND_PM, { msg: newTrimMsg , uId: this.userId }, 2, "json");
         this.appendMsg([this.module.client.getMyUserFr().charName, newTrimMsg]);
+        this.module.client.swarm.execute("onPrivateMessage", this.module.client, { message: newTrimMsg, userId: this.userId, userName: this.charName, isFromMe: true });
         // this.module.client.manager.discord.emit("epicduel_private_chat", newTrimMsg, -1, [this.charName, this.userId]);
     }
 

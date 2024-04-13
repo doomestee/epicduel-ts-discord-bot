@@ -4,13 +4,18 @@ import User from "../game/User.js";
 import { parseStringPromise } from "xml2js";
 import { SwarmError } from "../util/errors/index.js";
 import Server from "../game/Server.js";
-import { SFSClientEvents } from "../types/events.js";
+import { MainEDEvents, SFSClientEvents } from "../types/events.js";
 import { Requests } from "../game/Constants.js";
 import Logger from "./logger.js";
 import EDCycler from "../util/EDCycler.js";
 import SwarmResources from "../util/game/SwarmResources.js";
 import { IWar } from "../Models/War.js";
 import DatabaseManager from "./database.js";
+import { readdir } from "fs/promises";
+import Config from "../config/index.js";
+import { ImportResult } from "../util/types.js";
+import EDEvent from "../util/events/EDEvent.js";
+import type Hydra from "./discord.js";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -341,6 +346,72 @@ export default class Swarm {
 
         return true;
     }
+
+    // executor:{ [x in keyof MainEDEvents]: () => any } = {}
+    static executor:{ [x in keyof MainEDEvents]: (() => any) | undefined } = {
+        onAdminMessage: undefined, // done
+        onComparisonUpdate: undefined, // done
+        onFactionEncounter: undefined, // done
+        onFriendStatus: undefined, // done
+        onJoinRoom: undefined, // done
+        onPrivateMessage: undefined, // done
+        onPublicMessage: undefined, // done
+        onUserListUpdate: undefined,
+        onWarStatusChange: undefined, // done
+    };
+
+    private static async loadEvents() {
+        const events = (await readdir(Config.eventsDirectory + "/epicduel", { withFileTypes: true }));
+
+        let suc = 0;
+
+        for (let i = 0, len = events.length; i < len; i++) {
+            const file = events[i];
+
+            if (!file.isFile()) continue;
+
+            const path = `${Config.eventsDirectory}/epicduel/${file.name}`;
+
+            let ev = await import(path) as ImportResult<EDEvent>;
+
+            if ("default" in ev) {
+                ev = ev.default;
+            }
+
+            if (!(ev instanceof EDEvent)) {
+                throw new TypeError(`Export of event file "${path}" is not an instance of ClientEvent.`);
+            }
+
+            // I hate myself for this yes, but ill be using apply.
+            //@ts-ignore
+            this.executor[ev.name] = ev.listener;//.bind(this.clients[0]);
+
+            //this.on(ev.name, ev.listener.bind(this));
+            suc++;
+        }
+
+        Logger.getLogger("EDEvents").debug(`Loaded ${suc} event(s) for swarm.`);
+    }
+
+    static discord:Hydra;
+
+    static execute<K extends keyof MainEDEvents = keyof MainEDEvents>(type: K, cli: Client, ...args: MainEDEvents[K]) {
+        const exec = [];
+
+        exec[0] = cli;
+
+        for (let i = 0, len = args.length; i < len; i++) {
+            exec[i + 1] = args[i];
+        }
+
+        //@ts-expect-error
+        this.executor[type]?.call(cli, this.discord, ...args);//, [this.discord, ...exec]);// as unknown as [hydra: Hydra, ...MainEDEvents[K]]);
+        // this.executor[type]?.call(cli, this.discord, ...args)//.apply(cli, [this.discord, ...args]);
+    }
+
+    static init() {
+        this.loadEvents();
+    }
 }
 
-// Swarm["init"]();
+Swarm["init"]();

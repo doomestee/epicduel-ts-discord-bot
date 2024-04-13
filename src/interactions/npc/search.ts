@@ -7,6 +7,7 @@ import Config from "../../config/index.js";
 import { ButtonComponent, ButtonStyles, ComponentTypes } from "oceanic.js";
 import Swarm from "../../manager/epicduel.js";
 import { getHighestTime } from "../../util/Misc.js";
+import { replaceHTMLbits } from "../../manager/designnote.js";
 
 export default new Command(CommandType.Application, { cmd: ["npc", "search"], category: "NPC", description: "Pulls up the information about an Epicduel npc." })
     .attach('run', async  ({ client, interaction }) => {
@@ -73,7 +74,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                     url: "https://edwiki-image-proxy.cyclic.cloud/image?path=" + lang(merchant.mercName).replace(/[^a-zA-Z0-9]/g, "") + ".png"
                 },*/
                 title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchantId + ")",
-                description: Swarm.langCheck(merchant.mercChat),
+                description: replaceHTMLbits(Swarm.langCheck(merchant.mercChat)),
                 author: {
                     name: interaction.user.username,
                     iconURL: interaction.user.avatarURL()

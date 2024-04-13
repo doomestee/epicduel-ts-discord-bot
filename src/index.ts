@@ -16,6 +16,7 @@ Logger._saveToRotatingFile(Config.logsDirectory);
 const bot = new Hydra();
 
 DesignNoteManager.discord = bot;
+Swarm.discord = bot;
 
 Logger.getLogger("Launch").info(`Mode: ${Config.isDevelopment ? "BETA" : "PROD"}`);
 Logger.getLogger("Launch").info(`Node Version: ${process.version}`);

@@ -3,6 +3,7 @@
 // const { WaitForStream } = require("../../utilities");
 // const BaseModule = require("./Base");
 
+import { map } from "../../util/Misc.js";
 import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import Constants, { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
@@ -161,8 +162,7 @@ export default class WarManager extends BaseModule {
         }
 
         if (this.warRallyStatus != 0 && (this.cooldownHours) < 0) {
-            this.client.smartFox.emit("war_status", { type: "rally", align: this.warRallyStatus, status: "ongoing" });
-            // this.client.manager.logEmit("epicduel_war", {type: "rally", align: this.warRallyStatus, status: "ongoing"});
+            this.client.swarm.execute("onWarStatusChange", this.client, { type: "rally", alignment: this.warRallyStatus as 1 | 2, status: "ongoing" });
         }
 
         this.exilePopulation = Number(data[5]);
@@ -221,8 +221,7 @@ export default class WarManager extends BaseModule {
 
         let wr = this.activeRegion;//this.client.boxes.war.getRegionById(this.activeRegionId);
 
-        this.client.smartFox.emit("war_status", { type: "char_used", name: charName, influence, usedItemId });
-        // this.client.manager.logEmit("epicduel_war", {type: "char_used", name: charName, influence, usedItemId});
+        this.client.swarm.execute("onWarStatusChange", this.client, { type: "char_used", name: charName, influence, usedItemId });
 
         if (wr == null) { return; }
 
@@ -529,7 +528,9 @@ export default class WarManager extends BaseModule {
         throw Error("unknown mode");
     }
 
-    warPoints() {
+    warPoints(castAsString?:false) : WarPointResult<number>;
+    warPoints(castAsString:true)  : WarPointResult<string>;
+    warPoints(castAsString:boolean = false) {
         let currObjs = this.currentObjectives();
 
         let points = {
@@ -561,6 +562,26 @@ export default class WarManager extends BaseModule {
         points.currentPercent[0] = points.currentPercent[0] + "%";
         points.currentPercent[1] = points.currentPercent[1] + "%";
 
+        if (castAsString) {
+            return {
+                current: map(points.current, String),
+                currentPercent: points.currentPercent,
+                max: map(points.max, String),
+                remaining: map(points.remaining, String),
+                gap: String(points.gap),
+                gapPt: points.gapPt
+            }
+        }
+
         return points;
     }
+}
+
+export type WarPointResult<T extends string | number = number> = {
+    current: [T, T],
+    currentPercent: [string, string],
+    max: [T, T],
+    remaining: [T, T],
+    gap: T,
+    gapPt: string,
 }

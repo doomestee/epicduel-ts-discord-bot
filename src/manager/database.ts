@@ -57,13 +57,18 @@ export default class DatabaseManager {
         return this.init && this.cli !== undefined;
     }
 
-    static async insert<T extends string | number = string | number>(table: string, data: Record<string, any>, returning: string, ignoreDuplicate: true) : Promise<null>;
+    static async insert<T extends string | number = string | number>(table: string, data: Record<string, any>, ignoreDuplicate: true) : Promise<null>;
     static async insert<T extends string | number = string | number>(table: string, data: Record<string, any>, returning?: string, ignoreDuplicate?: false) : Promise<T>;
-    static async insert<T extends string | number = string | number>(table: string, data: Record<string, any>, returning = "id", ignoreDuplicate = false) {
+    static async insert<T extends string | number = string | number>(table: string, data: Record<string, any>, returning:string|boolean = "id", ignoreDuplicate = false) {
         const keys = Object.keys(data);
         const values = Object.values(data);
 
-        const res = await this.cli.query<Record<string, T>>(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${quickDollars(keys)}) ${ignoreDuplicate ? "ON CONFLICT DO NOTHING " : ""}RETURNING ${returning}`, values);
+        if (typeof returning === "boolean") {
+            ignoreDuplicate = returning;
+            returning = "";
+        }
+        
+        const res = await this.cli.query<Record<string, T>>(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${quickDollars(keys)})${ignoreDuplicate ? " ON CONFLICT DO NOTHING" : ""}${returning !== "" ? " RETURNING " + returning : ""}`, values);
 
         return ignoreDuplicate ? null : res["rows"][0][returning];
     }
