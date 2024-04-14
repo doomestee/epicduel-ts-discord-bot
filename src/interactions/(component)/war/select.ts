@@ -5,13 +5,15 @@ import { DiscordError, SwarmError } from "../../../util/errors/index.js";
 import DatabaseManager from "../../../manager/database.js";
 import { IRally } from "../../../Models/Rally.js";
 import { IWar } from "../../../Models/War.js";
-import { filter, getTime, rawHoursified } from "../../../util/Misc.js";
+import { filter, getHighestTime, getTime, rawHoursified } from "../../../util/Misc.js";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 
 export default new Command(CommandType.Component, { custom_id: "war_select_<userId>", gateVerifiedChar: 69 })
     .attach('run', async ({ client, interaction, variables: { userId } }) => {
         if (interaction.data.componentType !== 3) return;
+
+        const time = process.hrtime.bigint();
 
         let bypass = false;
 
@@ -72,7 +74,10 @@ export default new Command(CommandType.Component, { custom_id: "war_select_<user
                         name: interaction.message.embeds[0].author?.name ?? "unknown user",
                         iconURL: interaction.message.embeds[0].author?.iconURL
                     },
-                    description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : `\n\nThis war has been going on for **${getTime(war ? Date.now () - war.created_at.getTime() : 0, true, "", true)}.`}**`
+                    description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : `\n\nThis war has been going on for **${getTime(war ? Date.now () - war.created_at.getTime() : 0, true, "", true)}.`}**`,
+                    footer: {
+                        text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
+                    }
                 });
                 break;
             case "rallies_info":
@@ -107,7 +112,10 @@ export default new Command(CommandType.Component, { custom_id: "war_select_<user
                         name: interaction.message.embeds[0].author?.name ?? "unknown",
                         iconURL: interaction.message.embeds[0].author?.iconURL
                     },
-                    description: `There are ${rallies.length} rallies - Exile ${count}, Legion ${rallies.length-count}.${contentParsed}`
+                    description: `There are ${rallies.length} rallies - Exile ${count}, Legion ${rallies.length-count}.${contentParsed}`,
+                    footer: {
+                        text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
+                    }
                 });
                 break;
         }

@@ -70,7 +70,7 @@ class Streamie {
                     })
                 }
             } else {
-                events.once(name, result);
+                events.on(name, result);
             }
             
             events.once("error", error);

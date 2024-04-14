@@ -361,21 +361,31 @@ export default class DNExecutor {
 
         if (note.date === this.#dn.recent[recenttag].date && note.title === this.#dn.recent[recenttag].title && note.poster.name === this.#dn.recent[recenttag].poster.name) {
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
+            this.#dn.counter = 0;
+            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 1`);
 
             return;
         }//else console.log([note.date, this.#dn.recent[recenttag].date, note.title, this.#dn.recent[recenttag].title, note.poster.name, this.#dn.recent[recenttag].poster.name])
 
         // This note is older than the recent from the opposite page.
         if (new Date(note.date).getTime() <= this.#dn.recent[oppositetag].dateObj.getTime()) {
+            this.#dn.counter = 0;
+            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 2`);
+
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
             return;
         }
 
         // This note is older than the recent from the recent page.
         if (new Date(note.date).getTime() <= this.#dn.recent[recenttag].dateObj.getTime()) {
+            this.#dn.counter = 0;
+            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 3`);
+
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
             return;
         }
+
+        if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: NEW note`)
 
         this.#dn.recent[recenttag].date = note.date;
         this.#dn.recent[recenttag].title = note.title;
@@ -396,14 +406,6 @@ export default class DNExecutor {
 
         for (let aeg = 0; aeg < embeds.length; aeg++) {
             let embed = embeds[aeg];
-
-            const lazyLen = (embed: Embed, v: keyof EmbedOptions) : number => {
-                const prop = embed[v];
-
-                if (typeof prop === "string") return prop.length;
-                else if (v === "author") return embed[v]?.name.length ?? 0;
-                else return 0;
-            }
 
             const coink = (embed.author && embed.author.name) ? embed.author.name.length : 0
                 + ((embed.description?.length) ? embed.description.length : 0)

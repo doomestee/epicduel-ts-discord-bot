@@ -4,7 +4,9 @@ import Logger from "../../manager/logger.js";
 import { countCommonStrings, findIndex } from "../../util/Misc.js";
 import EDEvent from "../../util/events/EDEvent.js";
 
-export default new EDEvent("onPublicMessage", (hydra, { message, user: author }) => {
+export default new EDEvent("onPublicMessage", function (hydra, { message, user: author }) {
+    if (!Config.isDevelopment && this.smartFox.getActiveRoom()?.name === "TrainHubRight_0") return;
+
     const time = Date.now();
 
     const spaced = message.split(" ");
@@ -21,9 +23,9 @@ export default new EDEvent("onPublicMessage", (hydra, { message, user: author })
 
                 let flags = 0;
 
-                if (author.isLegendary) flags += 1 << 0;
-                if (author.isModerator())       flags += 1 << 1;
-                if (author.isSpectator())      flags += 1 << 2;
+                if (author.isLegendary)   flags += 1 << 0;
+                if (author.isModerator()) flags += 1 << 1;
+                if (author.isSpectator()) flags += 1 << 2;
 
                 DatabaseManager.helper.linkCharacter(cche[0], author.userId, author.charId, { flags }).then((val) => {
                     console.log(val);
@@ -85,7 +87,7 @@ export default new EDEvent("onPublicMessage", (hydra, { message, user: author })
     // if (hydra.messages[0].value.fames?.all.length) list[1] = [...list[1], ...hydra.messages[0].value.fames.all];
 
     if (list[0].some(v => content.includes(v)) || list[1].some(v => v === content)) {
-        DatabaseManager.helper.incrementFameCounter(author.charId, author.charName, Date.now(), 1).catch(err => { Logger.getLogger("Database").error(err) });
+        DatabaseManager.helper.incrementFameCounter(author.charId, author.charName, 1, Date.now()).catch(err => { Logger.getLogger("Database").error(err) });
     }
 
     const edChat = hydra.cache.edChat[author.charId];

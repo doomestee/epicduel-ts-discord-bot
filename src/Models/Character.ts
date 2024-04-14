@@ -142,7 +142,7 @@ export default class Character implements ICharacter {
         }
     }
 
-    static listify(author: User, name: string, list: Array<(ICharacter & { old_name: string }) & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>, time: bigint) : InteractionContent {
+    static listify(author: User, name: string, list: Array<(ICharacter & { old_name: string }) & ({ fact_name: string, fact_id: number, fact_alignment: 1 | 2 | null } | { fact_name: null, fact_id: null, fact_alignment: null })>, time: bigint) : InteractionContent {
         // You can have up to 25 select options, but just for safety, 10 will be the maximum.
 
         const embeds:Embed[] = [{
@@ -152,7 +152,7 @@ export default class Character implements ICharacter {
         const options:SelectOption[] = [];// = [{  }]//StringSelectMenuOptions["options"] = [{}]
 
         for (let i = 0, len = list.length; i < len; i++) {
-            embeds[0].description += `\n\n${letters[i]} - **${list[i].old_name}** (ID: ${list[i].id} - User ID: ${list[i].user_id})${list[i].old_name !== list[i].name ? "\n*Current name: " + list[i].name + "*" : ""}\nFaction: ${list[i].factid === null ? "unknown." : `${list[i].alignment === null ? "❓ " : "<:" + emojis.alignment[list[i].alignment as 1 | 2] + "> "}**${list[i].factname}** (ID: ${list[i].factid})`}`
+            embeds[0].description += `\n\n${letters[i]} - **${list[i].old_name}** (ID: ${list[i].id} - User ID: ${list[i].user_id})${list[i].old_name !== list[i].name ? "\n*Current name: " + list[i].name + "*" : ""}\nFaction: ${list[i].fact_id === null ? "unknown." : `${list[i].alignment === null ? "❓ " : "<:" + emojis.alignment[list[i].alignment as 1 | 2] + "> "}**${list[i].fact_name}** (ID: ${list[i].fact_id})`}`
 
             options.push({
                 label: `${list[i].name}`,
@@ -191,7 +191,7 @@ export default class Character implements ICharacter {
         return {
             embeds: [{
                 title: "Managing Character",
-                description: `Name: **${char.name}**\nID: ${char.id}\nLinked at: <t:${Math.round(char.link_date.getTime()/1000)}:F>\n\nFlags: ${char.flags}`,
+                description: `Name: **${char.name}**\nID: ${char.id}\nLinked at: <t:${Math.round(char.link_date.getTime()/1000)}:F>\n\nFlags: ${char.link_flags}`,
             }],
             components: [{
                 type: ComponentTypes.ACTION_ROW, components: [{
@@ -209,11 +209,11 @@ export default class Character implements ICharacter {
                     type: ComponentTypes.BUTTON, label: "Character Page", style: ButtonStyles.LINK, url: "https://ed.doomester.one/charpage.asp?id=" + encodeURIComponent(char.name),
                     emoji: { id: "1212507121636085800", name: "exilegion" }
                 }, {
-                    type: ComponentTypes.BUTTON, label: "Fame", style: ButtonStyles.SECONDARY, customID: "fame_0_" + char.id, disabled: true
+                    type: ComponentTypes.BUTTON, label: "Hide", style: ButtonStyles.SECONDARY, customID: "hide_0_" + char.id,
                 }, {
                     type: ComponentTypes.BUTTON, label: "Unlink", style: ButtonStyles.DANGER, customID: "unlink_0_" + char.id + "_" + Math.round(Date.now() + 30000)
                 }, {
-                    type: ComponentTypes.BUTTON, label: "Flags?", style: ButtonStyles.SECONDARY, customID: "help_1_" + char.flags
+                    type: ComponentTypes.BUTTON, label: "Flags?", style: ButtonStyles.SECONDARY, customID: "help_1_" + char.link_flags
                 }]
             }],
             flags: 64

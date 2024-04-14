@@ -64,6 +64,7 @@ export default new Command(CommandType.Component, { custom_id: "item_swf_links_<
         return interaction.createMessage({
             embeds: [{
                 title: "Extra for Item ID " + item.itemId,
+                description: item.isCoreItemRecord() ? "(Note if this is a skill item, it's most likely the link won't work)." : "",
                 fields,
             }],
             flags: 1 << 6

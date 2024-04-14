@@ -7,8 +7,10 @@ import Helper from "svg-boundings/util/helper.js";
 import ClassBox from "../game/box/ClassBox.js";
 import sharp, { Blend } from "sharp";
 import Jimp from "jimp";
+import type { ColorActionName } from "@jimp/plugin-color";
 
-import type { ColorActionName } from "../../node_modules/@jimp/plugin-color/index.js"
+
+// import type { ColorActionName } from "../../node_modules/@jimp/plugin-color/index.js"
 import Leader, { LeaderType, LeaderTypeToList } from "../game/module/Leader.js";
 import ItemSBox from "../game/box/ItemBox.js";
 import { lazyFuck } from "./Leaderboard.js";
@@ -447,9 +449,10 @@ class Generator {
 
                     const scale = 1 + 10 / Math.max(j.bitmap.width, j.bitmap.height);
 
-                    cl.resize(j.bitmap.width * scale, j.bitmap.height * scale);
+                    cl.resize(j.bitmap.width * scale, j.bitmap.height * scale)
+                        .color([{ apply: 'mix' as ColorActionName.MIX, params: [0x000000, 100] }]);
 
-                    cl.color([{ apply: 'mix' as ColorActionName.MIX, params: [0x000000, 100] }]);
+                    // cl.color([{ apply: "mix", params: [0x000000, 100] }]);
 
                     j = cl.blur(1).composite(j, 6, 6).crop(5, 5, 200, 200);
 

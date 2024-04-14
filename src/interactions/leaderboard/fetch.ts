@@ -36,7 +36,7 @@ export function sortFn<T extends Array<any> = Array<any>>(this: T, obj1: any, ob
     return index0 - index1;
 }
 
-export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetch"], description: "Fetches the leaderboard!", waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 1 })
+export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetch"], description: "Fetches the leaderboard!", waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 69 })
     .attach('run', async ({ client, interaction }) => {
         const time = process.hrtime.bigint();
         const cooldown = Math.round(Date.now());

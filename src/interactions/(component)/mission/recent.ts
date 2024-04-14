@@ -9,6 +9,8 @@ import { readFile } from "fs/promises";
 import Config from "../../../config/index.js";
 import Swarm from "../../../manager/epicduel.js";
 import { objectify, rewardify } from "../../mission/recent.js";
+import { replaceHTMLbits } from "../../../manager/designnote.js";
+import he from "he";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 let edClass = (id: number) => { return id == 0 ? "None" : id == 1 ? "Hunter" : id == 2 ? "Mercenary" : id == 3 ? "Mage" : "Unknown" };
@@ -27,7 +29,7 @@ export default new Command(CommandType.Component, { custom_id: 'mission_daily_me
 
         const groupId = Number(interaction.data.values.raw[0]);
 
-        const missions = filter(MissionSBox.objMap.self, v => v.groupId === groupId);
+        const missions = MissionSBox.getMissionsByGroupId(groupId);//filter(MissionSBox.objMap.self, v => v.groupId === groupId);
         const group = find(MissionSBox.objMap.group, v => v.groupId === groupId);
 
         if (!group) {
@@ -56,10 +58,10 @@ export default new Command(CommandType.Component, { custom_id: 'mission_daily_me
                 title: "Mission Chain: " + group?.groupName,
                 fields: [{
                     name: "Before",
-                    value: Swarm.languages["SQL_mission_chat_" + missions[0].missionId],
+                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_mission_chat_" + missions[0].missionId])),
                 }, {
                     name: "After",
-                    value: Swarm.languages["SQL_missions_txt_end" + missions[0].missionId]
+                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_missions_txt_end" + missions[0].missionId])),
                 }, {
                     name: "Reward(s)",
                     value: rewardify([missions[0]], true),

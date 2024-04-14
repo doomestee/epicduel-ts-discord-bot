@@ -6,9 +6,9 @@ import DesignNoteManager from "../../../manager/designnote.js";
 
 export default new Command(CommandType.Component, { custom_id: "help_<type>_<userId>" })
     .attach('run', ({ client, interaction, variables: { userId, type } }) => {
-        if (interaction.data.componentType !== ComponentTypes.STRING_SELECT) return;
-
         let bypass = false;
+
+        // "help_1_" + char.flags
 
         if (interaction.user.id === userId) bypass = true;
         if (!bypass && client.isMaintainer(interaction.user.id)) bypass = true;
@@ -19,6 +19,7 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
         const ed = Swarm.getClient(v => v.connected, true);
 
         if (type !== "0") {
+            console.log([type, userId]);
             switch (type) {
                 case "1":
                     let flagella:[number, string, string][] = [[1 << 0, "1 << 0", "Legendary Char (level 40)"], [1 << 1, "1 << 1", "Staff"], [1 << 3, "1 << 3", "Forcibly Linked (can't unlink)"], [1 << 4, "1 << 4", "Hidden Character"], [1 << 5, "1 << 5", "Being tracked in game"]];
@@ -30,7 +31,7 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
                         parseFlag += (flags & (i[0]) ? "✅ " : "❎ ") + i[1] + " - " + i[2] + "\n"
                     }
 
-                    return interaction.createMessage({
+                    return interaction.reply({
                         embeds: [{
                             title: "What is a flag?",
                             description: "A collection of [bit fields](https://en.wikipedia.org/wiki/Bit_field).\nThink of a list of switches, each can be switched on or off, so it's a bit similar here for how flags are being used for the bot, except it's stored as numeric value.\n\n" + parseFlag.trim(),//"Each character in the database has a property called flags, which makes it easier for us to predefine without having to modify the database or add new a column (if you're aware of how SQL works).\nSimilarly to discord's user flags, it's represented as bit set.\nFor instance, a user's flag may be 1, which means it's a legendary character.\n\n" + parseFlag.trim(),
@@ -38,6 +39,8 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
                     })
             }
         }
+
+        if (interaction.data.componentType !== ComponentTypes.STRING_SELECT) return;
 
         const extraInfo = interaction.guildID === '565155762335383581' || client.isMaintainer(interaction.user.id);
 

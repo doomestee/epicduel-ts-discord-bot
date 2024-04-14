@@ -32,7 +32,12 @@ export default class Hydra extends Client {
 
         // If each and all votes in, they'll become maintainers.
         emergencyTacts: ['339050872736579589', '635231533137133589', '346018784101793793'],
-        emergencyVotes: [] as string[]
+        emergencyVotes: [] as string[],
+
+        bots: {
+            main: "790964602002604042",
+            beta: "1220476957855055963",
+        },
     };
 
     messages = [] as unknown as [MessageStorage<MainMessageStorage>];
@@ -130,6 +135,10 @@ export default class Hydra extends Client {
         return this.constants.maintainers.includes(id);
     }
 
+    isBotMain() {
+        return this.ready ? this.user.id === this.constants.bots.main : !Config.isDevelopment;
+    }
+
     /**
      * I honestly don't want to touch the returns type of this function.
      * @param type 1 for creating a message, 2 for editing original message (FOR COMPONENT)
@@ -167,21 +176,6 @@ export default class Hydra extends Client {
         let correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 3, 4, 17, 5, 6, 18, 15, 20];//, 666] as const;
 
         const commands: CreateApplicationCommandOptions[] = [{
-            name: "note", description: "Design deez nu- i mean notes.", type: 1, options: [{
-                name: "register",
-                description: "This will register the channel to receive design notes notifications.",
-                type: 1,
-                options: [{
-                    type: 7, name: 'channel', description: 'The channel to pool.', required: true, channelTypes: [0]
-                }]
-            }],
-            contexts: [InteractionContextTypes.GUILD],
-            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
-        }];
-
-        commands.splice(0);
-
-        commands.push({
             name: "war", description: "War commands.", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
                 name: "current", description: "Shows the current status of the war.",
@@ -226,50 +220,6 @@ export default class Hydra extends Client {
             contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
         }, {
-            name: "test",
-            description: "test",
-            type: ApplicationCommandTypes.CHAT_INPUT,
-        }, {
-            name: "testa",
-            description: "testa",
-            type: ApplicationCommandTypes.CHAT_INPUT,
-            options: [{
-                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-                name: "bcd", description: "ok",
-                options: [{
-                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    name: "efg", description: "nice"
-                }]
-            }]
-        }, {
-            name: "admin",
-            description: "Administration stuff.",
-            contexts: [InteractionContextTypes.GUILD],
-            defaultMemberPermissions: "8",
-            type: ApplicationCommandTypes.CHAT_INPUT,
-            options: [{
-                type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                name: "eval",
-                description: "yes",
-                options: [{
-                    name: "msg",
-                    description: "yeah",
-                    type: ApplicationCommandOptionTypes.STRING,
-                    required: true
-                }, {
-                    name: "async",
-                    description: "yeah",
-                    type: ApplicationCommandOptionTypes.INTEGER,
-                    choices: [{
-                        name: "True - Return",
-                        value: 1
-                    }, {
-                        name: "True",
-                        value: 2
-                    }]
-                }]
-            }]
-        }, {
             name: "character",
             type: ApplicationCommandTypes.CHAT_INPUT,
             description: "characterise",
@@ -278,20 +228,20 @@ export default class Hydra extends Client {
             options: [{
                 name: "search",
                 type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                description: "DEV",
+                description: "Search for a character by its name.",
                 options: [{
                     type: ApplicationCommandOptionTypes.STRING,
-                    description: "DEV", name: "name", required: true,
+                    description: "Name of the character.", name: "name", required: true,
                     minLength: 1, maxLength: 50
                 }]
             }, {
                 name: "manage",
                 type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                description: "DEV",
+                description: "Manages your character linkage.",
             }, {
                 name: "list",
                 type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                description: "DEV",
+                description: "Lists your linked characters (or someone else's).",
                 options: [{
                     type: ApplicationCommandOptionTypes.USER,
                     description: "The user to get the linked characters from.", name: "user",
@@ -333,7 +283,7 @@ export default class Hydra extends Client {
                 type: ApplicationCommandOptionTypes.SUB_COMMAND, name: "recent", description: "Lists the newly added mission chains."
             }, {
                 type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                description: "SEARCH FOR A MISSION",
+                description: "Search for a mission chain by its name, or ID if applicable.",
                 name: "search", options: [{
                     type: ApplicationCommandOptionTypes.INTEGER, description: "ID of a mission, or name if autocomplete.",
                     name: "id", autocomplete: true, required: true
@@ -406,7 +356,7 @@ export default class Hydra extends Client {
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
         }, {
             name: "gifting", description: "Gifting stuff...", type: ApplicationCommandTypes.CHAT_INPUT, options: [{
-                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP, description: "Grouppppp",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP, description: "send the bot owner a dm if you can read this",
                 name: "board", options: [{
                     type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the current top 10 gifting leaders.",
                     name: "fetch"
@@ -415,21 +365,11 @@ export default class Hydra extends Client {
             contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
         }, {
-            name: "youre-gay",
-            type: ApplicationCommandTypes.CHAT_INPUT,
-            description: "test",
-            contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
-            integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
-            options: [{
-                type: ApplicationCommandOptionTypes.STRING,
-                description: "DEV", name: "a", required: true
-            }]
-        }, {
-            name: "track", description: "MISC", type: ApplicationCommandTypes.CHAT_INPUT,
+            name: "track", description: "MISC, NOT FOR PUBLIC USE", type: ApplicationCommandTypes.CHAT_INPUT,
             contexts: [InteractionContextTypes.PRIVATE_CHANNEL, InteractionContextTypes.BOT_DM],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],
         }, {
-            name: "notification", description: "Notifying mummy", type: ApplicationCommandTypes.CHAT_INPUT,
+            name: "notification", description: "Notifying mummy wummy", type: ApplicationCommandTypes.CHAT_INPUT,
             options: [{
                 name: "rally", description: "Rally notifications",
                 type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
@@ -456,11 +396,11 @@ export default class Hydra extends Client {
                     }]
                 }]
             }, {
-                name: "note", description: "Note notifications (creates a webhook)",
+                name: "note", description: "Note notifications",
                 type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
                 options: [{
                     type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    description: "Creates a notification for design notes (uses a webhook)",
+                    description: "Creates a notification for design notes (creates a webhook)",
                     name: "create", options: [{
                         type: ApplicationCommandOptionTypes.CHANNEL, required: true,
                         name: "channel", description: "The channel to receive new design notes.",
@@ -470,9 +410,38 @@ export default class Hydra extends Client {
             }],
             contexts: [InteractionContextTypes.GUILD],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],
-        });
+        }];
 
         // if (commands.length !== 5) process.exit(1);
+
+        this.rest.applications.bulkEditGuildCommands(applicationId ?? this.application.id, "565155762335383581", [{
+            name: "admin",
+            description: "Administration stuff.",
+            defaultMemberPermissions: "8",
+            type: ApplicationCommandTypes.CHAT_INPUT,
+            options: [{
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                name: "eval",
+                description: "yes",
+                options: [{
+                    name: "msg",
+                    description: "yeah",
+                    type: ApplicationCommandOptionTypes.STRING,
+                    required: true
+                }, {
+                    name: "async",
+                    description: "yeah",
+                    type: ApplicationCommandOptionTypes.INTEGER,
+                    choices: [{
+                        name: "True - Return",
+                        value: 1
+                    }, {
+                        name: "True",
+                        value: 2
+                    }]
+                }]
+            }]
+        }]);
 
         return this.rest.applications.bulkEditGlobalCommands(applicationId ?? this.application.id, commands);
     }

@@ -2,10 +2,10 @@ import { InteractionTypes } from "oceanic.js";
 import Command, { CommandType } from "../../util/Command.js";
 import DatabaseManager, { quickDollars } from "../../manager/database.js";
 
-export default new Command(CommandType.Application, { cmd: ["track"], description: "Command that provides additional information...", gateVerifiedChar: 0, usableEdRestricted: true })
+export default new Command(CommandType.Application, { cmd: ["track"], description: "Command that provides additional information...", usableEdRestricted: true })
     .attach('run', async ({ client, interaction }) => {
         // idk why is typescript type narrowing weird
-        if (interaction.guild !== undefined) return;
+        if (interaction.guild === undefined) return;
 
         if (!client.isMaintainer(interaction.user.id) && !["540224423567949834", "950028793450483712"].some(v => v === interaction.user.id)) return;
 
@@ -22,9 +22,9 @@ export default new Command(CommandType.Application, { cmd: ["track"], descriptio
         for (let i = 0; i < links.length; i++) {
             const char = links[i];
 
-            if (char.flagsLink & 1 << 5) continue;
+            if (char.link_flags & 1 << 5) continue;
 
-            char.flagsLink += 1 << 5;
+            char.link_flags += 1 << 5;
             list.push(char.id);
         }
 

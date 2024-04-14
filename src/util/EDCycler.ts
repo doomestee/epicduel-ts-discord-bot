@@ -108,7 +108,9 @@ export default class EDCycler {
                 if (count > 0) continue;
                 if (!purg.settings.reconnectable) continue;
 
-                if (purg.connected) {
+                // if smartfox is connected, it may still be connecting.
+                // TODO: add "connecting" to check.
+                if (purg.connected || purg.smartFox?.connected) {
                     // Move it to clients section.
                     this.#swarm["clients"].push(purgs[i]);
                     this.#swarm["purgatory"].splice(i--, 1); len--;

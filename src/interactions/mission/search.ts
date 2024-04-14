@@ -9,6 +9,8 @@ import { emojis, filter, find, getHighestTime, map } from "../../util/Misc.js";
 import MissionSBox from "../../game/box/MissionBox.js";
 import MerchantSBox from "../../game/box/MerchantBox.js";
 import { objectify, rewardify } from "./recent.js";
+import { replaceHTMLbits } from "../../manager/designnote.js";
+import he from "he";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 let edClass = (id: number) => { return id == 0 ? "None" : id == 1 ? "Hunter" : id == 2 ? "Mercenary" : id == 3 ? "Mage" : "Unknown" };
@@ -25,8 +27,8 @@ export default new Command(CommandType.Application, { cmd: ["mission", "search"]
 
         if (!group) return interaction.reply({ flags: 64, content: "There are no missions with the ID given." });
 
-        const missions = filter(MissionSBox.objMap.self, v => v.groupId === missionGroupId);
-        const mission = find(MissionSBox.objMap.self, v => v.groupId === missionGroupId && v.missionOrder === 1);
+        const missions = filter(MissionSBox.objMap.self, v => v.groupId === missionGroupId).sort((a, b) => a.missionOrder - b.missionOrder);
+        const mission = missions[0];//find(missions, v => v.groupId === missionGroupId && v.missionOrder === 1);
         const merchant = mission ? MerchantSBox.objMap.get(mission.merchantId) : undefined;
 
         if (!mission || !merchant) {
@@ -47,10 +49,10 @@ export default new Command(CommandType.Application, { cmd: ["mission", "search"]
                 title: "Mission Chain: " + group?.groupName,
                 fields: [{
                     name: "Before",
-                    value: Swarm.languages["SQL_mission_chat_" + mission.missionId],
+                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_mission_chat_" + mission.missionId])),
                 }, {
                     name: "After",
-                    value: Swarm.languages["SQL_missions_txt_end" + mission.missionId]
+                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_missions_txt_end" + mission.missionId])),
                 }, {
                     name: "Reward(s)",
                     value: rewardify([mission], true),
@@ -84,6 +86,6 @@ export default new Command(CommandType.Application, { cmd: ["mission", "search"]
                         }
                     }), { label: "Summary", value: "summary", emoji: { id: null, name: '📃'}}], type: 3, minValues: 1, maxValues: 1
                 }]
-            }]
+            }], files
         })
     });

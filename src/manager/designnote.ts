@@ -27,8 +27,8 @@ export function replaceHTMLbits(text: string, images?: [string, string][], h2: s
         .replace(/<strong [^>]*>/gi, "**")
         .replace(/<b>|<\/b>/gi, "**")
         .replace(/<b [^>]*>/gi, "**")
-        .replace(/<i>|<\/i>/gi, "**")
-        .replace(/<i [^>]*>/gi, "**")
+        .replace(/<i>|<\/i>/gi, "*")
+        .replace(/<i [^>]*>/gi, "*")
         .replace(/<em>|<\/em>/gi, "**")
         .replace(/<em [^>]*>/gi, "**")
         .replace(/<del>|<\/del>/gi, "~~")
@@ -330,8 +330,8 @@ export default class DesignNoteManager {
 
     static recent = {
         artix: {
-            date: "", title: "", poster: {name: ""}, dateObj: new Date()
-        }, epicduel: { date: "", title: "", poster: {name: ""}, dateObj: new Date() }
+            date: "", title: "", poster: {name: ""}, dateObj: new Date(0)
+        }, epicduel: { date: "", title: "", poster: {name: ""}, dateObj: new Date(0) }
     }
 
     static counter = 0;
@@ -341,6 +341,8 @@ export default class DesignNoteManager {
     static isRunning = false;
 
     static timer?:NodeJS.Timeout;
+
+    static debug = false;
 
     static changeInterval(interval=5000) {
         this.interval = interval;

@@ -29,6 +29,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
     switch (obj.type) {
         case 0:
+            if (!Config.isDevelopment) return;
+
             let send = {
                 npc: "Titan",
                 title: "Admin Message",
@@ -78,6 +80,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
             })
             break;
         case 1:
+            if (!Config.isDevelopment) return;
+
             let content = `**${obj.message}**`;
 
             let webhook = Config.webhooks.entryTracker;//{ id: process.env.ENTRY_TRACKER_WEBHOOK_ID, token: process.env.ENTRY_TRACKER_WEBHOOK_TOKEN };
@@ -104,73 +108,75 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
             let teamName = msgParts[2];
             let juggName = msgParts[3];
 
-            // if (this.manager) this.manager.famed = {};
+            if (!Config.isDevelopment) {
+                // if (this.manager) this.manager.famed = {};
 
-            // setTimeout(() => { // 30 seconds grace in case bot's still attacking
-            //     if (this.manager.discord.messages[0].value.autoBattle.left !== 300) {
-            //         this.manager.discord.messages[0].value.autoBattle.left = 300;
-            //         this.manager.discord.messages[0].save();
-            //     }
-            // }, 30000);
-
-            Promise.all([this.modules.Leader.fetch(3), this.modules.Leader.fetch(4), this.modules.Leader.fetch(17), this.modules.Advent.getGiftLeaders()]).then((v) => {
-                // if (v.some(o => o.error)) console.log("Error at daily champion fetching leaders.");
-
-                // let smallText = "";
-                // let bigText = "";
-
-                // let type = ["1v1", "2v2", "2v1", "Gift"];
-
-                // for (let i = 0, len = v.length; i < len; i++) {
-                //     if (!v[i].success) {
-                //         if (i > 2) continue;
-                //         smallText += `${type[i]} - ${msgParts[i + 1]}`;
-                //         bigText += `### ${type[i]}`
-
-                //         continue;
+                // setTimeout(() => { // 30 seconds grace in case bot's still attacking
+                //     if (this.manager.discord.messages[0].value.autoBattle.left !== 300) {
+                //         this.manager.discord.messages[0].value.autoBattle.left = 300;
+                //         this.manager.discord.messages[0].save();
                 //     }
-                // }
+                // }, 30000);
 
-                let champs = {
-                    solo: v[0].success ? v[0].value[0] : undefined,//.find(o => o.name === soloName),
-                    team: v[1].success ? v[1].value[0] : undefined,//.find(o => o.name === teamName),
-                    jugg: v[2].success ? v[2].value[0] : undefined,//.find(o => o.name === juggName),
-                }
+                Promise.all([this.modules.Leader.fetch(3), this.modules.Leader.fetch(4), this.modules.Leader.fetch(17), this.modules.Advent.getGiftLeaders()]).then((v) => {
+                    // if (v.some(o => o.error)) console.log("Error at daily champion fetching leaders.");
 
-                if (teamName?.includes(" and ")) {
-                    const first  = v[1].success ? v[1].value[0] : undefined;
-                    const second  = v[1].success ? v[1].value[1] : undefined;
+                    // let smallText = "";
+                    // let bigText = "";
 
-                    //@ts-expect-error
-                    if (first && second && champs.team?.misc?.lvl) champs.team.misc.lvl = [first, second].join(", ");
-                }// else champs.team.misc.lvl = [champs.team.misc.lvl];
+                    // let type = ["1v1", "2v2", "2v1", "Gift"];
 
-                let giftText = "";
+                    // for (let i = 0, len = v.length; i < len; i++) {
+                    //     if (!v[i].success) {
+                    //         if (i > 2) continue;
+                    //         smallText += `${type[i]} - ${msgParts[i + 1]}`;
+                    //         bigText += `### ${type[i]}`
 
-                if (v[3].success && v[3].value.daily.length) {
-                    giftText = `\n\n__Event Hourly Champion:__\nGift - **${v[3].value.daily[0].name}** (**${v[3].value.daily[0].point}** gifts)`;
-                }
+                    //         continue;
+                    //     }
+                    // }
 
-                hydra.rest.channels.createMessage("1095797998275014767", {
-                    content: `__Today's Daily Champions:__`
-                    + `\n1v1 - ${(soloName) ? "**" + soloName + "**" : "N/A"}` + ((champs.solo) ? ` (**${champs.solo.wins}** wins, ${Math.round((champs.solo.wins/champs.solo.bat) * 1000)/10}%` + ((champs.solo.misc && champs.solo.misc.lvl) ? ", Lv: " + champs.solo.misc.lvl : "") + ")" : '')
-                    + `\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl) ? ", Lv: " + champs.team.misc.lvl : "") + ")" : '')
-                    + `\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
-                    + giftText
-                }).then((v) => v.crosspost());
+                    let champs = {
+                        solo: v[0].success ? v[0].value[0] : undefined,//.find(o => o.name === soloName),
+                        team: v[1].success ? v[1].value[0] : undefined,//.find(o => o.name === teamName),
+                        jugg: v[2].success ? v[2].value[0] : undefined,//.find(o => o.name === juggName),
+                    }
 
-                hydra.rest.channels.createMessage("1180881297179168936", {
-                    content: `# __Today's Daily Champions:__`
-                    + (v[0].success && v[0].value.length ? `\n### 1v1:\n` + map(v[0].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n1v1 - ${(soloName) ? "**" + soloName + "**" : "N/A"}` + ((champs.solo) ? ` (**${champs.solo.wins}** wins, ${Math.round((champs.solo.wins/champs.solo.bat) * 1000)/10}%` + ((champs.solo.misc && champs.solo.misc.lvl) ? ", Lv: " + champs.solo.misc.lvl : "") + ")" : '')
-                    + (v[1].success && v[1].value.length ? `\n### 2v2:\n` + map(v[1].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl && champs.team.misc.lvl.length) ? ", Lv: " + champs.team.misc.lvl.join(", ") : "") + ")" : '')
-                    + (v[2].success && v[2].value.length ? `\n### 2v1:\n` + map(v[2].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
-                    + (v[3].success && v[3].value.daily.length ? `\n\n### Gift:\n` + map(v[3].value.daily.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.point}** gifts)`).join("\n") : "")//giftText
-                }).then((v) => v.crosspost());
-            }, (err) => {
-                hydra.rest.channels.createMessage("1095797998275014767", {
-                    content: `__Today's Daily Champions:__\n1v1 - ${soloName}\n2v2 - ${teamName}\n2v1 - ${juggName}`
-                }).then((v) => v.crosspost());
-            });
+                    if (teamName?.includes(" and ")) {
+                        const first  = v[1].success ? v[1].value[0] : undefined;
+                        const second  = v[1].success ? v[1].value[1] : undefined;
+
+                        //@ts-expect-error
+                        if (first && second && champs.team?.misc?.lvl) champs.team.misc.lvl = [first, second].join(", ");
+                    }// else champs.team.misc.lvl = [champs.team.misc.lvl];
+
+                    let giftText = "";
+
+                    if (v[3].success && v[3].value.daily.length) {
+                        giftText = `\n\n__Event ${hoursLeft === 0 ? "Daily" : "Hourly"} Champion:__\nGift - **${v[3].value.daily[0].name}** (**${v[3].value.daily[0].point}** gifts)`;
+                    }
+
+                    hydra.rest.channels.createMessage("1095797998275014767", {
+                        content: `__Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__`
+                        + `\n1v1 - ${(soloName) ? "**" + soloName + "**" : "N/A"}` + ((champs.solo) ? ` (**${champs.solo.wins}** wins, ${Math.round((champs.solo.wins/champs.solo.bat) * 1000)/10}%` + ((champs.solo.misc && champs.solo.misc.lvl) ? ", Lv: " + champs.solo.misc.lvl : "") + ")" : '')
+                        + `\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl) ? ", Lv: " + champs.team.misc.lvl : "") + ")" : '')
+                        + `\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
+                        + giftText
+                    }).then((v) => v.crosspost());
+
+                    hydra.rest.channels.createMessage("1180881297179168936", {
+                        content: `# __Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__`
+                        + (v[0].success && v[0].value.length ? `\n### 1v1:\n` + map(v[0].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n1v1 - ${(soloName) ? "**" + soloName + "**" : "N/A"}` + ((champs.solo) ? ` (**${champs.solo.wins}** wins, ${Math.round((champs.solo.wins/champs.solo.bat) * 1000)/10}%` + ((champs.solo.misc && champs.solo.misc.lvl) ? ", Lv: " + champs.solo.misc.lvl : "") + ")" : '')
+                        + (v[1].success && v[1].value.length ? `\n### 2v2:\n` + map(v[1].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl && champs.team.misc.lvl.length) ? ", Lv: " + champs.team.misc.lvl.join(", ") : "") + ")" : '')
+                        + (v[2].success && v[2].value.length ? `\n### 2v1:\n` + map(v[2].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
+                        + (v[3].success && v[3].value.daily.length ? `\n\n### Gift:\n` + map(v[3].value.daily.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.point}** gifts)`).join("\n") : "")//giftText
+                    }).then((v) => v.crosspost());
+                }, (err) => {
+                    hydra.rest.channels.createMessage("1095797998275014767", {
+                        content: `__Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__\n1v1 - ${soloName}\n2v2 - ${teamName}\n2v1 - ${juggName}`
+                    }).then((v) => v.crosspost());
+                });
+            }
 
             if (hoursLeft == 0) {
                 this.famed = {};

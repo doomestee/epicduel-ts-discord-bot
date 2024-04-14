@@ -23,7 +23,5 @@ export default new Command(CommandType.Application, { cmd: ["character", "manage
             }
         }
 
-        console.log(dom);
-
         return interaction.reply(Character.manageify(domIndex, links));
     });

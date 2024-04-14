@@ -10,7 +10,7 @@ import { IRally } from "../Models/Rally.js";
 import { IUserSettings } from "../Models/UserSettings.js";
 import type DatabaseManager from "../manager/database.js";
 
-export type CharLink = ICharacterLink & ICharacter & { flagsLink: number };
+export type CharLink = ICharacterLink & ICharacter & { link_flags: number };
 export type CharLinkFact = ICharacter & { discord_id: string, link_date: Date, link_flags: number, fact_name: string, fact_alignment: 1|2 };
 
 export default class DBHelper {
@@ -60,11 +60,11 @@ export default class DBHelper {
 
         const { rows: x } = await this.#cli.query<ICharacter>("SELECT * FROM character WHERE id = $1 AND user_id = $2", [characterId, userId]);
 
-        if (x.length !== 0) return { success: false, reason: "Character with the ID and user ID doesn't exist in database." };
+        if (x.length === 0) return { success: false, reason: "Character with the ID and user ID doesn't exist in database." };
 
         /*const y = */await this.#db.insert<number>("characterlink", result, "id", false)//.catch(v => ({ error: v }));
 
-        return Promise.resolve({ success: true });//{ success: true, };
+        return { success: true };//{ success: true, };
     }
 
     /**
@@ -78,7 +78,7 @@ export default class DBHelper {
         else if (typeof(id) === "object") keys = Object.keys(id);
         else throw Error("Unknown type for ID passed.");
 
-        return this.#cli.query<ICharacterLink & ICharacter & { flagsLink: number }>(`SELECT character.*, link.flags as flagsLink, link.discord_id, link.link_date, link.last_famed FROM character INNER JOIN characterlink AS link ON character.id = link.id WHERE ${keys.map((v, i) => v + " = $" + (i + 1)).join(" AND ")}`, typeof(id) === "object" ? Object.values(id) : [id])
+        return this.#cli.query<ICharacterLink & ICharacter & { link_flags: number }>(`SELECT character.*, link.flags as link_flags, link.discord_id, link.link_date, link.last_famed FROM character INNER JOIN characterlink AS link ON character.id = link.id WHERE ${keys.map((v, i) => v + " = $" + (i + 1)).join(" AND ")}`, typeof(id) === "object" ? Object.values(id) : [id])
             .then(r => r.rows);
     }
 

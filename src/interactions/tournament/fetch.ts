@@ -3,7 +3,7 @@ import Swarm from "../../manager/epicduel.js";
 import Command, { CommandType } from "../../util/Command.js";
 import { SwarmError } from "../../util/errors/index.js";
 
-export default new Command(CommandType.Application, { cmd: ["tournament", "fetch"], waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 1 })
+export default new Command(CommandType.Application, { cmd: ["tournament", "fetch"], waitFor: ["EPICDUEL", "LOBBY"], cooldown: 3000, gateVerifiedChar: 69 })
     .attach('run', async ({ client, interaction }) => {
         // For intellisense
         if (interaction.type !== 2) return;

@@ -1,7 +1,7 @@
 import { AutocompleteChoice } from "oceanic.js";
-import ItemSBox from "../../game/box/ItemBox.js";
 import Command, { CommandType } from "../../util/Command.js";
 import FuzzySearch from "fuzzy-search"
+import MissionSBox from "../../game/box/MissionBox.js";
 
 function truncateResults(values: AutocompleteChoice[], max=25) : AutocompleteChoice[] {
     if (values.length === 0) return [{name: `0 Result`, value: "102030405"}];
@@ -31,17 +31,17 @@ function actualNeedle(str: string) : string {
     return str.trim(); // trim any whitespace from the beginning and end of the string
 }
 
-export default new Command(CommandType.Autocomplete, { cmd: ["item", "search"], value: "name" })
+export default new Command(CommandType.Autocomplete, { cmd: ["mission", "search"], value: "id" })
     .attach('run', ({ client, interaction }) => {
         const value = interaction.data.options.getFocused()?.value as string | undefined;
 
         let isNonce = value ? isNaN(parseInt(value)) : false;
 
-        if (ItemSBox.objMap.size === 0) return interaction.result([{ name: "The bot hasn't connected in game yet.", value: "1" }]);
+        if (MissionSBox.objMap.group.size === 0) return interaction.result([{ name: "The bot hasn't connected in game yet.", value: "1" }]);
 
         let looky:AutocompleteChoice[] = [{name: `0 Result`, value: "102030405"}];
 
-        const items = ItemSBox.objMap.toArray();
+        const items = MissionSBox.objMap.group.toArray();
         let list = [];
 
         // for (let i = prelist.length - 1, x = 0; i >= 0; i--, x++) {
@@ -54,15 +54,15 @@ export default new Command(CommandType.Autocomplete, { cmd: ["item", "search"], 
         //     list[x] = {...item, ...upd};
         // }
 
-        const fuzzy = new FuzzySearch(items, ['itemName'], { caseSensitive: false });
+        const fuzzy = new FuzzySearch(items, ['groupName'], { caseSensitive: false });
 
         if (value) list = fuzzy.search(actualNeedle(value));
         else list = items;
 
         for (let i = list.length, y = 0; i > 0; i--, y++) {//let i = 0, len = list.length; i < len; i++) {
             looky[y] = {
-                name: list[i - 1]["itemName"] + " (" + list[i - 1]["itemId"] + ")",
-                value: String(list[i - 1]["itemId"])
+                name: list[i - 1]["groupName"] + " (" + list[i - 1]["groupId"] + ")",
+                value: String(list[i - 1]["groupId"])
             }
         }
 

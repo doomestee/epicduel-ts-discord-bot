@@ -23,7 +23,7 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
             });
         }
 
-        const results = await DatabaseManager.cli.query<ICharacter & { old_name: string, similarity: number } & ({ factname: string, factid: number, factalignment: 1 | 2 | null } | { factname: null, factid: null, factalignment: null })>(`select distinct character.*, character_name.name as old_name, similarity(character_name.name, $1), faction.id as factId, faction.name as factName, faction.alignment as factAlignment from character_name join character on character.id = character_name.id left join faction on faction.id = character.faction_id where character_name.name ilike $2 order by similarity desc limit 10`, [charName, "%" + charName + "%"]).then(v => v.rows);
+        const results = await DatabaseManager.cli.query<ICharacter & { old_name: string, similarity: number } & { link_flags: number } & ({ fact_name: string, fact_id: number, fact_alignment: 1 | 2 | null } | { fact_name: null, fact_id: null, fact_alignment: null })>(`select distinct character.*, link.flags as link_flags, character_name.name as old_name, similarity(character_name.name, $1), faction.id as fact_Id, faction.name as fact_Name, faction.alignment as fact_Alignment from character_name join character on character.id = character_name.id left join faction on faction.id = character.faction_id left join characterlink as link on link.id = character.id where character_name.name ilike $2 order by similarity desc limit 10`, [charName, "%" + charName + "%"]).then(v => v.rows);
 
         if (results.length === 1 && results[0].name.toLowerCase() === charName.toLowerCase()) {
             const names = await DatabaseManager.cli.query<ICharacterName>("SELECT * FROM character_name WHERE id = $1", [results[0].id]).then(v => v.rows);
@@ -33,9 +33,9 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
 
             const [recard] = await DatabaseManager.cli.query<IUserRecord>("SELECT * FROM user_record where char_id = $1", [results[0].id]).then(v => v.rows);
 
-            const response = await (Character.respondify(results[0], names, { id: results[0].factid ?? undefined, name: results[0].factname ?? undefined, alignment: results[0].factalignment ?? undefined }, charPg.success ? charPg.result : null));
+            const response = await (Character.respondify(results[0], names, { id: results[0].fact_id ?? undefined, name: results[0].fact_name ?? undefined, alignment: results[0].fact_alignment ?? undefined }, charPg.success ? charPg.result : null));
 
-            if (response.embeds) {
+            if (response.embeds && response.embeds[0].title !== "Hidden Character") {
                 if (charPg.success) {
                     response.embeds[0].fields?.push({
                         name: "Item(s)",

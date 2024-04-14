@@ -47,9 +47,9 @@ export default new Command(CommandType.Autocomplete, { cmd: ["core", "search"], 
         const items:{ skillName: string, skillDesc: string, skillId: number }[] = [];
         let list = [];
 
-        for (let i = 0, len = preitems.length; i < len; i++) {
-            const skill = preitems[i];
-            items[i] = {
+        for (let i = preitems.length, y = 0; i > 0; i--, y++) {//, len = preitems.length; i < len; i++) {
+            const skill = preitems[i - 1];
+            items[y] = {
                 skillName: Swarm.langCheck(skill.skillName),
                 skillDesc: Swarm.langCheck(skill.skillDesc),
                 skillId: skill.skillId,

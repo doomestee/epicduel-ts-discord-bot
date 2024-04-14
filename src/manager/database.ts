@@ -97,11 +97,16 @@ export default class DatabaseManager {
             for (let i = 0; i < keys[k].length; i++) {
                 str += keys[k][i] + " = $" + (index++);
     
-                if ((i + 1) !== keys[k].length) str += ", ";
+                if ((i + 1) !== keys[k].length) {
+                    if (k === 0) str += ", ";
+                    else str += " AND ";
+                }
             }
 
             if (k === 0) str += " WHERE ";
         }
+
+        console.log([`UPDATE ${table} SET ${str}`, values.flat()]);
 
         return this.cli.query(`UPDATE ${table} SET ${str}`, values.flat());
     }

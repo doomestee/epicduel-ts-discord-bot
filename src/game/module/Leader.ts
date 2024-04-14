@@ -342,7 +342,7 @@ export default class Leader extends BaseModule {
 
         if (cache.valid) return { success: true, value: cache.value as Array<LeaderTypeToList[T]> };
 
-        const wait = waitFor(this.client.smartFox, "leader_lb", [1, type], 4000);
+        const wait = waitFor(this.client.smartFox, "leader_lb", [1, type], 3500);
         this.sendRequest(type);
 
         //@ts-expect-error
