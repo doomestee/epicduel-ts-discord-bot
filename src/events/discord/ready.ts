@@ -1,3 +1,4 @@
+import { ActivityTypes } from "oceanic.js";
 import Config from "../../config/index.js";
 import DesignNoteManager from "../../manager/designnote.js";
 import { MainMessageStorage } from "../../manager/discord.js";
@@ -9,6 +10,10 @@ let once = false;
 
 export default new ClientEvent("ready", function () {
     Logger.getLogger("Bot").info(`Bot took ${(Date.now() - this.connectedAt)/1000} seconds to connect!`)
+
+    this.editStatus("online", [{
+        name: "the screams", type: ActivityTypes.LISTENING
+    }]);
 
     if (!once) {
         once = true;
@@ -103,6 +108,6 @@ export default new ClientEvent("ready", function () {
                     }
                     Logger.getLogger("DNote").error("Missing language version for epicduel.");
                 }
-            })
+            });
     }
 });
