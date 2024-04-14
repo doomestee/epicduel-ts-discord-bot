@@ -24,11 +24,6 @@ Logger.getLogger("Launch").info(`Mode: ${Config.isDevelopment ? "BETA" : "PROD"}
 Logger.getLogger("Launch").info(`Node Version: ${process.version}`);
 Logger.getLogger("Launch").info(`OS: ${process.platform} (Is On Docker: ${Config.isDocker})`);
 
-if (!Config.isDevelopment) {
-    DesignNoteManager.run();
-    Logger.getLogger("DNote").debug("Scraper is running.");
-} else Logger.getLogger("DNote").debug("Scraper is not running.");
-
 process
     .on("uncaughtException", err => {
         Logger.getLogger("Uncaught Exception").error(err)
@@ -61,14 +56,13 @@ process
     });
 
 await DatabaseManager.initialise();
-await bot.launch();
 
 Swarm.cycler.checkForChanges();
 
 await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
     Logger.getLogger("Swarm").debug("Connected, as user Id: " + cli.user.userid);
     cli.settings.reconnectable = true;
-    cli["connect"]();
+    // cli["connect"]();
 }).catch(sike => {
     if (sike instanceof SwarmError) {
         if (sike.type === "NO_SERVER") {
@@ -84,3 +78,5 @@ await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
 // setTimeout(() => {
 //     Swarm["clients"][0].smartFox.disconnect();
 // }, 60000);
+
+await bot.launch();

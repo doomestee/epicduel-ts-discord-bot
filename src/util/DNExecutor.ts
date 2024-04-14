@@ -385,7 +385,10 @@ export default class DNExecutor {
             return;
         }
 
-        if (this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: NEW note`)
+        // if (this.#dn.debug)
+        Logger.getLogger("DesignNote").debug(`A note was received: NEW note`)
+
+        if (process.env.DN_STOP === "1") return console.log("PREVENTED A NEW DESIGN NOTE FROM PASSING THROUGH!");
 
         this.#dn.recent[recenttag].date = note.date;
         this.#dn.recent[recenttag].title = note.title;

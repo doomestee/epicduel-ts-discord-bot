@@ -21,9 +21,9 @@ export default class SwarmResources {
         this.getNewLang();
     }
 
-    // 503 as of 07-04-2024
+    // 504 as of 14-04-2024
     async getNewLang() {
-        let v = this.langVersion > 0 ? this.langVersion : 503;
+        let v = this.langVersion > 0 ? this.langVersion - 2 : 504;
 
         // fails is an array, 1st index is the number of time it has failed overall, 2nd index is the number of times it has failed for that version.
         let fails = [0, 0];
