@@ -21,7 +21,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
     const time = Date.now();
     
     // 1 seconds grace for admin message
-    if (obj.type === lastType && (time + 1000) > Date.now()) return;
+    if (obj.type === lastType && (lastTime + 1000) > Date.now()) return;
     else {
         lastType = obj.type;
         lastTime = time;
