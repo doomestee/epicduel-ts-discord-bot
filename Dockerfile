@@ -18,4 +18,4 @@ RUN npx pnpm prune --prod
 
 ENV NODE_ENV=production
 
-ENTRYPOINT [ "node", "dist/src/index.js" ]
+ENTRYPOINT [ "node", "dist/index.js" ]
