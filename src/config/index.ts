@@ -32,7 +32,7 @@ export default class Config {
 
     // Database
     static get dbHost() {
-        return this.isDevelopment ? "localhost" : "postgres.container.local";
+        return this.isDevelopment ? "localhost" : "postgres.containers.local";
     }
     static get dbPort() {
         return 5432;
