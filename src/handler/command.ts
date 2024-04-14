@@ -1,12 +1,8 @@
-import { readdir } from "fs/promises";
 import Config from "../config/index.js";
-import type Hydra from "../manager/discord.js";
 import Command, { AnyCommand, CommandType } from "../util/Command.js";
 import { ImportResult } from "../util/types.js";
 import { glob } from "glob";
 import Logger from "../manager/logger.js";
-import { ApplicationCommandOptionTypes, ApplicationCommandOptionsSubCommand, ApplicationCommandOptionsSubCommandGroup, ApplicationCommandTypes, CreateApplicationCommandOptions, CreateApplicationCommandOptionsBase, CreateChatInputApplicationCommandOptions } from "oceanic.js";
-import CmdsInfo from "../cmds.json" assert { type: "json" };
 
 export default class CommandHandler {
     static aliasesMapCmdName: Record<string, string> = {};
