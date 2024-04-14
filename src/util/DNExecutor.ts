@@ -362,7 +362,7 @@ export default class DNExecutor {
         if (note.date === this.#dn.recent[recenttag].date && note.title === this.#dn.recent[recenttag].title && note.poster.name === this.#dn.recent[recenttag].poster.name) {
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
             this.#dn.counter = 0;
-            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 1`);
+            if (this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 1`);
 
             return;
         }//else console.log([note.date, this.#dn.recent[recenttag].date, note.title, this.#dn.recent[recenttag].title, note.poster.name, this.#dn.recent[recenttag].poster.name])
@@ -370,7 +370,7 @@ export default class DNExecutor {
         // This note is older than the recent from the opposite page.
         if (new Date(note.date).getTime() <= this.#dn.recent[oppositetag].dateObj.getTime()) {
             this.#dn.counter = 0;
-            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 2`);
+            if (this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 2`);
 
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
             return;
@@ -379,13 +379,13 @@ export default class DNExecutor {
         // This note is older than the recent from the recent page.
         if (new Date(note.date).getTime() <= this.#dn.recent[recenttag].dateObj.getTime()) {
             this.#dn.counter = 0;
-            if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 3`);
+            if (this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: OLD note 3`);
 
             // this.#dn.event.emit('bot_is_connected', {type: 'OLD_NOTE'});
             return;
         }
 
-        if (!this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: NEW note`)
+        if (this.#dn.debug) Logger.getLogger("DesignNote").debug(`A note was received: NEW note`)
 
         this.#dn.recent[recenttag].date = note.date;
         this.#dn.recent[recenttag].title = note.title;
