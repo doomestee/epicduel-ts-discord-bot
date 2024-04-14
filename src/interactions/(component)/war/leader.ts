@@ -132,7 +132,6 @@ export default new Command(CommandType.Component, { custom_id: "war_leader_selec
                 const { player, faction } = v.value[alignment === 1 ? "exile" : "legion"];
 
                 if (type === "player") {
-                    console.log(player);
                     const armor = ed.boxes.item.objMap.get(player.charArm);
                     const style = ed.boxes.style.getStyleRecord(player.charClassId, player.charHairS, player.charGender as "M" | "F");
 
