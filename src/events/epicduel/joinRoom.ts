@@ -3,7 +3,7 @@ import EDEvent from "../../util/events/EDEvent.js";
 import { filter, map } from "../../util/Misc.js";
 
 export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom }) {
-    if (!Config.isDevelopment) return;
+    if (Config.isDevelopment) return;
 
     const time = Date.now();
 

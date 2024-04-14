@@ -38,7 +38,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
 
             if (!isNew) return;
 
-            let notifications = await DatabaseManager.helper.getNotification("565155762335383581");
+            let notifications = await DatabaseManager.cli.query<INotification>("SELECT id, guild_id, channel_id, message, creator_id FROM notification WHERE type = $1", [obj.alignment]).then(v => v.rows);
 
             if (Config.isDevelopment) notifications = filter(notifications, s => s.channel_id === "988216659665903647");/* = await DatabaseManager.cli.query<INotification>("SELECT id, guild_id, channel_id, message, creator_id FROM notification WHERE type = $1", [obj.alignment])
                 .then(v => v.rows)*/

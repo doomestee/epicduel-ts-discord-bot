@@ -5,7 +5,7 @@ import { countCommonStrings, findIndex } from "../../util/Misc.js";
 import EDEvent from "../../util/events/EDEvent.js";
 
 export default new EDEvent("onPublicMessage", function (hydra, { message, user: author }) {
-    if (!Config.isDevelopment && this.smartFox.getActiveRoom()?.name === "TrainHubRight_0") return;
+    if (Config.isDevelopment && this.smartFox.getActiveRoom()?.name === "TrainHubRight_0") return;
 
     const time = Date.now();
 

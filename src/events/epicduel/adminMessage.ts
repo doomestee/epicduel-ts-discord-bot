@@ -29,7 +29,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
     switch (obj.type) {
         case 0:
-            if (!Config.isDevelopment) return;
+            if (Config.isDevelopment) return;
 
             let send = {
                 npc: "Titan",
@@ -80,7 +80,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
             })
             break;
         case 1:
-            if (!Config.isDevelopment) return;
+            if (Config.isDevelopment) return;
 
             let content = `**${obj.message}**`;
 
@@ -108,7 +108,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
             let teamName = msgParts[2];
             let juggName = msgParts[3];
 
-            if (!Config.isDevelopment) {
+            if (Config.isDevelopment) {
                 // if (this.manager) this.manager.famed = {};
 
                 // setTimeout(() => { // 30 seconds grace in case bot's still attacking
