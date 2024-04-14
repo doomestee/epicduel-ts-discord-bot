@@ -108,7 +108,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
             let teamName = msgParts[2];
             let juggName = msgParts[3];
 
-            if (Config.isDevelopment) {
+            if (!Config.isDevelopment) {
                 // if (this.manager) this.manager.famed = {};
 
                 // setTimeout(() => { // 30 seconds grace in case bot's still attacking
