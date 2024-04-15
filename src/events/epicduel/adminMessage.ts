@@ -142,12 +142,13 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         jugg: v[2].success ? v[2].value[0] : undefined,//.find(o => o.name === juggName),
                     }
 
+                    let lvlDuoText = champs.team ? String(champs.team.misc?.lvl) : "";
+
                     if (teamName?.includes(" and ")) {
                         const first  = v[1].success ? v[1].value[0] : undefined;
                         const second  = v[1].success ? v[1].value[1] : undefined;
 
-                        //@ts-expect-error
-                        if (first && second && champs.team?.misc?.lvl) champs.team.misc.lvl = [first, second].join(", ");
+                        if (first && second && champs.team?.misc?.lvl) lvlDuoText = [first.misc?.lvl, second.misc?.lvl].join(", ");
                     }// else champs.team.misc.lvl = [champs.team.misc.lvl];
 
                     let giftText = "";
@@ -159,7 +160,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     hydra.rest.channels.createMessage("1095797998275014767", {
                         content: `__Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__`
                         + `\n1v1 - ${(soloName) ? "**" + soloName + "**" : "N/A"}` + ((champs.solo) ? ` (**${champs.solo.wins}** wins, ${Math.round((champs.solo.wins/champs.solo.bat) * 1000)/10}%` + ((champs.solo.misc && champs.solo.misc.lvl) ? ", Lv: " + champs.solo.misc.lvl : "") + ")" : '')
-                        + `\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl) ? ", Lv: " + champs.team.misc.lvl : "") + ")" : '')
+                        + `\n2v2 - ${(teamName) ? "**" + teamName + "**" : "N/A"}` + ((champs.team) ? ` (**${champs.team.wins}** wins, ${Math.round((champs.team.wins/champs.team.bat) * 1000)/10}%` + ((champs.team.misc && champs.team.misc.lvl) ? ", Lv: " + lvlDuoText : "") + ")" : '')
                         + `\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
                         + giftText
                     }).then((v) => v.crosspost());
