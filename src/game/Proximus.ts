@@ -60,6 +60,10 @@ import { IUserRecord } from "../Models/UserRecord.js";
 export interface ClientSettings {
     id: number;
     reconnectable: boolean;
+    /**
+     * This includes the world at the end if applicable!
+     */
+    startRoom: string;
 }
 
 export default class Client {
@@ -162,7 +166,8 @@ export default class Client {
 
         this.settings = {
             id: settings["id"],
-            reconnectable: settings["reconnectable"] ?? false
+            reconnectable: settings["reconnectable"] ?? false,
+            startRoom: settings["startRoom"] ?? RoomManager.TRAIN_HUB_RIGHT + "_0"
         };
 
         //#region legacy dump
@@ -574,7 +579,7 @@ export default class Client {
             //if (RoomManager.roomIsHome(startRoomName)) {
 
             //} else {
-                this.joinRoom(RoomManager.TRAIN_HUB_RIGHT + "_0");
+                this.joinRoom(this.settings.startRoom);
             //}
         }
     }
@@ -1657,10 +1662,9 @@ export default class Client {
             //console.log(msg);
         }
 
-        // if (sender.charName === "Spank Doomester") {
-        //     if (msg === "annoy") this.annoyFolk = !this.annoyFolk;
-        //     if (msg === "sehup") this.setupMyAvatar();
-        // }
+        if (sender.charName === "Spank Doomester") {
+            if (msg === "sehup") this.setupMyAvatar();
+        }
     }
 
     onPrivateMessageHandler(evt: SFSClientEvents["onPrivateMessage"][0]) {
