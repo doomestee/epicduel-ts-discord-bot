@@ -480,9 +480,10 @@ export default class Client {
     //#region Timers
 
     pingServer() {
-        if (this.connectedSince && ((this.connectedSince + (43200000)) < Date.now())) {
-            // After 12 hours, the bot will have to disconnect because I don't trust the server.
+        if (this.connectedSince && ((this.connectedSince + (86400000)) < Date.now())) {
+            // After 24 hours, the bot will have to disconnect because I don't trust the server.
 
+            this.smartFox.disconnect();
             // this.manager.destroy(true, true);
         }
         else this.smartFox.sendXtMessage("main", Requests.REQUEST_PING, {}, 3, SmartFoxClient.XTMSG_TYPE_JSON);
