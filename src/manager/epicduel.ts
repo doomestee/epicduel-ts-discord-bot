@@ -412,6 +412,10 @@ export default class Swarm {
     static init() {
         this.loadEvents();
     }
+
+    static get length() {
+        return this.clients.length + this.purgatory.length;
+    }
 }
 
 Swarm["init"]();
