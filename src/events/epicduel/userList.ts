@@ -130,6 +130,8 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
             .catch(e => { Logger.getLogger("Database").error(e); });// epicduel.client.smartFox.emit("battle_style", false); });
     }
 
+    // for now i dont want to get the user's skills
+    if (false)//user.userId !== undefined || user.charId !== undefined)
     this.getUserSkills(user.id, true).then(v => {
         // if (global.susshe) console.log(v);
         // if (v == undefined || v.error) return; // timeout
@@ -157,7 +159,7 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
     //     // epicduel.client.smartFox.emit("battle_skill", false);
     });
 
-    if (user.userId === undefined || user.charId === undefined)
+    if (user.userId !== undefined || user.charId !== undefined)
     this.getUserRecord(user.id, true).then(v => {
         // if (global.susshi) console.log(v);
         // if (!v.fresh) return false;
