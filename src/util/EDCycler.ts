@@ -107,7 +107,7 @@ export default class EDCycler {
 
                 if (count > 0) continue;
                 if (!purg.settings.reconnectable) continue;
-                if (!purg["isFresh"]) continue;
+                if (purg["isFresh"]) continue;
 
                 // if smartfox is connected, it may still be connecting.
                 // TODO: add "connecting" to check.
