@@ -29,7 +29,7 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
         const fact = result.value;
 
         const files:File[] = [{
-            name: "flag.png",
+            name: "logo.png",
             contents: await ImageManager.SVG.generator.fact({
                 alignment: fact.alignment as 1 | 2,
                 ...fact.flag
@@ -67,7 +67,7 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
                 }, footer: {
                     text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
                 }, thumbnail: {
-                    url: "attachment://flag.png"
+                    url: "attachment://logo.png"
                 }
             }], components: [{
                 type: 1,
