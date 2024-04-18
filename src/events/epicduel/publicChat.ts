@@ -9,6 +9,8 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
     const time = Date.now();
 
+    // let puppetNTxt = `Puppet ID: ${this.settings.id}`;
+
     const spaced = message.split(" ");
 
     if (hydra.cache.codes.length && spaced.length > 3) {
