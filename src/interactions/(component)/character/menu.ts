@@ -126,6 +126,11 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
             else return interaction.reply({ content: "The character must have changed their name, as the bot was unable to get the character page." });
         }
 
+        // From character search menu
+        if (arg === "0") {
+            actualId = actualId.split("#")[0];
+        }
+
         const time = process.hrtime.bigint();
 
         const charId = Number(actualId);

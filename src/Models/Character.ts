@@ -157,7 +157,7 @@ export default class Character implements ICharacter {
             options.push({
                 label: `${list[i].name}`,
                 description: `Lvl ${getUserLevelByExp(list[i].exp)}, ID: ${list[i].id} (User ID: ${list[i].user_id})`,
-                value: `${list[i].id}`,
+                value: `${list[i].id}#${i}`,
                 emoji: {
                     id: null, name: emojis.letters[i]
                 }
