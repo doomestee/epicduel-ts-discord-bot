@@ -13,16 +13,26 @@ let lastTimeSince = {
     start: 0,
     bomb: 0,
 }
+let lastBomber = {
+    name: "",
+    inf: 0
+}
 // let lastUsed
 // let lastType:number = 0;
 
-function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date) {
+function checkTime(type: "bomb", date: Date, name: string, inf: number) : boolean
+function checkTime(type: "rally"|"end"|"start", date: Date) : boolean
+function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date, name?: string, inf?: number) {
     const time = date.getTime();
 
-    const gap = type === "bomb" ? 10 : 1000;
+    const gap = type === "bomb" ? 2 : 1000;
 
-    if ((lastTimeSince[type] + gap) > time) return false;
+    if ((type === "bomb" && (lastTimeSince[type] + gap) > time) && lastBomber.name === name && lastBomber.inf === inf || (type !== "bomb" && (lastTimeSince[type] + gap) > time)) return false;
     else {
+        if (type === "bomb" && name && inf) {
+            lastBomber.name = name;
+            lastBomber.inf = inf;
+        }
         lastTimeSince[type] = time;
         return true;
     }
@@ -136,6 +146,8 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             if (this.modules.WarManager.activeRegionId < 1) return;
 
             await this.swarm.getActiveWar(true);
+
+            this.swarm.scaleFor("war");
             // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
             break;
         case "end":
@@ -150,11 +162,12 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             // }
 
             this.swarm.activeWar["done"] = true;
+            this.swarm.scaleFor("war", false);
 
             console.log("War has ended! Ended at " + time);
             break;
         case "char_used":
-            if (!checkTime("bomb", time)) return;
+            if (!checkTime("bomb", time, obj.name, obj.influence)) return;
 
             if (this.swarm.resources.tracker.war.active) this.swarm.resources.tracker.war.list.push({
                 name: obj.name,

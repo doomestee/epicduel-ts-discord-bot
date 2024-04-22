@@ -4,6 +4,8 @@ declare global {
             BOT_TOKEN: string;
             ED_EMAIL: string;
             ED_PASS: string;
+
+            BULK_PASS: string;
         }
     }
 }

@@ -62,6 +62,7 @@ Swarm.cycler.checkForChanges();
 await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
     Logger.getLogger("Swarm").debug("Connected, as user Id: " + cli.user.userid);
     cli.settings.reconnectable = true;
+    Swarm.resources.tracker.war.activate();
     // cli["connect"]();
 }).catch(sike => {
     if (sike instanceof SwarmError) {

@@ -1,6 +1,8 @@
 import { inspect } from "util";
 
 export default class BaseModule {
+    debug = false;
+
     constructor(public utilIgnore=["client"]) {
         if (utilIgnore === undefined) this.utilIgnore = ["client"];
         else if (utilIgnore === null) this.utilIgnore = [];

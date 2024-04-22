@@ -16,6 +16,11 @@ import Config from "../config/index.js";
 import { ImportResult } from "../util/types.js";
 import EDEvent from "../util/events/EDEvent.js";
 import type Hydra from "./discord.js";
+import RoomManager from "../game/module/RoomManager.js";
+import { filter, find, findIndex, map } from "../util/Misc.js";
+import { WarObjective } from "../game/module/WarManager.js";
+import RoomManagerRecord from "../game/record/RoomManagerRecord.js";
+import { readFileSync } from "fs";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -45,6 +50,12 @@ export default class Swarm {
     protected static readonly clients:Client[] = [];
 
     protected static readonly purgatory:Client[] = [];
+
+
+    /**
+     * This is a list
+     */
+    static readonly appendages:string[] = JSON.parse(readFileSync(Config.dataDir + "/appendages.json").toString());
 
     /**
      * This is a service that will cycle every interval when active, connecting new clients 
@@ -145,7 +156,7 @@ export default class Swarm {
     }
 
     /**
-     * This will return a new User object with session and stuff.
+     * This will return a new User object with session and stuff. This is expensive in that it can ratelimit, so use loginQueue!
      * If you're regenerating, you can just extract the servers, new user details stuff still.
      */
     protected static async login(email: string, password: string, proxy?: boolean) : Promise<User>;
@@ -415,6 +426,125 @@ export default class Swarm {
 
     static get length() {
         return this.clients.length + this.purgatory.length;
+    }
+
+    static scaleFor(type: "war", reverse: boolean = false) {
+        Logger.getLogger("Swarm").debug("Requested to " + (reverse ? "down" : "") + "scale, type: " + type);
+
+        const cli = this.getClient(v => v.connected && v.lobbyInit);
+
+        if (!cli) throw Error("UNAVAILABLE CLIENT, NEED AT LEAST ONE CONNECTED CLIENT!");
+
+        if (type === "war") {
+            if (reverse) {
+                const clis = this.clients.concat(this.purgatory);
+
+                for (let i = 0, len = clis.length; i < len; i++) {
+                    if (clis[i].settings.scalable) {
+                        clis[i].settings.reconnectable = false;
+                        clis[i].smartFox.disconnect();
+                    }
+                }
+
+                return true;
+            }
+
+            const roomWithObjs = filter(RoomManager.roomVersions, v => v.regionId === cli.modules.WarManager.activeRegionId);//cli.modules.WarManager.currentObjectives(-1);
+            const objs = cli.modules.WarManager.currentObjectives(-1);
+
+            // Filter through objectives that are done
+            const filtered:[WarObjective, RoomManagerRecord][] = [];
+
+            for (let i = 0, len = objs.length; i < len; i++) {
+                const obj = objs[i];
+                const room = find(roomWithObjs, v => v.objectiveId === obj.objectiveId);
+
+                if (!room) throw Error("Conflicting objectives.");
+
+                if (obj.points !== obj.maxPoints) filtered.push([obj, room]);
+            }
+
+            if (filtered.length > this.appendages.length) Logger.debug("Swarm").warn(`Not enough accounts (currently ${this.appendages.length}) to cover all war objectives ${filtered.length}.`);
+
+            const availClis = filter(this.clients.concat(this.purgatory), v => v.settings.scalable);
+
+            for (let i = 0, len = filtered.length; i < len; i++) {
+                // Already in list so use this.
+                if (availClis[i]) {
+                    availClis[i].settings.reconnectable = true;
+                    availClis[i].settings.startRoom = filtered[i][1].roomName + "_0";
+                    if (availClis[i]["connected"]) {
+                        availClis[i].joinRoom(availClis[i].settings.startRoom);
+                    }
+                    else if (availClis[i]["isFresh"]) availClis[i]["connect"]();
+
+                    return;
+                }
+
+                const queued = this.loginQueue();
+                
+                if (queued === false) break;
+
+                queued.settings.reconnectable = true;
+                queued.settings.scalable = true;
+                queued.settings.startRoom = filtered[i][1].roomName + "_0";
+                queued["isFresh"] = false;
+                queued.selfDestruct();
+            }
+        }
+    }
+
+    /**
+     * If passed undefined, it will pick a fresh one from the queue.
+     * 
+     * NOTE: PLEASE SET isFresh to false AND set initialised to false or self destruct ASAP, otherwise it will never be logged in unless manually called later.
+     */
+    static loginQueue() : Client | false;
+    static loginQueue(email: string, password: string) : Client | false;
+    static loginQueue(account: { email: string, pass: string }) : Client | false;
+    static loginQueue(account?: string | { email: string, pass: string }, password?: string) {
+        if (typeof account === "string") {
+            account = { email: account, pass: password as string };
+        }
+
+        if (typeof account === "undefined") {
+            const used:string[] = map(filter(map(this.clients, v => [v.user.username, v.user.password] as [string, string]).concat(map(this.purgatory, v => [v.user.username, v.user.password] as [string, string])), v => v[0].startsWith("justforoncedm02+") && v[1] === Config.edPuppetPass), v => v[0].slice(16, -10));
+
+            for (let i = 0, len = this.appendages.length; i < len; i++) {
+                if (findIndex(used, v => v === this.appendages[i]) !== -1) continue;
+
+                account = {
+                    email: "justforoncedm02+" + this.appendages[i] + "@gmail.com",
+                    pass: Config.edPuppetPass
+                };
+                break;
+            }
+
+            if (!account) return false;
+        }
+
+        // if (this.cap <= this.clients.length) throw Error("Too many clients are initiated.");
+
+        // const email = typeof account === "object" ? account["email"] : account;
+        // const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
+
+        if (account.pass === undefined) throw new SwarmError("LOGIN_FAILED", "There's no password.");
+
+        // const user = await this.login(account.email, account.pass);
+
+        const client = new Client(new User({ loggedIn: "false", session: "", username: account.email, password: account.pass }), this.idGen++, this);
+        client.smartFox.once("onConnection", this.onConnection.bind({ client, swarm: this }))
+        client.smartFox.once("onConnectionLost", this.onConnectionLost.bind({ client, swarm: this }));
+
+        if (this.restrictedMode === RestrictedMode.ALL) {
+            client.restrictedMode = this.restrictedMode;
+
+            // client.homeJump = true;
+        }
+
+        this.purgatory.push(client);
+
+        return client;
     }
 }
 

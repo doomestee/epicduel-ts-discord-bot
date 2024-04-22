@@ -1263,3 +1263,5 @@ export default class RoomManager {
         return list;
     }
 }
+
+RoomManager["init"]();

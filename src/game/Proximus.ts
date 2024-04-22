@@ -64,6 +64,10 @@ export interface ClientSettings {
      * This includes the world at the end if applicable!
      */
     startRoom: string;
+    /**
+     * If true, this will be used for whenever the bot gets called to scale, if there's no need then it may go to offline.
+     */
+    scalable: boolean;
 }
 
 export default class Client {
@@ -167,7 +171,8 @@ export default class Client {
         this.settings = {
             id: settings["id"],
             reconnectable: settings["reconnectable"] ?? false,
-            startRoom: settings["startRoom"] ?? RoomManager.TRAIN_HUB_RIGHT + "_0"
+            startRoom: settings["startRoom"] ?? RoomManager.TRAIN_HUB_RIGHT + "_0",
+            scalable: false
         };
 
         //#region legacy dump

@@ -179,6 +179,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     }).then((v) => v.crosspost());
                 });
 
+            // }
+
                 if (this.modules.WarManager.cooldownHours < 1 && this.swarm.resources.tracker.war.active) {
                     const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list.splice(0);
                     const lastTime = this.swarm.resources.tracker.war.startedSince;
@@ -204,6 +206,10 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                             },
                             exile: 0,
                             legion: 0,
+                        },
+                        count: {
+                            exile: 0,
+                            legion: 0
                         }, user: {} as Record<string, { score: number, count: number }>
                     };
 
@@ -216,6 +222,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         const point = list[i];
 
                         stat.score[bombsToAlign[point.usedItemId]] += point.influence;//bombsToAlign//gift.count.room;
+                        stat.count[bombsToAlign[point.usedItemId]]++;
 
                         if (!stat.user[point.name]) stat.user[point.name] = { count: 1, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
                         else {
@@ -234,8 +241,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                     text += `* Overall:\n  * **Bomb Per Second**: ${list.length/((lastBomb.overall.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.overall.time-list[0].time)/1000/60)} bomb(s).\n`;
 
-                    if (lastBomb.exile) text += `\n* Exile:\n  * **Bomb Per Second**: ${list.length/((lastBomb.exile.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.exile.time-list[0].time)/1000/60)} bomb(s).\n`;
-                    if (lastBomb.legion) text += `\n* Legion:\n  * **Bomb Per Second**: ${list.length/((lastBomb.legion.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.legion.time-list[0].time)/1000/60)} bomb(s).\n`;
+                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile}\n  * **Bomb Per Second**: ${list.length/((lastBomb.exile.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.exile.time-list[0].time)/1000/60)} bomb(s).\n`;
+                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion}\n  * **Bomb Per Second**: ${list.length/((lastBomb.legion.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.legion.time-list[0].time)/1000/60)} bomb(s).\n`;
 
                     // TODO: biggest bomber by count by score etc for both  side as well
 

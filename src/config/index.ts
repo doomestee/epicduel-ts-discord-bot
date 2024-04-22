@@ -88,6 +88,10 @@ export default class Config {
         return process.env.ED_PASS;
     }
 
+    static get edPuppetPass() {
+        return process.env.BULK_PASS;
+    }
+
     static readonly webhooks = {
         spyChat: {
             id: process.env.SPY_CHAT_WEBHOOK_ID as string,

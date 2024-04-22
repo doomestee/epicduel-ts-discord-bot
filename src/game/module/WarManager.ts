@@ -219,6 +219,10 @@ export default class WarManager extends BaseModule {
         const influence = parseInt(data[3]);
         const usedItemId = parseInt(data[4]);
 
+        if (this.debug === true) {
+            console.log(this.client.settings.id, [charName, influence, usedItemId]);
+        }
+
         let wr = this.activeRegion;//this.client.boxes.war.getRegionById(this.activeRegionId);
 
         this.client.swarm.execute("onWarStatusChange", this.client, { type: "char_used", name: charName, influence, usedItemId });
@@ -230,7 +234,7 @@ export default class WarManager extends BaseModule {
         if (usedItemId == wr.offenseItemId || usedItemId == wr.offenseSuperItemId) {
             updateObj = this.client.boxes.war.getMainObjectiveByRegionId(wr.regionId);
         } else if (usedItemId == wr.defenseItemId || usedItemId == wr.defenseSuperItemId) {
-            //updateObj = this.client.boxes.war.getObjectiveById(this.client.modules);
+            // updateObj = this.client.boxes.war.getObjectiveById(this.client.modules);
         }
 
 
