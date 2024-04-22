@@ -64,8 +64,8 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
             exp: user.charExp,
             fame: user.charFame,
             faction_id: user.fctId,
-            inv_slots: user.variables.charInvSlots,
-            bank_slots: user.variables.charBankSlots,
+            inv_slots: Number(user.variables.charInvSlots),
+            bank_slots: Number(user.variables.charBankSlots),
             last_seen: new Date(),
             alignment: (user.charWarAlign >= 0 && user.charWarAlign <= 2) ? user.charWarAlign : null
             //oldNames: JSON.stringify([user.charName, new Date()])

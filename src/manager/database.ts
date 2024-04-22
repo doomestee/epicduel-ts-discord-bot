@@ -82,7 +82,11 @@ export default class DatabaseManager {
         const keys = Object.keys(data);
         const values = Object.values(data);
 
-        return this.cli.query(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${quickDollars(keys)}) ON CONFLICT (${constraints.join(", ")}) DO UPDATE SET (${keys.join(", ")}) = (${keys.map(v => "EXCLUDED." + v)})`, values);
+        return this.cli.query(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${quickDollars(keys)}) ON CONFLICT (${constraints.join(", ")}) DO UPDATE SET (${keys.join(", ")}) = (${keys.map(v => "EXCLUDED." + v)})`, values)
+            .catch(err => {
+                console.log(data);
+                throw err;
+            });
     }
 
     static async update(table: string, where: Record<string, unknown>, to: Record<string, unknown>) {
