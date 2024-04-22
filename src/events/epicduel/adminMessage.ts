@@ -180,10 +180,10 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                 });
 
                 if (this.modules.WarManager.cooldownHours < 1 && this.swarm.resources.tracker.war.active) {
-                    const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list;
+                    const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list.splice(0);
                     const lastTime = this.swarm.resources.tracker.war.startedSince;
 
-                    this.swarm.resources.tracker.war.list = [];
+                    // this.swarm.resources.tracker.war.list = [];
                     this.swarm.resources.tracker.war.startedSince = time;
 
                     const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
