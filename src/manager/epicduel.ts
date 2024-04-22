@@ -28,6 +28,10 @@ export enum RestrictedMode {
     ALL = 2
 }
 
+const appendages = JSON.parse(readFileSync(Config.dataDir + "/appendages.json").toString()) as string[];
+
+if (Config.isDevelopment) appendages.reverse();
+
 /**
  * This will be used for epicduel clients, allowing for shared resources.
  */
@@ -55,7 +59,7 @@ export default class Swarm {
     /**
      * This is a list
      */
-    static readonly appendages:string[] = JSON.parse(readFileSync(Config.dataDir + "/appendages.json").toString());
+    static readonly appendages:string[] = appendages;
 
     /**
      * This is a service that will cycle every interval when active, connecting new clients 
