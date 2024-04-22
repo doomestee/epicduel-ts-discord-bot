@@ -3,7 +3,8 @@ import Config from "../../config/index.js";
 import ImageManager from "../../manager/image.js";
 import EDEvent from "../../util/events/EDEvent.js";
 import { replaceHTMLbits } from "../../manager/designnote.js";
-import { map } from "../../util/Misc.js";
+import { findLast, map } from "../../util/Misc.js";
+import { TrackedWarUse } from "../../util/game/SwarmResources.js";
 
 /*
 
@@ -177,6 +178,84 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         content: `__Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__\n1v1 - ${soloName}\n2v2 - ${teamName}\n2v1 - ${juggName}`
                     }).then((v) => v.crosspost());
                 });
+
+                if (this.modules.WarManager.cooldownHours < 1 && this.swarm.resources.tracker.war.active) {
+                    const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list;
+                    const lastTime = this.swarm.resources.tracker.war.startedSince;
+
+                    this.swarm.resources.tracker.war.list = [];
+                    this.swarm.resources.tracker.war.startedSince = time;
+
+                    const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
+
+                    // I still have no idea why am i looping 3 times in total, 1 for exile, 1 for legion then all in all.
+                    const lastBomb = {
+                        overall: list[list.length - 1],
+                        exile: findLast(list, v => bombsToAlign[v.usedItemId] === "exile"),//undefined as unknown as TrackedWarUse,
+                        legion: findLast(list, v => bombsToAlign[v.usedItemId] === "legion")//undefined as unknown as TrackedWarUse,
+                    };//list[list.length - 1];//this.swarm.resources.tracker.war.list[this.swarm.resources.tracker.war.list.length - 1];
+                    // let lastExileBomb: TrackedWarUse;
+                    // let lastLegionBomb: TrackedWarUse;
+
+                    let stat = {
+                        score: {
+                            get overall() {
+                                return this.exile + this.legion
+                            },
+                            exile: 0,
+                            legion: 0,
+                        }, user: {} as Record<string, { score: number, count: number }>
+                    };
+
+                    let sorted:Record<"byCount"|"byScore", [string, number]> = {
+                        byCount: ["", -1],
+                        byScore: ["", -1],
+                    }
+
+                    for (let i = 0; i < list.length; i++) {
+                        const point = list[i];
+
+                        stat.score[bombsToAlign[point.usedItemId]] += point.influence;//bombsToAlign//gift.count.room;
+
+                        if (!stat.user[point.name]) stat.user[point.name] = { count: 1, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
+                        else {
+                            // stat.user[point.name].combo = Math.max(stat.user[point.name].combo, point.count.combo);
+                            stat.user[point.name].score += point.influence;//.current += point.count.room;
+                            // stat.user[point.name].end += point.count.room;
+                            stat.user[point.name].count++;
+                        }
+
+                        if (sorted["byCount"][1] < stat.user[point.name].count) sorted["byCount"] = [point.name, stat.user[point.name].count];
+                        if (sorted["byScore"][1] < stat.user[point.name].score) sorted["byScore"] = [point.name, stat.user[point.name].score];
+                        // if (sorted["byCombo"][1] < stat.user[point.name].combo) sorted["byCombo"] = [point.name, stat.user[point.name].combo];
+                    }
+
+                    let text:string = `**${list.length}** bombs were dropped from <t:${Math.floor(lastTime/1000)}:T> to <t:${Math.floor(lastBomb.overall.time / 1000)}:T>.\n\nStat:\n\n`;
+
+                    text += `* Overall:\n  * **Bomb Per Second**: ${list.length/((lastBomb.overall.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.overall.time-list[0].time)/1000/60)} bomb(s).\n`;
+
+                    if (lastBomb.exile) text += `\n* Exile:\n  * **Bomb Per Second**: ${list.length/((lastBomb.exile.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.exile.time-list[0].time)/1000/60)} bomb(s).\n`;
+                    if (lastBomb.legion) text += `\n* Legion:\n  * **Bomb Per Second**: ${list.length/((lastBomb.legion.time-list[0].time)/1000)} bomb(s)\n  * **Bomb Per Minute**: ${list.length/((lastBomb.legion.time-list[0].time)/1000/60)} bomb(s).\n`;
+
+                    // TODO: biggest bomber by count by score etc for both  side as well
+
+                    text += `\nBiggest bomber:\n* By Count: **${sorted.byCount[0]}** with ${sorted.byCount[1]} points given.\n* By Score: **${sorted.byScore[0]}** with ${sorted.byScore[1]} score.`;
+
+                    text += `\n\n${Object.keys(stat.user).length} unique warriors achieved ${stat.score.overall} influence.`;
+
+                    return hydra.rest.channels.createMessage("1232008738399981629", {
+                        content: text.trim(),
+                        files: [{
+                            name: "gifts.json",
+                            contents: Buffer.from(JSON.stringify(list, undefined, 2)),
+                        }, {
+                            name: "users.json",
+                            contents: Buffer.from(JSON.stringify(stat.user, undefined, 2))
+                        }]
+                        //content: (globalGift === 0 ? `**${gifterName}** sent a present at Central Station, VendBot.` : `**${gifterName}** sent a global present.`) + `\nThis person has given away ${totalGiftCount} in total, to ${globalGift === 0 ? "a room" : "the server"} with ${roomGiftCount} characters.`
+                    }).then(v => v.crosspost());//.catch((err) => this._logger.error(err));
+
+                }
             }
 
             if (hoursLeft == 0) {

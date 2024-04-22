@@ -7,6 +7,27 @@ import { IWar } from "../../Models/War.js";
 import Config from "../../config/index.js";
 import { filter } from "../../util/Misc.js";
 
+let lastTimeSince = {
+    rally: 0,
+    end: 0,
+    start: 0,
+    bomb: 0,
+}
+// let lastUsed
+// let lastType:number = 0;
+
+function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date) {
+    const time = date.getTime();
+
+    const gap = type === "bomb" ? 10 : 1000;
+
+    if ((lastTimeSince[type] + gap) > time) return false;
+    else {
+        lastTimeSince[type] = time;
+        return true;
+    }
+}
+
 export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
     const time = new Date();
 
@@ -111,11 +132,14 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             }
             break;
         case "start":
+            if (!checkTime(obj.type, time)) return;
             if (this.modules.WarManager.activeRegionId < 1) return;
 
-            DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
+            await this.swarm.getActiveWar(true);
+            // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
             break;
         case "end":
+            if (!checkTime(obj.type, time)) return;
             activeWar = await this.swarm.getActiveWar();
 
             let ss = DatabaseManager.cli.query(`UPDATE war SET ended_at = $1 WHERE id = $2`, [time, activeWar.type === 1 ? activeWar.result.id : -1] as unknown as [string, string]) // why is pg lib being bitchy about this
@@ -130,6 +154,14 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             console.log("War has ended! Ended at " + time);
             break;
         case "char_used":
+            if (!checkTime("bomb", time)) return;
+
+            if (this.swarm.resources.tracker.war.active) this.swarm.resources.tracker.war.list.push({
+                name: obj.name,
+                influence: obj.influence,
+                usedItemId: obj.usedItemId,
+                time: time.getTime()
+            });
             // TODO: track similarly to gift tracker
 
             // if (obj.type !== "char_used") return;

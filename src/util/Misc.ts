@@ -472,6 +472,16 @@ export function find<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, ind
     return undefined;
 }
 
+export function findLast<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean) : T | undefined {
+    if (!Array.isArray(arr)) arr = arr.toArray();
+
+    let l = arr.length;
+    while (l--) {
+        if (pred(arr[l], l, arr))
+            return arr[l];
+    }; return undefined;
+}
+
 export function findIndex<T>(arr: Array<T> | Collection<any, T>, pred: (value: T, index: number, obj: T[]) => boolean) : number {
     if (!Array.isArray(arr)) arr = arr.toArray();
 

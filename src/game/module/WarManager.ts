@@ -274,6 +274,33 @@ export default class WarManager extends BaseModule {
         return this.client.modules.Inventory.getInventoryItemCount(basicItemId) + this.client.modules.Inventory.getInventoryItemCount(superItemId);
     }
 
+    getBombIds() : Record<"exile"|"legion", [number, number]> {
+        let wr = this.client.boxes.war.getRegionById(this.activeRegionId);
+
+        if (!wr) throw Error("No active region id.");
+
+        const defenseAlign = this.getControlAlignmentInActiveRegion();
+
+        if (defenseAlign === 1) return {
+            exile: [wr.defenseItemId, wr.defenseSuperItemId],
+            legion: [wr.offenseItemId, wr.offenseSuperItemId],
+        }; return {
+            legion: [wr.defenseItemId, wr.defenseSuperItemId],
+            exile: [wr.offenseItemId, wr.offenseSuperItemId],
+        }
+    }
+
+    getAlignMappedByBombId() : Record<number, "exile"|"legion"> {
+        const ids = this.getBombIds();
+
+        return {
+            [ids.exile[0]]: "exile",
+            [ids.exile[1]]: "exile",
+            [ids.legion[0]]: "legion",
+            [ids.legion[1]]: "legion",
+        }
+    }
+
     getControlAlignmentInActiveRegion() {
         let regionMainObj = this.client.boxes.war.getMainObjectiveByRegionId(this.activeRegionId);
         if (regionMainObj != null) {

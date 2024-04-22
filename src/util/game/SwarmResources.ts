@@ -1,4 +1,5 @@
 import { IUserRecord } from "../../Models/UserRecord.js";
+import { Gift } from "../../game/module/Advent.js";
 import Logger from "../../manager/logger.js";
 import { requestLangFile, sleep } from "../Misc.js";
 
@@ -78,7 +79,38 @@ export default class SwarmResources {
     skills: { [userId: number | number]: { id: number, lvl: number }[] | undefined } = {};
     records: { [userId: number | number]: Omit<IUserRecord, "char_id"> | undefined } = {};
 
+    tracker = {
+        war: lazyMakeTracker<TrackedWarUse>("War"),
+        gift: lazyMakeTracker<Gift>("Gift")
+    }
+
     checkpoints = {
         comparison: [0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] as [number, number[]]
     }
+}
+
+function lazyMakeTracker<T>(name: string) {
+    return {
+        active: false,
+        startedSince: -1,
+        list: [] as T[],
+        initiated: false,
+        activate() {
+            if (this.active) throw Error(name + " is already being tracked!");
+
+            this.active = true;
+            this.startedSince = Date.now();
+            this.initiated = true;
+            this.list.splice(0);
+
+            return true;
+        }
+    }
+}
+
+export interface TrackedWarUse {
+    name: string,
+    influence: number,
+    usedItemId: number,
+    time: number,
 }
