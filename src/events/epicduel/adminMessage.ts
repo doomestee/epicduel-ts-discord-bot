@@ -189,12 +189,13 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     this.swarm.resources.tracker.war.startedSince = time;
 
                     const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
+                    const bombsToType = this.modules.WarManager.getAlignMappedByBombId(true);
 
                     // I still have no idea why am i looping 3 times in total, 1 for exile, 1 for legion then all in all.
                     const lastBomb = {
                         overall: list[list.length - 1],
-                        exile: findLast(list, v => bombsToAlign[v.usedItemId] === "exile"),//undefined as unknown as TrackedWarUse,
-                        legion: findLast(list, v => bombsToAlign[v.usedItemId] === "legion")//undefined as unknown as TrackedWarUse,
+                        exile: undefined as TrackedWarUse | undefined,//findLast(list, v => bombsToAlign[v.usedItemId] === "exile"),//undefined as unknown as TrackedWarUse,
+                        legion: undefined as TrackedWarUse | undefined,//findLast(list, v => bombsToAlign[v.usedItemId] === "legion")//undefined as unknown as TrackedWarUse,
                     };//list[list.length - 1];//this.swarm.resources.tracker.war.list[this.swarm.resources.tracker.war.list.length - 1];
                     // let lastExileBomb: TrackedWarUse;
                     // let lastLegionBomb: TrackedWarUse;
@@ -208,9 +209,9 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                             legion: 0,
                         },
                         count: {
-                            exile: 0,
-                            legion: 0
-                        }, user: {} as Record<string, { score: number, count: number }>
+                            exile: [0, 0],
+                            legion: [0, 0]
+                        }, user: {} as Record<string, { count: { basic: number, super: number, overall: number }, score: number }>
                     };
 
                     let sorted:Record<"byCount"|"byScore", [string, number]> = {
@@ -221,28 +222,43 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     for (let i = 0; i < list.length; i++) {
                         const point = list[i];
 
-                        stat.score[bombsToAlign[point.usedItemId]] += point.influence;//bombsToAlign//gift.count.room;
-                        stat.count[bombsToAlign[point.usedItemId]]++;
+                        const align = bombsToAlign[point.usedItemId];
 
-                        if (!stat.user[point.name]) stat.user[point.name] = { count: 1, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
+                        const isSuper = bombsToType[point.usedItemId] === "super";
+
+                        stat.score[align] += point.influence;//bombsToAlign//gift.count.room;
+                        stat.count[align][isSuper ? 1 : 0]++;
+
+                        lastBomb[align] = point;
+
+                        if (!stat.user[point.name]) stat.user[point.name] = { count: { basic: isSuper ? 0 : 1, super: isSuper ? 1 : 0, get overall() { return this.basic + this.super } }, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
                         else {
                             // stat.user[point.name].combo = Math.max(stat.user[point.name].combo, point.count.combo);
                             stat.user[point.name].score += point.influence;//.current += point.count.room;
                             // stat.user[point.name].end += point.count.room;
-                            stat.user[point.name].count++;
+                            stat.user[point.name].count[bombsToType[point.usedItemId]]++;
                         }
 
-                        if (sorted["byCount"][1] < stat.user[point.name].count) sorted["byCount"] = [point.name, stat.user[point.name].count];
-                        if (sorted["byScore"][1] < stat.user[point.name].score) sorted["byScore"] = [point.name, stat.user[point.name].score];
+                        if (sorted["byCount"][1] < stat.user[point.name].count.overall) sorted["byCount"] = [point.name, stat.user[point.name].count.overall];
+                        if (sorted["byScore"][1] < stat.user[point.name].score)         sorted["byScore"] = [point.name, stat.user[point.name].score];
                         // if (sorted["byCombo"][1] < stat.user[point.name].combo) sorted["byCombo"] = [point.name, stat.user[point.name].combo];
                     }
 
                     let text:string = `**${list.length}** bombs were dropped from <t:${Math.floor(lastTime/1000)}:T> to <t:${Math.floor(lastBomb.overall.time / 1000)}:T>.\n\nStat:\n\n`;
 
-                    text += `* Overall:\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    // list.length / (lastBomb.overall.time - list[0].time)*1000;
+                
 
-                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile}\n  * **Total Influence**: ${stat.score.exile}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.exile.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.exile.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
-                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion}\n  * **Total Influence**: ${stat.score.legion}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.legion.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.legion.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    // (list.length / ((lastBomb.exile.time-list[0].time)/1000))
+
+                    // (list.length / (lastBomb.exile.time - list[0].time) / 1000).toFixed(4)
+
+                    // list.length/((lastBomb.exile.time-list[0].time)/1000/60)
+
+                    text += `* Overall:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1] + stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.exile[0] + stat.count.legion[0]}, Super: ${stat.count.exile[1] + stat.count.legion[1]})\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+
+                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1]} (Regular: ${stat.count.exile[0]}, Super: ${stat.count.exile[1]})\n  * **Total Influence**: ${stat.score.exile}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.exile.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.exile.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.legion[0]}, Super: ${stat.count.legion[1]})\n  * **Total Influence**: ${stat.score.legion}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.legion.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.legion.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
                     // TODO: biggest bomber by count by score etc for both  side as well
 
@@ -253,7 +269,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     return hydra.rest.channels.createMessage("1232008738399981629", {
                         content: text.trim(),
                         files: [{
-                            name: "gifts.json",
+                            name: "bombs.json",
                             contents: Buffer.from(JSON.stringify(list, undefined, 2)),
                         }, {
                             name: "users.json",

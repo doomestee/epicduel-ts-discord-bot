@@ -289,19 +289,21 @@ export default class WarManager extends BaseModule {
             exile: [wr.defenseItemId, wr.defenseSuperItemId],
             legion: [wr.offenseItemId, wr.offenseSuperItemId],
         }; return {
-            legion: [wr.defenseItemId, wr.defenseSuperItemId],
             exile: [wr.offenseItemId, wr.offenseSuperItemId],
+            legion: [wr.defenseItemId, wr.defenseSuperItemId],
         }
     }
 
-    getAlignMappedByBombId() : Record<number, "exile"|"legion"> {
+    getAlignMappedByBombId(bombType: true) : Record<number, "basic"|"super">;
+    getAlignMappedByBombId(bombType?: false) : Record<number, "exile"|"legion">;
+    getAlignMappedByBombId(bombType: boolean = false) {
         const ids = this.getBombIds();
 
         return {
-            [ids.exile[0]]: "exile",
-            [ids.exile[1]]: "exile",
-            [ids.legion[0]]: "legion",
-            [ids.legion[1]]: "legion",
+            [ids.exile[0]]: bombType ? "basic" : "exile",
+            [ids.exile[1]]: bombType ? "super" : "exile",
+            [ids.legion[0]]: bombType ? "basic" : "legion",
+            [ids.legion[1]]: bombType ? "super" : "legion",
         }
     }
 
