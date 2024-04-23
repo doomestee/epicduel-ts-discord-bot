@@ -61,7 +61,7 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
             name: user.charName || null,
             flags: flags,
             rating: user.rating,
-            exp: user.charExp,
+            exp: ~~user.charExp,
             fame: user.charFame,
             faction_id: user.fctId,
             inv_slots: Number(user.variables.charInvSlots),

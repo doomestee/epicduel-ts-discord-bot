@@ -322,7 +322,7 @@ export class Entity {
             type: userVars.charId === undefined ? (userVars.npcBoss ? 2 : 1) : 0,
 
             lvl: userVars.charLvl,
-            exp: userVars.charExp,
+            exp: ~~userVars.charExp,
             
             last_fetched: new Date()
         })
