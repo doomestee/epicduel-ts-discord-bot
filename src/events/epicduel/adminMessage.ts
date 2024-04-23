@@ -239,10 +239,10 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                     let text:string = `**${list.length}** bombs were dropped from <t:${Math.floor(lastTime/1000)}:T> to <t:${Math.floor(lastBomb.overall.time / 1000)}:T>.\n\nStat:\n\n`;
 
-                    text += `* Overall:\n  * **Bomb Per Second**: ${(list.length / (lastBomb.overall.time - list[0].time) / 1000).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    text += `* Overall:\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
-                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile}\n  * **Bomb Per Second**: ${(list.length / (lastBomb.exile.time - list[0].time) / 1000).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.exile.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
-                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion}\n  * **Bomb Per Second**: ${(list.length / (lastBomb.legion.time - list[0].time) / 1000).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.legion.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile}\n  * **Total Influence**: ${stat.score.exile}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.exile.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.exile.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion}\n  * **Total Influence**: ${stat.score.legion}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.legion.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.legion.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
                     // TODO: biggest bomber by count by score etc for both  side as well
 
