@@ -274,6 +274,14 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                     text += `\n\n${Object.keys(stat.user).length} unique warriors achieved ${stat.score.overall} influence.`;
 
+                    const orderedUsers = {} as Record<string, unknown>;
+
+                    const keys = Object.keys(stat.user).sort();
+
+                    for (let i = 0, len = keys.length; i < len; i++) {
+                        orderedUsers[keys[i]] = stat.user[keys[i]];
+                    }
+
                     return hydra.rest.channels.createMessage("1232008738399981629", {
                         content: text.trim(),
                         files: [{
@@ -281,7 +289,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                             contents: Buffer.from(JSON.stringify(list, undefined, 2)),
                         }, {
                             name: "users.json",
-                            contents: Buffer.from(JSON.stringify(stat.user, undefined, 2))
+                            contents: Buffer.from(JSON.stringify(orderedUsers, undefined, 2))
                         }]
                         //content: (globalGift === 0 ? `**${gifterName}** sent a present at Central Station, VendBot.` : `**${gifterName}** sent a global present.`) + `\nThis person has given away ${totalGiftCount} in total, to ${globalGift === 0 ? "a room" : "the server"} with ${roomGiftCount} characters.`
                     }).then(v => v.crosspost());//.catch((err) => this._logger.error(err));
