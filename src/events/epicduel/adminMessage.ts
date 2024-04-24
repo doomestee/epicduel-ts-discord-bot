@@ -200,6 +200,12 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     // let lastExileBomb: TrackedWarUse;
                     // let lastLegionBomb: TrackedWarUse;
 
+                    let firstBomb = {
+                        overall: list[0],
+                        exile: undefined as TrackedWarUse | undefined,
+                        legion: undefined as TrackedWarUse | undefined,
+                    }
+
                     let stat = {
                         score: {
                             get overall() {
@@ -231,6 +237,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                         lastBomb[align] = point;
 
+                        if (!firstBomb[align]) firstBomb[align] = point;
+
                         if (!stat.user[point.name]) stat.user[point.name] = { count: { basic: isSuper ? 0 : 1, super: isSuper ? 1 : 0, get overall() { return this.basic + this.super } }, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
                         else {
                             // stat.user[point.name].combo = Math.max(stat.user[point.name].combo, point.count.combo);
@@ -255,10 +263,10 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                     // list.length/((lastBomb.exile.time-list[0].time)/1000/60)
 
-                    text += `* Overall:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1] + stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.exile[0] + stat.count.legion[0]}, Super: ${stat.count.exile[1] + stat.count.legion[1]})\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    text += `* Overall:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1] + stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.exile[0] + stat.count.legion[0]}, Super: ${stat.count.exile[1] + stat.count.legion[1]})\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - firstBomb.overall.time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-firstBomb.overall.time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
-                    if (lastBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1]} (Regular: ${stat.count.exile[0]}, Super: ${stat.count.exile[1]})\n  * **Total Influence**: ${stat.score.exile}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.exile.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.exile.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
-                    if (lastBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.legion[0]}, Super: ${stat.count.legion[1]})\n  * **Total Influence**: ${stat.score.legion}\n  * **Bomb Per Second**: ${(list.length / ((lastBomb.legion.time - list[0].time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${(list.length/((lastBomb.legion.time-list[0].time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.exile && firstBomb.exile) text += `\n* Exile:\n  * **Total Bomb**: ${stat.count.exile[0] + stat.count.exile[1]} (Regular: ${stat.count.exile[0]}, Super: ${stat.count.exile[1]})\n  * **Total Influence**: ${stat.score.exile}\n  * **Bomb Per Second**: ${((stat.count.exile[0] + stat.count.exile[1]) / ((lastBomb.exile.time - firstBomb.exile.time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${((stat.count.exile[0] + stat.count.exile[1])/((lastBomb.exile.time-firstBomb.exile.time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.legion && firstBomb.legion) text += `\n* Legion:\n  * **Total Bomb**: ${stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.legion[0]}, Super: ${stat.count.legion[1]})\n  * **Total Influence**: ${stat.score.legion}\n  * **Bomb Per Second**: ${((stat.count.legion[0] + stat.count.legion[1]) / ((lastBomb.legion.time - firstBomb.legion.time) / 1000)).toFixed(4)} bomb(s)\n  * **Bomb Per Minute**: ${((stat.count.legion[0] + stat.count.legion[1])/((lastBomb.legion.time-firstBomb.legion.time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
                     // TODO: biggest bomber by count by score etc for both  side as well
 
