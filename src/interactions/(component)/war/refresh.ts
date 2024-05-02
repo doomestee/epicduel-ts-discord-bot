@@ -99,7 +99,7 @@ export default new Command(CommandType.Component, { custom_id: "refresh_war_info
             }],
             components: [{
                 type: 1, components: [{
-                    type: 3, customID: "war_select_" + interaction.user.id, minValues: 1, maxValues: 1, options: [{
+                    type: 3, customID: "war_select_" + userId, minValues: 1, maxValues: 1, options: [{
                         label: "Basic War Information", value: "basic_info", default: true, description: "See the current status of the war."
                     }, {
                         label: "List of Rallies", value: "rallies_info", description: "See all of the rallies under this war."
@@ -107,7 +107,7 @@ export default new Command(CommandType.Component, { custom_id: "refresh_war_info
                 }]
             }, {
                 type: 1, components: [{
-                    type: 2, label: "Refresh", style: 1, customID: "refresh_war_info_" + interaction.user.id,
+                    type: 2, label: "Refresh", style: 1, customID: "refresh_war_info_" + userId,
                 //}, {
                 //    type: 2, style: 5, url: "https://doomester.grafana.net/d/xatJoSF4z/ed-war-influence?orgId=1", label: "Metrics", emoji: {name: "📈"}
                 }]
