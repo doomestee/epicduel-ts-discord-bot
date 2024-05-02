@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom";
 import Logger from "./logger.js";
 import DNExecutor from "../util/DNExecutor.js";
 import type Hydra from "./discord.js";
+import he from "he";
 
 export interface DesignNote {
     date: string;
@@ -22,7 +23,7 @@ function replaceArtixLinkTag(str: string) {
 }
 
 export function replaceHTMLbits(text: string, images?: [string, string][], h2: string ="empty", linkIdentifier="ArtixPost") {
-    return text.trim()
+    return he.decode(text.trim()
         .replace(/<strong>|<\/strong>/gi, "**")
         .replace(/<strong [^>]*>/gi, "**")
         .replace(/<b>|<\/b>/gi, "**")
@@ -65,7 +66,8 @@ export function replaceHTMLbits(text: string, images?: [string, string][], h2: s
 
         .replace(/\&nbsp\;/gi, " ") // although while the code itself is intended to break, its not necessary here so no
         
-        .replace(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g, "") /* This must be executed after everything else, just in case there isn't something else that is so kind... */;
+        .replace(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g, "") /* This must be executed after everything else, just in case there isn't something else that is so kind... */
+    , { strict: false });
 }
 
 function htmlLiTagConvert(length=1) {
