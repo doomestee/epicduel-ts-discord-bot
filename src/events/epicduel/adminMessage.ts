@@ -217,7 +217,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         count: {
                             exile: [0, 0],
                             legion: [0, 0]
-                        }, user: {} as Record<string, { count: { basic: number, super: number, overall: number }, score: number }>
+                        }, user: {} as Record<string, { count: { basic: number, super: number, overall: number }, score: number, alignment: "exile" | "legion" }>
                     };
 
                     let sorted:Record<"byCount"|"byScore", [string, number]> = {
@@ -239,7 +239,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                         if (!firstBomb[align]) firstBomb[align] = point;
 
-                        if (!stat.user[point.name]) stat.user[point.name] = { count: { basic: isSuper ? 0 : 1, super: isSuper ? 1 : 0, get overall() { return this.basic + this.super } }, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
+                        if (!stat.user[point.name]) stat.user[point.name] = { alignment: align, count: { basic: isSuper ? 0 : 1, super: isSuper ? 1 : 0, get overall() { return this.basic + this.super } }, score: point.influence };//{ combo: point.count.combo, current: point.count.room, start: point.count.total - point.count.room, end: point.count.total, count: 1 };
                         else {
                             // stat.user[point.name].combo = Math.max(stat.user[point.name].combo, point.count.combo);
                             stat.user[point.name].score += point.influence;//.current += point.count.room;

@@ -286,11 +286,11 @@ export default class WarManager extends BaseModule {
         const defenseAlign = this.getControlAlignmentInActiveRegion();
 
         if (defenseAlign === 1) return {
-            exile: [wr.defenseItemId, wr.defenseSuperItemId],
-            legion: [wr.offenseItemId, wr.offenseSuperItemId],
-        }; return {
             exile: [wr.offenseItemId, wr.offenseSuperItemId],
             legion: [wr.defenseItemId, wr.defenseSuperItemId],
+        }; return {
+            exile: [wr.defenseItemId, wr.defenseSuperItemId],
+            legion: [wr.offenseItemId, wr.offenseSuperItemId],
         }
     }
 
