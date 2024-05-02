@@ -252,7 +252,7 @@ export default new ClientEvent("interactionCreate", function (int) {
                 case ApplicationCommandTypes.CHAT_INPUT:
                     cmd = CommandHandler.appCmdMap[commandName];
                     break;
-                case ApplicationCommandTypes.USER:
+                case ApplicationCommandTypes.USER: case ApplicationCommandTypes.MESSAGE:
                     const alias = CommandHandler.aliasesMapCmdName[commandName];
 
                     if (alias) {

@@ -441,6 +441,10 @@ export default class Hydra extends Client {
                     }]
                 }]
             }]
+        }, {
+            name: "Preview Update Note", type: ApplicationCommandTypes.MESSAGE,
+        }, {
+            name: "Update Note", type: ApplicationCommandTypes.MESSAGE,
         }]);
 
         return this.rest.applications.bulkEditGlobalCommands(applicationId ?? this.application.id, commands);

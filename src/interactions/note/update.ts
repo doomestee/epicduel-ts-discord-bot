@@ -12,11 +12,11 @@ export default new Command(CommandType.Application, { cmd: ["unavailable"], alia
 
         let message = interaction.data.target;//.resolved.messages.find(msg => msg.id === interaction.data.targetID));
 
-        if (!message || !(message instanceof Message) || message.channelID !== process.env.NOTE_LOG_CHNL_ID) {
-            return interaction.createMessage({ content: `No, this command only works for <#${process.env.NOTE_LOG_CHNL_ID}>`, flags: 64});
+        if (!message || !(message instanceof Message) || message.channelID !== "937056730922233886") {
+            return interaction.createMessage({ content: `No, this command only works for <#937056730922233886>`, flags: 64});
         }
 
-        if (message.webhookID !== process.env.NOTE_LOG_WEBHOOK_ID) return interaction.createMessage({ content: `Must be used on <@${process.env.NOTE_LOG_WEBHOOK_ID}> message.`, flags: 64});
+        if (message.webhookID !== "937075371281641483") return interaction.createMessage({ content: `Must be used on <@937075371281641483> message.`, flags: 64});
         if (/* blacklist check */ false) return interaction.createMessage({ content: "You're blacklisted, you cannot use this command :(", flags: 64}); 
 
         await interaction.defer(64);
