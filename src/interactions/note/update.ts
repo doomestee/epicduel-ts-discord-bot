@@ -6,7 +6,7 @@ import Logger from "../../manager/logger.js";
 import DNExecutor from "../../util/DNExecutor.js";
 import { epoch, map } from "../../util/Misc.js";
 
-export default new Command(CommandType.Application, { cmd: ["unavailable"], aliases: ["Update Note"] })
+export default new Command(CommandType.Application, { cmd: ["unavailable2"], aliases: ["Update Note"] })
     .attach('run', async ({ client, interaction }) => {
         if (interaction.type !== 2) return;
 
@@ -147,13 +147,17 @@ export default new Command(CommandType.Application, { cmd: ["unavailable"], alia
             //@ts-expect-error
             note['updateTime'] = updateTime;
 
-            client.rest.webhooks.get('941353608836960326').then(v => {
+            await client.rest.webhooks.get('941353608836960326').then(v => {
                 return v.execute({
                     files: [{
                         contents: Buffer.from(JSON.stringify(note, undefined, 2)), name: id + '.json'
                     }]
                 })
             }).catch(err => Logger.getLogger("DNote").error(err));
+
+            return interaction.reply({
+                content: "updated", flags: 64
+            })
         }      
 
     })
