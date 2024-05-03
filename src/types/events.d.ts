@@ -57,6 +57,10 @@ export interface CustomSFSClientEvents {
 
     user_record: [result: Omit<IUserRecord, "char_id">, sfsId: number];
     user_skills: [result: { id: number, lvl: number }[], sfsId: number];
+
+    redeem_code: [result: { ok: number, prizeList: Array<{ type: number, id: number }> }];
+
+    fame: [result: { success: number, name: string }]
 }
 
 /**

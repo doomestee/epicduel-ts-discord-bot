@@ -69,7 +69,7 @@ export default class Hydra extends Client {
             },
             auth: `Bot ${Config.botToken}`,
             gateway: {
-                intents: ["GUILDS"],
+                intents: ["GUILDS", "GUILD_MESSAGES", "MESSAGE_CONTENT"],
                 presence: {
                     activities: [{
                         type: ActivityTypes.CUSTOM,

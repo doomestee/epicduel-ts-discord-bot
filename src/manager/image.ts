@@ -2,7 +2,7 @@ import { readdir } from "fs/promises";
 import SvgGen from "../util/SvgGen.js";
 import Config from "../config/index.js";
 
-type ImageItem = "avatars" | "cores";// | "cheevo"
+type ImageItem = "avatars" | "cores" | "swords";// | "cheevo"
 
 /**
  * This will keep a list of images like achievements, avatars, cores etc as well as being able to make images with svgs.
@@ -14,12 +14,16 @@ export default class ImageManager {
         avatars: [],
         // cheevo: [],
         cores: [],
+
+        swords: [],
     }
 
     static ready:{ [x in ImageItem]: boolean } = {
         avatars: false,
         // cheevo: false,
         cores: false,
+
+        swords: false,
     }
 
     protected static init() {

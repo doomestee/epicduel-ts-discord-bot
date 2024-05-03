@@ -10,7 +10,7 @@ import AchievementBox from "./box/AchievementBox.js";
 import CharacterInvBox from "./box/CharacterInvBox.js";
 import ClassBox from "./box/ClassBox.js";
 import HomeBox from "./box/HomeBox.js";
-import ItemSBox from "./box/ItemBox.js";
+import ItemSBox, { AnyItemRecordsExceptSelf } from "./box/ItemBox.js";
 import LegendaryCategorySBox from "./box/LegendaryBox.js";
 import MerchantSBox from "./box/MerchantBox.js";
 import MissionSBox from "./box/MissionBox.js";
@@ -56,6 +56,8 @@ import Tournament from "./module/Tournament.js";
 import { SwarmError } from "../util/errors/index.js";
 import { WaitForResult, waitFor } from "../util/WaitStream.js";
 import { IUserRecord } from "../Models/UserRecord.js";
+import DatabaseManager from "../manager/database.js";
+import { find } from "../util/Misc.js";
 
 export interface ClientSettings {
     id: number;
@@ -688,7 +690,10 @@ export default class Client {
                 case Responses.RESPONSE_GET_POLL_TITLE:
                     break;
                 case Responses.RESPONSE_SUBMIT_CODE:
-                    // this.smartFox.emit('redeem_code', dataObj);
+                    this.smartFox.emit('redeem_code', {
+                        ok: dataObj.ok,
+                        prizeList: dataObj.prizeList,
+                    });
                     break;
                 case Requests.REQUEST_GET_FACTION_NOTES:
                     break;
@@ -1437,6 +1442,10 @@ export default class Client {
                     //FameManager.fameReceived(_loc3_ as Array);
                     break;
                 case Requests.REQUEST_GIVE_FAME:
+                    this.smartFox.emit("fame", {
+                        success: parseInt(dataObj[2]),
+                        name: dataObj[3]
+                    });
                     // let famed = this.smartFox.getActiveRoom().userList.find(v => v.charName === dataObj[3]);
 
                     // if (this.manager && famed !== undefined) {
@@ -2664,112 +2673,99 @@ export default class Client {
     //     return result;
     // }
 
-    // /**
-    //  * @param {string} code
-    //  * @returns {Promise<{status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed"}|{status: true, details: ({type: "item", item: Object}|{type: "home", id: number}|{type: "credits", amount: number})[]}>}
-    //  */
-    // async redeemCode(code) {
-    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_SUBMIT_CODE, {code: code}, 1, "json");
+    async redeemCode(code: string) : Promise<{ status: true, prizes: RedeemedPrizes}|{ status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed" }> {
 
-    //     // I really need to fix WaitForStream's identifier...
-    //     let details = await WaitForStream(this.smartFox, "redeem_code", undefined, {}, 3000).catch((err) => {/* do smth about error */ return null;});
+        const waited = waitFor(this.smartFox, "redeem_code", undefined, 3000);
+        this.smartFox.sendXtMessage("main", Requests.REQUEST_SUBMIT_CODE, {code: code}, 1, "json");
 
-    //     if (details === null) return {status: false, details: "No response"};//Promise.reject(new Error("Could not fetch any result for redeeming code."));
+        return waited.then(v => {
+            if (v.success) {
+                const val = v.value;
 
-    //     details = details[0];
+                if (val.ok < 0) {
+                    let errorMsg = '';
+        
+                    switch (val.ok) {
+                        case -1: errorMsg = "Invalid code"; break;
+                        case -2: errorMsg = "Expired code"; break;
+                        case -3: errorMsg = "Level too high"; break;
+                        case -4: errorMsg = "Level too low"; break;
+                        case -5: errorMsg = "Already redeemed"; break;
+                    }
+        
+                    return { details: errorMsg as "Invalid code", status: false } as { details: "Invalid code", status: false };//Promise.reject((errorMsg));
+                }
 
-    //     if (this.debugMode) {
-    //         console.log(details);
-    //     }
+                let prizes:RedeemedPrizes = [];
 
-    //     if (details.ok < 0) {
-    //         let errorMsg = '';
+                loop: for (let i = 0, len = val.prizeList.length; i < len; i++) {
+                    const obj = val.prizeList[i];
 
-    //         switch (details.ok) {
-    //             case -1: errorMsg = "Invalid code"; break;
-    //             case -2: errorMsg = "Expired code"; break;
-    //             case -3: errorMsg = "Level too high"; break;
-    //             case -4: errorMsg = "Level too low"; break;
-    //             case -5: errorMsg = "Already redeemed"; break;
-    //         }
+                    switch (obj.type) {
+                        case Constants.REDEEM_PRIZE_TYPE_ITEM:
+                            prizes.push({ type: "item", item: this.boxes.item.objMap.get(obj.id) as AnyItemRecordsExceptSelf });
+                            continue loop;
+                        case Constants.REDEEM_PRIZE_TYPE_HOME_ITEM:
+                            prizes.push({ type: "home", id: obj.id });
+                            continue loop;
+                        case Constants.REDEEM_PRIZE_TYPE_CREDITS:
+                            prizes.push({ type: "credits", amount: obj.id });
+                            continue loop;
+                        
+                    }
+                }
 
-    //         return {details: errorMsg, status: false};//Promise.reject((errorMsg));
-    //     } 
+                return { status: true, prizes } as { status: true, prizes: RedeemedPrizes };
+            } else return { status: false, details: v.reason } as { status: false, details: "Invalid code" };
+        });
+    }
 
-    //     //let obj = {};
-    //     let prizes = [];
+    /**
+     * If in standalone mode, the database check will be prohibited, so there won't be a fallback to database if the id given is a name and the character is not in the room.
+     * @param {number|string} id 
+     * @param {boolean} isName Exact name, caps sensitive (despite there being no caps in the game)
+     * @param {boolean} fallbackToDb only if isName is provided
+     */
+    async fameCharacter(id: number | string, isName=false, fallbackToDb=true) : Promise<WaitForResult<{ success: number, name: string }>> {
+        let charId = id;
 
-    //     for (let i = 0; i < details.prizeList.length; i++) {
-    //         let obj = details.prizeList[i];
+        // if (this.manager.standalone) fallbackToDb = false;
+        if (isName) {
+            let room = this.smartFox.getActiveRoom();
 
-    //         switch (obj.type) {
-    //             case Constants.REDEEM_PRIZE_TYPE_ITEM:
-    //                 //let itemInvId = obj.itemInvId;
+            if (room == null && !fallbackToDb) {
+                return Promise.reject(new Error("Character cannot be found as fallback is false, and you're not in a room."));
+            } else if (room == null && fallbackToDb === true) {
+                let char = await DatabaseManager.cli.query<{ id: number }>(`SELECT id FROM character WHERE name = $1`, [id])//this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
+                    .then(v => v.rows).catch((err) => { Logger.getLogger("Fame").error(err); return null; });//this.manager._logger.error(err); return null;});
 
-    //                 this.redeemed.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
-    //                 prizes.push({type: "item", item: this.boxes.item.objMap.get(obj.id)});
-    //                 break;
-    //             case Constants.REDEEM_PRIZE_TYPE_HOME_ITEM:
-    //                 // Hell nah, nobody cares about homes
-    //                 this.redeemed.push({type: "home", id: obj.id});
-    //                 prizes.push({type: "home", id: obj.id});
-    //                 break;
-    //             case Constants.REDEEM_PRIZE_TYPE_CREDITS:
-    //                 this.redeemed.push({type: "credits", amount: obj.id});
-    //                 prizes.push({type: "credits", amount: obj.id});
-    //                 break;
-    //         }
-    //     }
+                if (!char || !char.length) return Promise.reject(new Error("Character not found in database."));
 
-    //     return {status: true, details: prizes};
-    // }
+                charId = char[0].id;
+            } else if (room) {
+                let sfsUser = find(room.getUserList(), v => v.charName === id);
 
-    // /**
-    //  * If in standalone mode, the database check will be prohibited, so there won't be a fallback to database if the id given is a name and the character is not in the room.
-    //  * @param {number|string} id 
-    //  * @param {boolean} isName Exact name, caps sensitive (despite there being no caps in the game)
-    //  * @param {boolean} fallbackToDb only if isName is provided
-    //  */
-    // async fameCharacter(id, isName=false, fallbackToDb=true) {
-    //     let charId = id;
+                if (!sfsUser && !fallbackToDb) return Promise.reject(new Error("Character not found in room."));
+                if (!sfsUser) { 
+                    let char = await await DatabaseManager.cli.query<{ id: number }>(`SELECT id FROM character WHERE name = $1`, [id])//this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
+                        .then(v => v.rows).catch((err) => { Logger.getLogger("Fame").error(err); return null; });//this.manager._logger.error(err); return null;});
 
-    //     if (this.manager.standalone) fallbackToDb = false;
-    //     if (isName) {
-    //         let room = this.smartFox.getActiveRoom();
+                    if (!char || !char.length) return Promise.reject(new Error("Character not found in database."));
 
-    //         if (room == null && !fallbackToDb) {
-    //             return Promise.reject(new Error("Character cannot be found as fallback is false, and you're not in a room."));
-    //         } else if (room == null && fallbackToDb === true) {
-    //             let char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
-    //                 .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
+                    charId = char[0].id;
+                } else charId = sfsUser.charId;
+            } else {
+                return Promise.reject(new Error("idk how."));
+            }
+        }
 
-    //             if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
+        if (typeof charId === "string") return { success: false, reason: "Non existent character." };
 
-    //             charId = char[0].id;
-    //         } else if (room) {
-    //             let char = room.userList.find(v => v.charName === id);
+        const waited = waitFor(this.smartFox, "fame", undefined, 3500);
+        this.smartFox.sendXtMessage("main", Requests.REQUEST_GIVE_FAME, { charId }, 2, "json");
 
-    //             if (!char && !fallbackToDb) return Promise.reject(new Error("Character not found in room."));
-    //             if (!char) { 
-    //                 char = await this.manager._database.cli.query(`SELECT id FROM character WHERE name = $1`, [id])
-    //                     .then(v => v.rows).catch((err) => { this.manager._logger.error(err); return null;});
-
-    //                 if (!char && !char.length) return Promise.reject(new Error("Character not found in database."));
-
-    //                 charId = char[0].id;
-    //             } else charId = char.charId;
-    //         } else {
-    //             return Promise.reject(new Error("idk how."));
-    //         }
-    //     }
-
-    //     this.smartFox.sendXtMessage("main", Requests.REQUEST_GIVE_FAME, {charId}, 2, "json");
-
-    //     // I really need to fix WaitForStream's identifier...
-    //     let details = await WaitForStream(this.smartFox, "giveth_fame", undefined, { success: 0, name: ""}, 3500).catch((err) => {/* do smth about error */ return null;});
-
-    //     if (details === null) return Promise.reject(new Error("Could not find any character famed."));
-
-    //     return details;
-    // }
+        return waited;
+    }
 }
+
+export type RedeemedPrizes = Array<{ type: "item", item: AnyItemRecordsExceptSelf }|{ type: "home", id: number }|{ type: "credits", amount: number }>;
