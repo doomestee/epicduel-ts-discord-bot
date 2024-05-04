@@ -157,7 +157,8 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                     if (npc.mercName === "VendBot") {
                         // Or rather stick to default...
                         webGuy.avatarURL = undefined;
-                        webGuy.username = undefined;
+
+                        if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) webGuy.username = undefined;
                         break;
                     }
 
