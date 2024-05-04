@@ -1,7 +1,7 @@
 import { Embed, File, MessageTypes } from "oceanic.js";
 import ClientEvent from "../../util/events/ClientEvent.js";
 import Logger from "../../manager/logger.js";
-import { filter, map, sleep } from "../../util/Misc.js";
+import { filter, find, map, sleep } from "../../util/Misc.js";
 import { AnyItemRecordsExceptSelf } from "../../game/box/ItemBox.js";
 import Swarm from "../../manager/epicduel.js";
 import { Item } from "../../Models/Item.js";
@@ -50,7 +50,12 @@ export default new ClientEvent("messageCreate", async function (msg) {
 
     if (!cantRedeem) {
         for (let i = 0, len = codes.length; i < len; i++) {
-            const cli = Swarm.getClient(v => v.connected && v.lobbyInit);
+            const clis = filter(Swarm["clients"].concat(Swarm["purgatory"]), v => v.connected && v.lobbyInit);
+
+            // For now, it will only pick at least one of two possible clients.
+            const cli = clis.length > 1 ? find(clis, v => prevCliId === -1 ? true : v.settings.id !== prevCliId) : clis[0];
+
+            // const cli = clis.length > 1 ? clis[prevCliId === -1 ? 0 : 1] : clis[0];//Swarm.getClient(v => v.connected && v.lobbyInit);
 
             if (!cli) {
                 tries++; cantRedeem = true;
@@ -127,7 +132,7 @@ export default new ClientEvent("messageCreate", async function (msg) {
             }
 
             // TODO: replace the stupid sleep thing which no doubt will have blocked synchronous crap.
-            if ((i + 1) !== len) await sleep(5000);
+            if ((i + 1) !== len) await sleep(cli.connected && clis.length > 1 ? 3000 : 5000);
         }
     }
 
@@ -139,7 +144,7 @@ export default new ClientEvent("messageCreate", async function (msg) {
     // if (thread.error) return logger.error(thread.error);
 
     await this.rest.channels.createMessage(thread.id, {
-        content: ((cantRedeem && embeds.length === 0) || embeds.length === 0) ? "Analysis Failed" : codes.length + " Code" + (codes.length > 1 ? "s" : "") + " Analysed",
+        content: ((cantRedeem && embeds.length === 0) || embeds.length === 0) ? "<@&1106618493392130081> NW has 'tweeted' a new post, the bot was unable to analyse the codes sadly." : `<@&1106618493392130081> NW has 'tweeted' ${codes.length > 1 ? "a couple of" : "a"} code${codes.length > 1 ? "s" : ""}.\nThey were redeemed and analysed.`,
         embeds: (embeds.length) ? embeds : [], files
     }).catch(err => { Logger.getLogger("Twitter").error(err); })
 
