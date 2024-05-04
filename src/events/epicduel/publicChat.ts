@@ -1,5 +1,7 @@
 import Config from "../../config/index.js";
+import RoomManager from "../../game/module/RoomManager.js";
 import DatabaseManager from "../../manager/database.js";
+import ImageManager from "../../manager/image.js";
 import Logger from "../../manager/logger.js";
 import { countCommonStrings, findIndex } from "../../util/Misc.js";
 import EDEvent from "../../util/events/EDEvent.js";
@@ -132,7 +134,43 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
     } else hydra.cache.edChat[author.charId] = { msg: [{c: content, t: time }], mutedUntil: undefined, repeats: 0, ignores: [] };
 
+    const roomRecord = RoomManager.getRoomRecord2(this.smartFox.getActiveRoomFr().name);
+
+    let webGuy = {
+        username: undefined,
+        avatarURL: undefined
+    } as Record<"username" | "avatarURL", string|undefined>;
+
+    if (roomRecord) {
+        // The room record exists so we'll check for a merchant, and use it instead of default profile.
+
+        if (roomRecord.merchants.length) {
+            for (let i = 0, len = roomRecord.merchants.length; i < len; i++) {
+                const merc = roomRecord.merchants[i];
+
+                const npc = this.boxes.merchant.objMap.get(merc);
+
+                if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
+                    webGuy.username = npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
+                    webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink;
+
+                    if (npc.mercName === "VendBot") {
+                        // Or rather stick to default...
+                        webGuy.avatarURL = undefined;
+                        webGuy.username = undefined;
+                        break;
+                    }
+
+                    // Let's stick with a bot!
+                    if (npc.mercName.toLowerCase().includes("bot")) break;
+                }
+            }
+        }
+    }
+
     hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
         wait: false, content: "**" + ((author.charName) ? author.charName + "**" + ' (**' + author.charId + '**)' : author.charId + "**") + ': ' + message,
+        username: webGuy.username,
+        avatarURL: webGuy.avatarURL,
     }).catch(e => {console.log(e)});
 })

@@ -1262,6 +1262,16 @@ export default class RoomManager {
 
         return list;
     }
+
+    // Custom
+    /**
+     * This will take a Room or the room name with the world index as well.
+     */
+    static getRoomRecord2(room: Room | string) {
+        let rName = this.getRoomBaseName(typeof room === "string" ? room : room.getName());
+
+        return this.getRoomRecord(rName);
+    }
 }
 
 RoomManager["init"]();
