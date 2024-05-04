@@ -12,7 +12,7 @@ export default new ClientEvent("messageCreate", async function (msg) {
 
     if (msg.channelID !== "1106617499291746445") return; //&& msg.webhookID !== "1106621206658040001") return;
 
-    const criteria = msg.webhookID === "1106621206658040001" || (msg.content.startsWith("twit ") && this.isMaintainer(msg.author.id));
+    const criteria = msg.author.id === "1106621206658040001" || (msg.content.startsWith("twit ") && this.isMaintainer(msg.author.id));
 
     // Not from a tweetshift webhook or from a maintainer authorised intervention.
     if (!criteria) return;
@@ -24,12 +24,12 @@ export default new ClientEvent("messageCreate", async function (msg) {
             .catch(e => Logger.getLogger("Twitter").error(e));//msg.channel?.createMessage({ content: "a" }));
     }
 
-    if (!message.embeds.length) return;
-    if (!message.embeds[0].author?.name.includes("Nightwraith")) return;
+    if (!message.embeds.length) return Logger.getLogger("Twitter").debug("No embeds...");
+    if (!message.embeds[0].author?.name.includes("Nightwraith")) return Logger.getLogger("Twitter").debug("Not from NightWraith...");
 
     const txt = message.embeds[0].description?.replace(/\n/g, " ").split(" ");
 
-    if (!txt || !txt.some(v => v.toLowerCase().includes("edcodes"))) return;
+    if (!txt || !txt.some(v => v.toLowerCase().includes("edcodes"))) return Logger.getLogger("Twitter").debug("No codes...");
 
     const codes = map(filter(txt, v => v.length && v === v.toUpperCase()), v => v.trim());
 
