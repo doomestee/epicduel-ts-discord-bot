@@ -152,7 +152,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
                 if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
                     webGuy.username = npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
-                    webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink;
+                    webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
 
                     if (npc.mercName === "VendBot") {
                         // Or rather stick to default...
