@@ -108,12 +108,10 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
             }
         }
 
-        console.log(AchievementSBox.CATEGORY_WAR);
         for (let i = 0, len = result.length; i < len; i++) {
             const cheevo = result[i];
 
             if (cheevo.categoryId === AchievementSBox.CATEGORY_WAR && cheevo.achDetails.includes("Earned # Influence ")) {
-                console.log([misc["Estimated Influence"].count, cheevo.count]);
                 misc["Estimated Influence"].count += cheevo.count;
             }
 

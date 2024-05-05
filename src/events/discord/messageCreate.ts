@@ -49,17 +49,18 @@ export default new ClientEvent("messageCreate", async function (msg) {
     let files:File[] = [];
 
     let prevCliId = -1;
+    let ignoreIds:number[] = [];
 
     if (!cantRedeem) {
-        for (let i = 0, len = codes.length; i < len; i++) {
-            const clis = filter(Swarm["clients"].concat(Swarm["purgatory"]), v => v.connected && v.lobbyInit);
+        codey: for (let i = 0, len = codes.length; i < len; i++) {
+            const clis = filter(Swarm["clients"].concat(Swarm["purgatory"]), v => v.connected && v.lobbyInit && !ignoreIds.includes(v.settings.id));
 
             // For now, it will only pick at least one of two possible clients.
             const cli = clis.length > 1 ? find(clis, v => prevCliId === -1 ? true : v.settings.id !== prevCliId) : clis[0];
 
             // const cli = clis.length > 1 ? clis[prevCliId === -1 ? 0 : 1] : clis[0];//Swarm.getClient(v => v.connected && v.lobbyInit);
 
-            if (!cli) {
+            if (!cli || tries > 5) {
                 tries++; cantRedeem = true;
 
                 break; // For now, this is somehow inducing the most, MASSIVE memory leak every 4pm GMT when a first star saber of the day drops... just... what?
@@ -73,7 +74,7 @@ export default new ClientEvent("messageCreate", async function (msg) {
             }
 
             // The previous client disconnected, this happens when the previous client is half dead so will be retrying.
-            if (prevCliId !== -1 && prevCliId !== cli.settings.id) i--;
+            // if (prevCliId !== -1 && find(clis, v => v.settings.id === prevCliId) === undefined) i--;
             // else {
                 prevCliId = cli.settings.id;
             // }
@@ -130,6 +131,24 @@ export default new ClientEvent("messageCreate", async function (msg) {
                             }
                             break;
                     }
+                }
+            } else {
+                Logger.getLogger("Code").debug(`Unable to redeem the code ${codes[i]} from client ID: ${cli.settings.id} due to: ${code.details}.`);
+
+                switch (code.details) {
+                    // TODO: pick the highest or lowest level char based on the error.
+                    case "Level too high":
+                    case "Level too low":
+                    case "Already redeemed":
+                        ignoreIds.push(cli.settings.id);
+                        break;
+                    case "Invalid code":
+                    case "Expired code":
+                        break;
+                    case "Timeout":
+                        i--;
+                        tries++;
+                        continue codey;
                 }
             }
 
