@@ -71,11 +71,41 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
                 acquired: true,
             },
             
-            Influence: {
-                desc: "Accumulation of war influence.",
+            "Estimated Influence": {
+                desc: "Accumulation of war influence.\nNOTE: This is estimated based on the achievements!",
                 emoji: emojify("1201198130402701393", "influence"),
                 count: 0
-            },   
+            },
+
+            "Super Bomber": {
+                desc: "Used no. of upgraded War Items.",
+                count: 0,
+            },
+
+            "War Hero": {
+                desc: "Awarded for having the most Influence in a day.",
+                count: 0
+            },
+
+            "World Domination": {
+                desc: "Awarded to factions with the most Influence at the end of the day.",
+                count: 0,
+            },
+
+            "Daily Solo Champion": {
+                desc: "Won the most solo battle victories during the day.",
+                count: 0
+            },
+
+            "Daily Team Champion": {
+                desc: "Won the most solo battle victories during the day.",
+                count: 0
+            },
+
+            "Daily Jugg Champion": {
+                desc: "Won the most solo battle victories during the day.",
+                count: 0
+            }
         }
 
         console.log(AchievementSBox.CATEGORY_WAR);
@@ -83,8 +113,8 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
             const cheevo = result[i];
 
             if (cheevo.categoryId === AchievementSBox.CATEGORY_WAR && cheevo.achDetails.includes("Earned # Influence ")) {
-                console.log([misc.Influence.count, cheevo.count]);
-                misc.Influence.count += cheevo.count;
+                console.log([misc["Estimated Influence"].count, cheevo.count]);
+                misc["Estimated Influence"].count += cheevo.count;
             }
 
             // if (cheevo.categoryId === AchievementSBox.CATEGORY_ULTRA_RARE) {
@@ -94,6 +124,15 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
                 else if (cheevo.achId === 89)  misc.Beta.acquired = true;
                 else if (cheevo.achId === 7)   misc.Founder.acquired = true;
             // }
+
+            else if (cheevo.achGroup === 19) misc["Super Bomber"].count += cheevo.count;
+
+            else if (cheevo.achGroup === 97) misc["War Hero"].count += cheevo.count;
+            else if (cheevo.achGroup === 98) misc["World Domination"].count += cheevo.count;
+
+            else if (cheevo.achGroup === 94) misc["Daily Solo Champion"].count += cheevo.count;
+            else if (cheevo.achGroup === 95) misc["Daily Team Champion"].count += cheevo.count;
+            else if (cheevo.achGroup === 96) misc["Daily Jugg Champion"].count += cheevo.count;
         }
 
         return interaction.createFollowup({
@@ -102,7 +141,7 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
                 description: map(Object.entries(misc), ([key, val]) => {
                     if ("acquired" in val) {
                         return `**${key}**: ${val.acquired ? "<:GreenTick:1236716052746993875>" : "<:RedTick:1236716079397732393>"}\n*${val.desc}*`
-                    } else return `**Estimated ${key}**: ${val.count}\n*${val.desc}*NOTE: This is estimated based on the achievements!`;
+                    } else return `**${key}**: ${val.count}\n*${val.desc}*`;
                 }).join("\n\n"),//`Founder: ${misc.Founder.acquired ? "<GreenTick:1236716052746993875>" : "<:RedTick:1236716079397732393>"}\n`,
                 footer: {
                     text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
