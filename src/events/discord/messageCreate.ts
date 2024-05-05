@@ -8,6 +8,8 @@ import { Item } from "../../Models/Item.js";
 
 export default new ClientEvent("messageCreate", async function (msg) {
     // Jaja
+    if (this.debug) console.log([msg.channelID === "1106617499291746445", msg.content.length, msg.author.id]);
+
     if (msg.channelID === "1106617499291746445" && msg.type === MessageTypes.THREAD_CREATED && msg.author.id === this.user.id) return this.rest.channels.deleteMessage(msg.channelID, msg.id, "pls remove this announcement discord");
 
     if (msg.channelID !== "1106617499291746445") return; //&& msg.webhookID !== "1106621206658040001") return;
