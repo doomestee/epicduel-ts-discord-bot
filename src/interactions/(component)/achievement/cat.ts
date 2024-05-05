@@ -82,6 +82,11 @@ export default new Command(CommandType.Component, { custom_id: "achiev_cat_<char
                 type: ComponentTypes.BUTTON, customID: "achiev_menu_" + charId + "_" + (userId === "000" ? interaction.user.id : userId) + "_1_" + filters.join("-"),
                 style: ButtonStyles.PRIMARY, label: ">", disabled: (0 >= (Math.ceil(filtered.length / 8) - 1))
             }]
+        }, {
+            type: 1, components: [{
+                type: ComponentTypes.BUTTON, customID: `achiev_summary_${charId}_${userId}`,
+                style: ButtonStyles.PRIMARY, label: "See Summary", emoji: { name: "🧻", id: null }
+            }]
         }];
 
         return interaction.editOriginal({

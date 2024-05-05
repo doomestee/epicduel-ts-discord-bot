@@ -97,6 +97,11 @@ export default new Command(CommandType.Component, { custom_id: "achiev_menu_<cha
                 type: ComponentTypes.BUTTON, customID: "achiev_menu_" + charId + "_" + (userId === "000" ? interaction.user.id : userId) + "_" + (parseInt(pageNumber) + 1) + "_" + category,
                 style: ButtonStyles.PRIMARY, label: ">", disabled: (parseInt(pageNumber) >= (Math.ceil(filtered.length / 8) - 1))
             }]
+        }, {
+            type: 1, components: [{
+                type: ComponentTypes.BUTTON, customID: `achiev_summary_${charId}_${userId}`,
+                style: ButtonStyles.PRIMARY, label: "See Summary", emoji: { name: "🧻", id: null }
+            }]
         }];
 
         return (userId === "000" ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction))({
