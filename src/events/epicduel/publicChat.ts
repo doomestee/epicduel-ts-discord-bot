@@ -166,6 +166,22 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                     if (npc.mercName.toLowerCase().includes("bot")) break;
                 }
             }
+        } else {
+            if (this.settings.id !== 1) {
+                if (roomRecord.objectiveId > 0) {
+                    const obj = this.boxes.war.getObjectiveById(roomRecord.objectiveId);
+
+                    if (obj) {
+                        const region = this.boxes.war.getRegionById(obj?.regionId);
+
+                        if (region) {
+                            webGuy.username = obj.objTitle;
+                            webGuy.avatarURL = "https://i.doomester.one/ed/war/IconWarObjItem" + region.defenseSuperItemId + ".png";
+
+                        } // how tf
+                    }
+                }
+            }
         }
     }
 

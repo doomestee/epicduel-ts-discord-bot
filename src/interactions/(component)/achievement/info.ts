@@ -119,7 +119,7 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
                 else if (cheevo.achId === 170) misc.Omega.acquired = true;
                 else if (cheevo.achId === 89)  misc.Delta.acquired = true;
                 else if (cheevo.achId === 63)  misc.Gamma.acquired = true;
-                else if (cheevo.achId === 89)  misc.Beta.acquired = true;
+                else if (cheevo.achId === 2)   misc.Beta.acquired = true;
                 else if (cheevo.achId === 7)   misc.Founder.acquired = true;
             // }
 

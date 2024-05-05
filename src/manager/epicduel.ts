@@ -472,6 +472,11 @@ export default class Swarm {
 
             const availClis = filter(this.clients.concat(this.purgatory), v => v.settings.scalable);
 
+            // Loop first anyways, for now it will keep the clients alive until they later disconnect on their own.
+            for (let i = 0, len = availClis.length; i < len; i++) {
+                availClis[i].settings.reconnectable = false;
+            }
+
             for (let i = 0, len = filtered.length; i < len; i++) {
                 // Already in list so use this.
                 if (availClis[i]) {
@@ -482,7 +487,7 @@ export default class Swarm {
                     }
                     else if (availClis[i]["isFresh"]) availClis[i]["connect"]();
 
-                    return;
+                    continue;
                 }
 
                 const queued = this.loginQueue();

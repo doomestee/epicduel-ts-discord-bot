@@ -19,7 +19,7 @@ export default class MissionGroupRecord {
         this.groupId = parseInt(obj[MissionGroupRecord.FIELD_groupId]);
         this.groupName = String(obj[MissionGroupRecord.FIELD_groupName]);
         this.categoryId = parseInt(obj[MissionGroupRecord.FIELD_categoryId]);
-        this.isActive = Boolean(obj[MissionGroupRecord.FIELD_isActive]);
+        this.isActive = (obj[MissionGroupRecord.FIELD_isActive]) === "1";
         this.groupOrder = parseInt(obj[MissionGroupRecord.FIELD_groupOrder]);
         this.groupIdReq = parseInt(obj[MissionGroupRecord.FIELD_groupIdReq]);
     }

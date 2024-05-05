@@ -57,7 +57,7 @@ export default class CharacterInvRecord {
         this.unlockedLevel = Number(obj[CharacterInvRecord.FIELD_unlockedLevel]);
         this.creditSpend = Number(obj[CharacterInvRecord.FIELD_creditSpend]);
         this.variumSpend = Number(obj[CharacterInvRecord.FIELD_variumSpend]);
-        this.isBanked = (obj[CharacterInvRecord.FIELD_isBanked]) == "0";
+        this.isBanked = (obj[CharacterInvRecord.FIELD_isBanked]) == "1";
         this.invQty = Number(obj[CharacterInvRecord.FIELD_invQty]) || 1;
     }
 }

@@ -20,7 +20,7 @@ export default class WarObjectiveStaticRecord {
     constructor(obj: any) {
         this.objectiveId = parseInt(obj[WarObjectiveStaticRecord.FIELD_objectiveId]);
         this.regionId = parseInt(obj[WarObjectiveStaticRecord.FIELD_regionId]);
-        this.isMainObj = Boolean(obj[WarObjectiveStaticRecord.FIELD_isMainObj]);
+        this.isMainObj = (obj[WarObjectiveStaticRecord.FIELD_isMainObj]) === "1";
         this.objTitle = String(obj[WarObjectiveStaticRecord.FIELD_objTitle]);
         this.objType = parseInt(obj[WarObjectiveStaticRecord.FIELD_objType]);
         this.objStates = parseInt(obj[WarObjectiveStaticRecord.FIELD_objStates]);
