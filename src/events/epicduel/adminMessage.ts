@@ -185,6 +185,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list.splice(0);
                     const lastTime = this.swarm.resources.tracker.war.startedSince;
 
+                    if (list.length === 0) break; // No war bombs were collected.
+
                     // this.swarm.resources.tracker.war.list = [];
                     this.swarm.resources.tracker.war.startedSince = time;
 
