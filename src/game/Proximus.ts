@@ -2673,7 +2673,7 @@ export default class Client {
     //     return result;
     // }
 
-    async redeemCode(code: string) : Promise<{ status: true, prizes: RedeemedPrizes}|{ status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed" }> {
+    async redeemCode(code: string) : Promise<{ status: true, prizes: RedeemedPrizes}|{ status: false, details: "Invalid code"|"Expired code"|"Level too high"|"Level too low"|"Already redeemed"|"Timeout" }> {
 
         const waited = waitFor(this.smartFox, "redeem_code", undefined, 3000);
         this.smartFox.sendXtMessage("main", Requests.REQUEST_SUBMIT_CODE, {code: code}, 1, "json");
