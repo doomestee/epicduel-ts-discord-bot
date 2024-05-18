@@ -289,8 +289,8 @@ export default class WarManager extends BaseModule {
             exile: [wr.offenseItemId, wr.offenseSuperItemId],
             legion: [wr.defenseItemId, wr.defenseSuperItemId],
         }; return {
-            exile: [wr.defenseItemId, wr.defenseSuperItemId],
-            legion: [wr.offenseItemId, wr.offenseSuperItemId],
+            exile: [wr.offenseItemId, wr.offenseSuperItemId],
+            legion: [wr.defenseItemId, wr.defenseSuperItemId],
         }
     }
 
