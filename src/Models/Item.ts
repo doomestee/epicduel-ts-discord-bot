@@ -148,7 +148,7 @@ export class Item {
 
             // In case there's an unreleased core item in game, but its skill info is not yet released.
             if ((skill && ImageManager.has("cores", skill.skillLink + ".png")) || ImageManager.has("cores", item.itemLinkage + ".png")) {
-                files.push({ name: "core.png", contents: await readFile(Config.dataDir + "/assets/cores/" + (skill?.skillLink ?? item.itemLinkage) + ".png") });
+                files.push({ name: "core-" + skill?.skillId + ".png", contents: await readFile(Config.dataDir + "/assets/cores/" + (skill?.skillLink ?? item.itemLinkage) + ".png") });
 
                 embeds[0].thumbnail = { url: "attachment://core-" + skill?.skillId + ".png" };
             }
