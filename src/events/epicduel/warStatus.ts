@@ -174,11 +174,20 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
         case "char_used":
             if (!checkTime("bomb", time, obj.name, obj.influence)) return;
 
+            const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
+            const bombsToType = this.modules.WarManager.getAlignMappedByBombId(true);
+
             if (this.swarm.resources.tracker.war.active) this.swarm.resources.tracker.war.list.push({
                 name: obj.name,
                 influence: obj.influence,
                 usedItemId: obj.usedItemId,
-                time: time.getTime()
+                time: time.getTime(),
+                //@ts-expect-error
+                debug: {
+                    align: bombsToAlign[obj.usedItemId],
+                    type: bombsToType[obj.usedItemId],
+                    source: this.settings.id
+                }
             });
             // TODO: track similarly to gift tracker
 

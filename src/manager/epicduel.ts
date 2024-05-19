@@ -456,6 +456,8 @@ export default class Swarm {
             const roomWithObjs = filter(RoomManager.roomVersions, v => v.regionId === cli.modules.WarManager.activeRegionId);//cli.modules.WarManager.currentObjectives(-1);
             const objs = cli.modules.WarManager.currentObjectives(-1);
 
+            const oppAlign = cli.modules.WarManager.getControlAlignmentInActiveRegion();
+
             // Filter through objectives that are done
             const filtered:[WarObjective, RoomManagerRecord][] = [];
 
@@ -465,7 +467,7 @@ export default class Swarm {
 
                 if (!room) throw Error("Conflicting objectives.");
 
-                if (obj.points !== obj.maxPoints) filtered.push([obj, room]);
+                if (obj.points !== obj.maxPoints && obj.alignmentId !== oppAlign) filtered.push([obj, room]);
             }
 
             if (filtered.length > this.appendages.length) Logger.debug("Swarm").warn(`Not enough accounts (currently ${this.appendages.length}) to cover all war objectives ${filtered.length}.`);
