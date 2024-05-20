@@ -36,10 +36,10 @@ if (Config.isDevelopment) appendages.reverse();
  * This will be used for epicduel clients, allowing for shared resources.
  */
 export default class Swarm {
-    /**
-     * 3 seconds (can't be reached), 5 seconds, 10 seconds, 60 seconds, 2 minutes, 5 minutes, 10 minutes, 5 minutes, 30 minutes, 5 minutes, 1 hour, 5 minutes, 1.5 hours.
-     */
-    static delays = [3000, 5000, 10000, 60000, 120000, 300000, 600000, 300000, 1800000, 300000, 3600000, 300000, 5400000, 5000];
+    // /**
+    //  * 3 seconds (can't be reached), 5 seconds, 10 seconds, 60 seconds, 2 minutes, 5 minutes, 10 minutes, 5 minutes, 30 minutes, 5 minutes, 1 hour, 5 minutes, 1.5 hours.
+    //  */
+    // static delays = [3000, 5000, 10000, 60000, 120000, 300000, 600000, 300000, 1800000, 300000, 3600000, 300000, 5400000, 5000];
 
     /**
      * 
@@ -133,7 +133,7 @@ export default class Swarm {
 
         client.connected = false;
 
-        const bools = client.selfDestruct();
+        const bools = client.selfDestruct(true);
 
         let broke = false;
         for (let i = 0, len = bools.length; i < len; i++) {
@@ -153,8 +153,8 @@ export default class Swarm {
 
         // swarm.clients.splice(index, 1);
 
-        if (ev.discParams === "CLIENT_REQUEST_DESTROYED") return;
-        if (!client.settings.reconnectable || swarm.probing) return;
+        // if (ev.discParams === "CLIENT_REQUEST_DESTROYED") return;
+        // if (!client.settings.reconnectable || swarm.probing) return;
 
         // this.client.
     }

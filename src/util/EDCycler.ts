@@ -129,6 +129,12 @@ export default class EDCycler {
                                 this.delayUntil = Date.now() + 1000*60*60;
                                 return false;
                             }
+                            if (err.type === "NO_SERVER") {
+                                Logger.getLogger("Swarm").error("No servers available.");
+                                this.#swarm.probing = true;
+                                purg.selfDestruct(true);
+                                return false;
+                            }
                         }
                         Logger.getLogger("Cycler").error(err);
                         return false;

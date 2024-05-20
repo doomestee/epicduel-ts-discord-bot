@@ -1524,6 +1524,7 @@ export default class Client {
         if (roomName == RoomManager.LOBBY) {
             this.timer.ping.start();
             this.lobbyInit = true;
+            Logger.getLoggerP(this).debug(`Joined the lobby, sending init.`);
             this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
         } else if (room.isBattle) {
             this.battleOver = false;

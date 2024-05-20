@@ -18,6 +18,7 @@ export default class AdminActionManager extends BaseModule {
             case 1:
                 this.secondsLeft = 300;
                 setTimeout(() => {
+                    this.client.swarm.probing = true;
                     //this.client.manager.discord.checkpoints[0] = -1;
                     //this.client.manager.discord.comparisonFiles.skills = this.client.boxes.skills.objList;
                     //this.client.manager.discord.comparisonFiles.item = this.client.boxes.item.objList;
