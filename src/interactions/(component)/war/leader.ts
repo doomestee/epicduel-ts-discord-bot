@@ -66,7 +66,7 @@ export default new Command(CommandType.Component, { custom_id: "war_leader_selec
             }]
         }, {
             type: 1, components: [{
-                type: 2, label: "Refresh", style: 1, customID: "refresh_war_leader_info_" + variables.userId, disabled: true
+                type: 2, label: "Refresh", style: 1, customID: `refresh_war_leader_info_${variables.alignment}_${variables.mode}_${variables.regionId}_${type === "player" ? 1 : type === "faction" ? 2 : 0}_${userId}`, disabled: type !== "player" && type !== "faction"
             }]
         }]
 

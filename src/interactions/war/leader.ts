@@ -102,7 +102,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "leader"], de
                 }]
             }, {
                 type: 1, components: [{
-                    type: 2, label: "Refresh", style: 1, customID: "refresh_war_leader_info_" + interaction.user.id, disabled: true
+                    type: 2, label: "Refresh", style: 1, customID: `refresh_war_leader_info_${alignId}_${result.mode}_${result.regionId}_1_${interaction.user.id}`, disabled: false,
                 }]
             }],
             files
