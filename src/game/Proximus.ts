@@ -706,7 +706,10 @@ export default class Client {
                 case Responses.RESPONSE_LOGIN_OK:
                     if (dataObj.ver !== this.version) this.currVersion = dataObj.ver; // TODO: idk
                     if (this.swarm.resources.gameVersion !== this.currVersion) {
+                        this.swarm.resources.gameVersion = this.currVersion;
                         this.swarm.resources.clear();
+
+                        this.swarm.probing = false; // Game is alive.
                         // this.swarm.resources["getLang"]();
                     }
 

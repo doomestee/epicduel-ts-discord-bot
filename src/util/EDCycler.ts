@@ -64,7 +64,7 @@ export default class EDCycler {
             try {
                 const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotEmail, true);
 
-                if (attempt.servers.length === 0 || attempt.servers.length) {
+                if (attempt.servers.length === 0 || !attempt.servers[0].online) {
                     if (this.debug) Logger.getLogger("Cycler").debug("Probing attempt - no servers.");
                     // Still nothing, waiting another 3 minutes.
                     return this.reassignTimer();
@@ -92,8 +92,10 @@ export default class EDCycler {
                             Logger.getLogger("Swarm").error("Ratelimited, delaying probing by an hour.");
                             this.delayUntil = Date.now() + 1000*60*60;
                             break;
+                        default: Logger.getLogger("Swarm").error(err);
                     }
                 }
+                else Logger.getLogger("Swarm").error(err);
             }
         } else {
             // Look at the first few clients available, currently will do 1 client at a time.
