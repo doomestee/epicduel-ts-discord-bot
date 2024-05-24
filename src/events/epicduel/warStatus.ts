@@ -150,9 +150,11 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             if (!checkTime(obj.type, time)) return;
             if (this.modules.WarManager.activeRegionId < 1) return;
 
-            await this.swarm.getActiveWar(true);
+            setTimeout(() => {
+                this.swarm.getActiveWar(true)
+                    .then(() => this.swarm.scaleFor("war"));
+            }, 4000);
 
-            this.swarm.scaleFor("war");
             // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
             break;
         case "end":

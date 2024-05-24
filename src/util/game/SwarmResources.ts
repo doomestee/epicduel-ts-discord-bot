@@ -81,7 +81,22 @@ export default class SwarmResources {
 
     tracker = {
         war: lazyMakeTracker<TrackedWarUse>("War"),
-        gift: lazyMakeTracker<Gift>("Gift")
+        gift: lazyMakeTracker<Gift>("Gift"),
+        // TODO: simplify this if we get another similar unorthodox tracker.
+        player: {
+            active: true,
+            chars: {
+                9130082: { lastJugg: [-1, -1], time: -1 },
+            } as Record<number, { lastJugg: [number, number], time: number }>,
+
+            idToChar: {
+                9130082: "Despair"
+            } as Record<number, string>,
+
+            charToId: {
+                "Despair": 9130082
+            }
+        }
     }
 
     checkpoints = {

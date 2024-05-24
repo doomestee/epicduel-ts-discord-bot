@@ -173,6 +173,41 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         + (v[2].success && v[2].value.length ? `\n### 2v1:\n` + map(v[2].value.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.wins}** wins, ${Math.round((u.wins / u.bat) * 1000) / 10}%, Lv: ${u.misc?.lvl})`).join("\n") : "")//`\n2v1 - ${(juggName) ? "**" + juggName + "**" : "N/A"}` + ((champs.jugg) ? ` (**${champs.jugg.wins}** wins, ${Math.round((champs.jugg.wins/champs.jugg.bat) * 1000)/10}%` + ((champs.jugg.misc && champs.jugg.misc.lvl) ? ", Lv: " + champs.jugg.misc.lvl : "") + ")" : '')
                         + (v[3].success && v[3].value.daily.length ? `\n\n### Gift:\n` + map(v[3].value.daily.slice(0, 5), (u, i) => (i + 1) + ` - **${u.name}** (**${u.point}** gifts)`).join("\n") : "")//giftText
                     }).then((v) => v.crosspost());
+
+                    // Now, for the sake of pissing few people off.
+
+                    if (v[2].success) {
+                        const toId = this.swarm.resources.tracker.player.charToId;
+
+                        let str = ``;
+
+                        for (let i = 0, len = v[2].value.length; i < len; i++) {
+                            const m = v[2].value[i];
+
+                            //@ts-expect-error
+                            if (toId[m.name] !== undefined) {
+                                const charId = toId[m.name as "Despair"];
+                                const track = this.swarm.resources.tracker.player.chars[charId];
+
+                                if (track.lastJugg[0] !== -1) {
+                                    if (track.lastJugg[1] === m.bat) { track.time = time; continue; }
+    
+                                    str += `**${m.name}** gained ${track.lastJugg[0] - m.wins} wins (${track.lastJugg[1] - m.bat} more battles, ${Math.round(((track.lastJugg[0] - m.wins)/(track.lastJugg[1] - m.bat)) * 1000) / 10}%)\nOverall battle: ${m.bat}, wins: ${m.wins} - ${Math.round((m.wins / m.bat) * 1000) / 10}%\nTracked from <t:${Math.floor(track.time/1000)}:T> to <t:${Math.floor(time / 1000)}:T>.\n\n`;
+                                }
+
+
+                                track.lastJugg = [m.wins, m.bat];
+                                track.time = time;
+                            }
+                        }
+
+                        if (str.length !== 0) {
+                            hydra.rest.channels.createMessage("1243557222668046396", {
+                                content: str.trim()
+                            });
+                        }
+                    }
+
                 }, (err) => {
                     hydra.rest.channels.createMessage("1095797998275014767", {
                         content: `__Today's ${hoursLeft === 0 ? "Daily" : "Hourly"} Champions:__\n1v1 - ${soloName}\n2v2 - ${teamName}\n2v1 - ${juggName}`
