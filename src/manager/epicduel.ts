@@ -432,7 +432,7 @@ export default class Swarm {
         return this.clients.length + this.purgatory.length;
     }
 
-    static scaleFor(type: "war", reverse: boolean = false) {
+    static scaleFor(type: "war" | "vendbot", reverse: boolean = false) {
         Logger.getLogger("Swarm").debug("Requested to " + (reverse ? "down" : "") + "scale, type: " + type);
 
         const cli = this.getClient(v => v.connected && v.lobbyInit);
@@ -499,6 +499,52 @@ export default class Swarm {
                 queued.settings.reconnectable = true;
                 queued.settings.scalable = true;
                 queued.settings.startRoom = filtered[i][1].roomName + "_0";
+                queued["isFresh"] = false;
+                queued.selfDestruct();
+            }
+        } else {
+            if (reverse) {
+                const clis = this.clients.concat(this.purgatory);
+
+                for (let i = 0, len = clis.length; i < len; i++) {
+                    if (clis[i].settings.scalable) {
+                        clis[i].settings.reconnectable = false;
+                        clis[i].smartFox.disconnect();
+                    }
+                }
+
+                return true;
+            }
+
+            if (8 > this.appendages.length) Logger.debug("Swarm").warn(`Not enough accounts (currently ${this.appendages.length}) to cover all rooms.`);
+
+            const availClis = filter(this.clients.concat(this.purgatory), v => v.settings.scalable);
+
+            // Loop first anyways, for now it will keep the clients alive until they later disconnect on their own.
+            for (let i = 0, len = availClis.length; i < len; i++) {
+                availClis[i].settings.reconnectable = false;
+            }
+
+            for (let i = 0; i < 8; i++) {
+                // Already in list so use this.
+                if (availClis[i]) {
+                    availClis[i].settings.reconnectable = true;
+                    availClis[i].settings.startRoom = RoomManager.TRAIN_HUB_RIGHT + "_" + (i + 1);//filtered[i][1].roomName + "_0";
+                    if (availClis[i]["connected"]) {
+                        availClis[i].joinRoom(availClis[i].settings.startRoom);
+                    }
+                    else if (availClis[i]["isFresh"]) availClis[i]["connect"]();
+
+                    continue;
+                }
+
+                const queued = this.loginQueue();
+                
+                if (queued === false) break;
+
+                queued.settings.reconnectable = true;
+                queued.settings.scalable = true;
+                queued.settings.startRoom = RoomManager.TRAIN_HUB_RIGHT + "_" + (i + 1);//filtered[i][1].roomName + "_0";
                 queued["isFresh"] = false;
                 queued.selfDestruct();
             }
