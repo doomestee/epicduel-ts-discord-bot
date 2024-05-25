@@ -158,7 +158,11 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                         // Or rather stick to default...
                         webGuy.avatarURL = undefined;
 
-                        if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) webGuy.username = undefined;
+                        if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) {
+                            const wId = this.smartFox.getActiveRoomFr().name.slice(-1);
+
+                            if (wId !== "0") webGuy.username += " (World " + wId + ")";//= "VendBot at " + this.smartFox.getActiveRoomFr().name.slice(-1);
+                        }
                         break;
                     }
 
