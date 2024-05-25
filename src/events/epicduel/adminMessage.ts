@@ -192,7 +192,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                                 if (track.lastJugg[0] !== -1) {
                                     if (track.lastJugg[1] === m.bat) { track.time = time; continue; }
     
-                                    str += `**${m.name}** gained ${m.wins - track.lastJugg[0]} wins (${m.bat - track.lastJugg[1]} more battles, ${Math.round(((m.wins - track.lastJugg[0])/(m.bat - track.lastJugg[1])) * 1000) / 10}%)\nOverall battle: ${m.bat}, wins: ${m.wins} - ${Math.round((m.wins / m.bat) * 1000) / 10}%\nTracked from <t:${Math.floor(track.time/1000)}:T> to <t:${Math.floor(time / 1000)}:T>.\n\n`;
+                                    str += `**${m.name}** gained ${m.wins - track.lastJugg[0]} wins (${m.bat - track.lastJugg[1]} battles, ${Math.round(((m.wins - track.lastJugg[0])/(m.bat - track.lastJugg[1])) * 1000) / 10}%)\nOverall battle: ${m.bat}, wins: ${m.wins} - ${Math.round((m.wins / m.bat) * 1000) / 10}%\nTracked from <t:${Math.floor(track.time/1000)}:T> to <t:${Math.floor(time / 1000)}:T>.\n\n`;
                                 }
 
 
