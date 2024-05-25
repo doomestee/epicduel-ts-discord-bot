@@ -110,7 +110,7 @@ export default class DatabaseManager {
             if (k === 0) str += " WHERE ";
         }
 
-        console.log([`UPDATE ${table} SET ${str}`, values.flat()]);
+        if (Config.isDevelopment) console.log([`UPDATE ${table} SET ${str}`, values.flat()]);
 
         return this.cli.query(`UPDATE ${table} SET ${str}`, values.flat());
     }

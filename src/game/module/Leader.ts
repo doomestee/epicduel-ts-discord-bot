@@ -1,10 +1,13 @@
-import { parse } from "path";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import SmartFoxClient from "../sfs/SFSClient.js";
 import BaseModule from "./Base.js";
 import CacheManager from "../../manager/cache.js";
 import { WaitForResult, waitFor } from "../../util/WaitStream.js";
+import { CharPage, CharPageResult, filter, find, findIndex, getCharPage, map } from "../../util/Misc.js";
+import DatabaseManager, { quickDollars } from "../../manager/database.js";
+import { ICharacter } from "../../Models/Character.js";
+import Logger from "../../manager/logger.js";
 
 // function quickResult(result: Array<any>, func: ())
 
@@ -89,6 +92,12 @@ export default class Leader extends BaseModule {
         Faction: [7, 10, 8, 9, 19, 12, 5, 6, 18],
         Char: [1, 2, 16, 11, 14, 13, 21, 22, 3, 4, 17, 15, 20]
     };
+
+    /**
+     * List of character names, shared between all clients here, that are ignored when fetching.
+     * (LOWER CAPITALISED)
+     */
+    static ignoreJuggs:string[] = [];
 
     constructor(public client: Client) {
         super();
@@ -337,6 +346,9 @@ export default class Leader extends BaseModule {
         this.client.smartFox.emit("leader_lb", result, version);
     }
 
+    /**
+     * NOTE: If it's DAILY CHAR JUGG leaderboard, all the char names will get automatically fetched, this will make this fetching take a significantly long time.
+     */
     async fetch<T extends LeaderType = LeaderType>(type: T) : Promise<WaitForResult<Array<LeaderTypeToList[T]>>> {
         const cache = CacheManager.check("leaders", type);
 
@@ -345,7 +357,78 @@ export default class Leader extends BaseModule {
         const wait = waitFor(this.client.smartFox, "leader_lb", [1, type], 3500);
         this.sendRequest(type);
 
-        //@ts-expect-error
+        if (type === Leader.Indexes.Daily.Jugg) {
+            const waited = await wait; // yes
+
+            //@ts-expect-error
+            if (!waited.success || waited.value.length === 0) return waited;
+
+            const list = waited.value as CacheTypings.PlayerLeaderPvp[];
+            const names = map(list, c => c.name.toLowerCase()); // Converting cos there's an index only for lowercase'd names..
+
+            const { rows: chars } = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE lower(name) IN (${quickDollars(names.length)})`, names);
+
+            for (let i = 0, len = chars.length; i < len; i++) {
+                if (this.client.swarm.resources.tracker.player.idToChar[chars[i].id] !== undefined) {
+                    this.client.swarm.resources.tracker.player.idToChar[chars[i].id] = chars[i].name;
+                    this.client.swarm.resources.tracker.player.charToId[chars[i].name as "Despair"] = chars[i].id;
+                }
+            }
+
+            //@ts-expect-error
+            if (names.length === chars.length) return waited;
+
+            const missings = filter(names, n => !Leader.ignoreJuggs.includes(n) && findIndex(chars, c => c.name.toLowerCase() === n) === -1);
+
+            //@ts-expect-error
+            if (missings.length === 0) return waited;
+
+            let charPgs:CharPage[] = [];
+
+            for (let i = 0, len = missings.length; i < len; i++) {
+                //@ts-expect-error
+                charPgs.push(getCharPage(missings[i]).then(v => {
+                    if (!v.success) Leader.ignoreJuggs.push(missings[i]); // For unviewable characters, such as Musashi.
+
+                    return v;
+                }));
+            }
+
+            // Why the hell does process.exit() work
+            charPgs = map(filter(await Promise.all(charPgs as unknown as Promise<CharPageResult>[]), v => v.success), v => v.success ? v.result : process.exit(1));//(Promise.all(charPgs) as CharPageResult[]), v => v.success);
+
+            const { rows: existings } = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE id IN (${quickDollars(charPgs.length)})`, map(charPgs, c => c.charId));
+
+            const proms:Promise<any>[] = [];
+
+            for (let i = 0, len = charPgs.length; i < len; i++) {
+                const exist = find(existings, v => v.id === parseInt(charPgs[i].charId));
+                
+                if (exist === undefined) { Leader.ignoreJuggs.push(charPgs[i].charName.toLowerCase()); continue; }
+
+                if (this.client.swarm.resources.tracker.player.idToChar[exist.id] !== undefined) {
+                    this.client.swarm.resources.tracker.player.idToChar[exist.id] = charPgs[i].charName;
+                    this.client.swarm.resources.tracker.player.charToId[charPgs[i].charName as "Despair"] = exist.id;
+                }
+
+                const user = charPgs[i];
+
+                proms.push(
+                    DatabaseManager.update("character", { id: exist.id, user_id: exist.user_id }, { name: user.charName, fame: user.charLikes }),
+
+                    DatabaseManager.cli.query(`SELECT * FROM character_name WHERE id = $1 ORDER BY last_seen desc LIMIT 1`, [user.charId])
+                        .then(v => {
+                            if (v.rows.length && v.rows[0].name.toLowerCase() === user.charName.toLowerCase()) {
+                                return DatabaseManager.cli.query(`UPDATE character_name SET last_seen = $1 WHERE o_id = $2 `, [new Date(), v.rows[0]["o_id"]]);
+                            } else return DatabaseManager.cli.query(`INSERT INTO character_name (id, name) VALUES ($1, $2)`, [user.charId as unknown as string, user.charName]);
+                        }).catch(e => Logger.getLogger("CharTracker").error(e))
+                );
+            }
+
+            await Promise.all(proms);
+        }
+
+        // @ts-expect-error
         return wait;
     }
 
