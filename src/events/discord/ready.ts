@@ -11,11 +11,11 @@ let once = false;
 export default new ClientEvent("ready", function () {
     Logger.getLogger("Bot").info(`Bot took ${(Date.now() - this.connectedAt)/1000} seconds to connect!`)
 
-    this.editStatus("invisible", []);
+    // this.editStatus("invisible", []);
 
-    // this.editStatus("online", [{
-    //     name: "the screams", type: ActivityTypes.LISTENING
-    // }]);
+    this.editStatus("online", [{
+        name: "the screams, the terror and the agony", type: ActivityTypes.LISTENING
+    }]);
 
     if (!once) {
         once = true;
