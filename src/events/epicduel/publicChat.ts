@@ -155,13 +155,11 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                     webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
 
                     if (npc.mercName === "VendBot") {
-                        // Or rather stick to default...
-                        webGuy.avatarURL = undefined;
-
                         if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) {
                             const wId = this.smartFox.getActiveRoomFr().name.slice(-1);
 
-                            if (wId !== "0") webGuy.username += " (World " + wId + ")";//= "VendBot at " + this.smartFox.getActiveRoomFr().name.slice(-1);
+                            if (wId !== "0") webGuy.username = "VendBot (World " + wId + ")";//= "VendBot at " + this.smartFox.getActiveRoomFr().name.slice(-1);
+                            // else webGuy.username = "VendBot";
                         }
                         break;
                     }
