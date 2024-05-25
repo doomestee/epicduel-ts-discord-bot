@@ -87,11 +87,11 @@ export default class SwarmResources {
             active: true,
             chars: {
                 9130082: { lastJugg: [-1, -1], time: -1 },
-            } as Record<number, { lastJugg: [number, number], time: number }>,
+            } as Record<number | string, { lastJugg: [number, number], time: number }>,
 
             idToChar: {
                 9130082: "Despair"
-            } as Record<number, string>,
+            } as Record<number | string, string>,
 
             charToId: {
                 "Despair": 9130082

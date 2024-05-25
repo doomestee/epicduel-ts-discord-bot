@@ -336,6 +336,13 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
             if (hoursLeft == 0) {
                 this.famed = {};
+
+                const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+
+                for (let i = 0, len = keys.length; i < len; i++) {
+                    this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [-1, -1];
+                    this.swarm.resources.tracker.player.chars[keys[i]].time = -1;
+                }
             } else {
                 if (obj.powerHourMultiplier == 2) {
                     //this.manager.discord.emit("epicduel_power_hour", hoursLeft);
