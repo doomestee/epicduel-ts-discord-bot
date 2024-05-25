@@ -430,7 +430,7 @@ export async function getCharPage(charName: string) : Promise<CharPageResult> {
             result[v[0] as "rating"] = v[1];
         });
 
-        if (Object.keys(result).length === 1) return { success: true, result: {} as CharPage };
+        if (Object.keys(result).length === 1) return { success: false, extra: { r: "No character found." } };
 
         return { success: true, result };
     }

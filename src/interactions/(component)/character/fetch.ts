@@ -129,7 +129,10 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
 
         const respond = (type === "1") ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction);
 
-        if (!charPg.success) return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64 });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
+        if (!charPg.success) {
+            interaction.message.components[0].components[0].disabled = true;
+            return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64, components: interaction.message.components });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
+        }
 
         if (Object.keys(charPg.result).length < 2) return respond({ content: "The character doesn't exist" + (type === "1" ? ", may be using a different name now" : "") + ".\nCharacter searched: `" + charPgName + "`", components: []});
 
