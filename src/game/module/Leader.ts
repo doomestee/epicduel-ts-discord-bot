@@ -357,13 +357,13 @@ export default class Leader extends BaseModule {
         const wait = waitFor(this.client.smartFox, "leader_lb", [1, type], 3500);
         this.sendRequest(type);
 
-        if (type === Leader.Indexes.Daily.Jugg) {
+        if (Leader.Indexes.Char.includes(type)) {
             const waited = await wait; // yes
 
             //@ts-expect-error
             if (!waited.success || waited.value.length === 0) return waited;
 
-            const list = waited.value as CacheTypings.PlayerLeaderPvp[];
+            const list = waited.value as CacheTypings.AnyPlayerLeaders[];
             const names = map(list, c => c.name.toLowerCase()); // Converting cos there's an index only for lowercase'd names..
 
             const { rows: chars } = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE lower(name) IN (${quickDollars(names.length)})`, names);
