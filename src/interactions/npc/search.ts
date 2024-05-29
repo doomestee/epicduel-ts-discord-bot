@@ -6,8 +6,10 @@ import { SwarmError } from "../../util/errors/index.js";
 import Config from "../../config/index.js";
 import { ButtonComponent, ButtonStyles, ComponentTypes } from "oceanic.js";
 import Swarm from "../../manager/epicduel.js";
-import { getHighestTime } from "../../util/Misc.js";
+import { getHighestTime, map } from "../../util/Misc.js";
 import { replaceHTMLbits } from "../../manager/designnote.js";
+import RoomManager from "../../game/module/RoomManager.js";
+import RoomManagerRecord from "../../game/record/RoomManagerRecord.js";
 
 export default new Command(CommandType.Application, { cmd: ["npc", "search"], category: "NPC", description: "Pulls up the information about an Epicduel npc." })
     .attach('run', async  ({ client, interaction }) => {
@@ -65,6 +67,14 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
             });
         }
 
+        const rooms:RoomManagerRecord[] = [];
+
+        for (let i = 0, len = RoomManager.roomVersions.length; i < len; i++) {
+            const room = RoomManager.roomVersions[i];
+
+            if (room.merchants.includes(merchId)) rooms.push(room);
+        }
+
         return interaction.createFollowup({
             embeds: [{
                 thumbnail: (files.length) ? {
@@ -73,7 +83,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                 /*image: {
                     url: "https://edwiki-image-proxy.cyclic.cloud/image?path=" + lang(merchant.mercName).replace(/[^a-zA-Z0-9]/g, "") + ".png"
                 },*/
-                title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchantId + ")",
+                title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchLvl + ")",
                 description: replaceHTMLbits(Swarm.langCheck(merchant.mercChat)),
                 author: {
                     name: interaction.user.username,
@@ -81,7 +91,11 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                 },
                 footer: {
                     text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
-                }
+                },
+                fields: [{
+                    name: "Location",
+                    value: rooms.length ? `This merchant can be found at:\n` + map(rooms, v => v.roomName + " (" + RoomManager.getRegionNameById(v.regionId) + ")") : `This merchant isn't currently available, or the bot's room internal cache hasn't been updated yet.`
+                }]
             }],
             components: [{
                 type: ComponentTypes.ACTION_ROW, components
