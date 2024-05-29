@@ -87,20 +87,20 @@ export default class SwarmResources {
             active: true,
             chars: {
                 9130082: { lastJugg: [-1, -1], time: -1 },
-                80531: { lastJugg: [-1, -1], time: -1 },
                 8958672: { lastJugg: [-1, -1], time: -1 },
+                9069893: { lastJugg: [-1, -1], time: -1 },
             } as Record<number | string, { lastJugg: [number, number], time: number }>,
 
             idToChar: {
                 9130082: "Despair",
-                80531: "Thaddiemac X",
                 8958672: "CactusChan",
+                9069893: "Vendetta",
             } as Record<number | string, string>,
 
             charToId: {
                 "Despair": 9130082,
-                "Thaddiemac X": 80531,
                 "CactusChan": 8958672,
+                "Vendetta": 9069893,
             }
         }
     }
