@@ -130,8 +130,13 @@ export default new Command(CommandType.Component, { custom_id: "char_fetch_<type
         const respond = (type === "1") ? interaction.createFollowup.bind(interaction) : interaction.editOriginal.bind(interaction);
 
         if (!charPg.success) {
+            let content = "";
+
+            if (interaction.message.embeds.length) interaction.message.embeds[0].description += `\n\n**There's been a problem trying to fetch the character page**:\n${Object.values(charPg.extra)[0]}`;
+            else content = "There's been a problem trying to fetch the character page."
+
             interaction.message.components[0].components[0].disabled = true;
-            return respond({ content: "There's been a problem trying to fetch the character page.", flags: 64, components: interaction.message.components });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
+            return respond({ content, flags: 64, components: interaction.message.components });//interaction.createFollowup({ content: "There's been a problem trying to fetch the character page.", flags: 64});
         }
 
         if (Object.keys(charPg.result).length < 2) return respond({ content: "The character doesn't exist" + (type === "1" ? ", may be using a different name now" : "") + ".\nCharacter searched: `" + charPgName + "`", components: []});
