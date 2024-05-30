@@ -1272,6 +1272,34 @@ export default class RoomManager {
 
         return this.getRoomRecord(rName);
     }
+
+    static getRandomRoomRecord(pred?: (room: RoomManagerRecord) => boolean) : RoomManagerRecord {
+        let rooms = this.roomVersions;
+
+        if (pred !== undefined) {
+            let actualRooms = [];
+
+            for (let i = 0, len = rooms.length; i < len; i++) {
+                if (pred(rooms[i])) {
+                    actualRooms.push(rooms[i]);
+                }
+            }
+
+            rooms = actualRooms;
+        }
+
+       return rooms[Math.floor(Math.random() * rooms.length)];
+    }
+
+    static getAllRoomRecordsForMerchant(merchantId: number) : RoomManagerRecord[] {
+        const list:RoomManagerRecord[] = [];
+
+        for (let i = 0, len = this.roomVersions.length; i < len; i++) {
+            if (this.roomVersions[i].merchants.includes(merchantId)) list.push(this.roomVersions[i]);
+        }
+
+        return list;
+    }
 }
 
 RoomManager["init"]();

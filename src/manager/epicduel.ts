@@ -551,6 +551,67 @@ export default class Swarm {
         }
     }
 
+    static scale(count: number, roomie = false, randomie = false) {
+        Logger.getLogger("Swarm").debug("Requested to scale the scalable fleet to " + count + ".");
+
+        const cli = this.getClient(v => v.connected && v.lobbyInit);
+
+        // if (reverse) {
+        //     const clis = this.clients.concat(this.purgatory);
+
+        //     for (let i = 0, len = clis.length; i < len; i++) {
+        //         if (clis[i].settings.scalable) {
+        //             clis[i].settings.reconnectable = false;
+        //             clis[i].smartFox.disconnect();
+        //         }
+        //     }
+
+        //     return true;
+        // }
+
+        if (count > this.appendages.length) Logger.debug("Swarm").warn(`Not enough accounts (currently ${this.appendages.length}) to cover all rooms.`);
+
+        const availClis = filter(this.clients.concat(this.purgatory), v => v.settings.scalable);
+
+        // Loop first anyways, for now it will keep the clients alive until they later disconnect on their own.
+        for (let i = 0, len = availClis.length; i < len; i++) {
+            availClis[i].settings.reconnectable = false;
+        }
+
+        const rooms = randomie ? [] : map(["TrainHubRight", "TrainHubBLeft"], c => map([0, 1, 2, 3, 4, 5, 6, 7, 8], n => c + "_" + n)).flat();//[]//[, RoomManager.getAllRoomRecordsForMerchant()]
+        rooms.splice(1); // always exclude the main station.
+        const roomC = rooms.length;
+
+        for (let i = 0; i < count; i++) {
+            // Already in list so use this.
+            if (availClis[i]) {
+                availClis[i].settings.reconnectable = true;
+                if (availClis[i]["connected"]) {
+                    if (roomie) {
+                        availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+                        availClis[i].joinRoom(availClis[i].settings.startRoom);
+                    }
+                    // availClis[i].joinRoom(availClis[i].settings.startRoom);
+                } else if (availClis[i]["isFresh"]) {
+                    availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+                    availClis[i]["connect"]();
+                }
+
+                continue;
+            }
+
+            const queued = this.loginQueue();
+            
+            if (queued === false) break;
+
+            queued.settings.reconnectable = true;
+            queued.settings.scalable = true;
+            queued.settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+            queued["isFresh"] = false;
+            queued.selfDestruct();
+        }
+    }
+
     /**
      * If passed undefined, it will pick a fresh one from the queue.
      * 
