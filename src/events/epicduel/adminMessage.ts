@@ -119,6 +119,17 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                 //     }
                 // }, 30000);
 
+                if (hoursLeft === 23) {
+                    const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+
+                    for (let i = 0, len = keys.length; i < len; i++) {
+                        if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
+                            this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
+                            this.swarm.resources.tracker.player.chars[keys[i]].time = time;
+                        }
+                    }
+                }
+
                 Promise.all([this.modules.Leader.fetch(3), this.modules.Leader.fetch(4), this.modules.Leader.fetch(17), this.modules.Advent.getGiftLeaders()]).then((v) => {
                     // if (v.some(o => o.error)) console.log("Error at daily champion fetching leaders.");
 
@@ -336,13 +347,6 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
             if (hoursLeft == 0) {
                 this.famed = {};
-
-                const keys = Object.keys(this.swarm.resources.tracker.player.chars);
-
-                for (let i = 0, len = keys.length; i < len; i++) {
-                    this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [-1, -1];
-                    this.swarm.resources.tracker.player.chars[keys[i]].time = -1;
-                }
             } else {
                 if (obj.powerHourMultiplier == 2) {
                     //this.manager.discord.emit("epicduel_power_hour", hoursLeft);
