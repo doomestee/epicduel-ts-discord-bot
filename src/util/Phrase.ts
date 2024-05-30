@@ -1,7 +1,7 @@
 // THIS ONLY GENERATES CODE FOR VERIFICATION
 
-import adj from "./phrase/adjectives.json" assert { type: "json" };
-import noun from "./phrase/nouns.json" assert { type: "json" };
+import adj from "./phrase/adjectives.json" with { type: "json" };
+import noun from "./phrase/nouns.json" with { type: "json" };
 
 export function generatePhrase(adjs=2, nouns=1, separator=' ') {
     let result = '';
