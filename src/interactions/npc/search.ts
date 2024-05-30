@@ -94,7 +94,7 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                 },
                 fields: [{
                     name: "Location",
-                    value: rooms.length ? `This merchant can be found at:\n` + map(rooms, v => v.roomName + " (" + RoomManager.getRegionNameById(v.regionId) + ")") : `This merchant isn't currently available, or the bot's room internal cache hasn't been updated yet.`
+                    value: rooms.length ? `This merchant can be found at:\n` + map(rooms, v => v.roomName + " (**" + RoomManager.getRegionNameById(v.regionId) + "**)").join("\n") : `This merchant isn't currently available, or the bot's room internal cache hasn't been updated yet.`
                 }]
             }],
             components: [{
