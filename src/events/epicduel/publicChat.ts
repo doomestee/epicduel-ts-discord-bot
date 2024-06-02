@@ -150,6 +150,9 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
                 const npc = this.boxes.merchant.objMap.get(merc);
 
+                // if (len > 1 && npc && findIndex(["Lionhart Soldier"], v => v === npc.mercName) !== -1) continue;
+                if (len > 1 && npc && npc.mercName === "Lionhart Soldier") continue;
+
                 if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
                     webGuy.username = npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
                     webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
@@ -184,6 +187,12 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                     }
                 }
             }
+        }
+
+        // Still undefined?
+        if (webGuy.username === undefined && webGuy.avatarURL === undefined) {
+            webGuy.avatarURL = "https://i.doomester.one/ed/cores/RegionOverlordFacility.png";
+            webGuy.username = "At Unknown Area";
         }
     }
 
