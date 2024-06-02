@@ -119,17 +119,6 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                 //     }
                 // }, 30000);
 
-                if (hoursLeft === 23) {
-                    const keys = Object.keys(this.swarm.resources.tracker.player.chars);
-
-                    for (let i = 0, len = keys.length; i < len; i++) {
-                        if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
-                            this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
-                            this.swarm.resources.tracker.player.chars[keys[i]].time = time;
-                        }
-                    }
-                }
-
                 Promise.all([this.modules.Leader.fetch(3), this.modules.Leader.fetch(4), this.modules.Leader.fetch(17), this.modules.Advent.getGiftLeaders()]).then((v) => {
                     // if (v.some(o => o.error)) console.log("Error at daily champion fetching leaders.");
 
@@ -342,6 +331,19 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         //content: (globalGift === 0 ? `**${gifterName}** sent a present at Central Station, VendBot.` : `**${gifterName}** sent a global present.`) + `\nThis person has given away ${totalGiftCount} in total, to ${globalGift === 0 ? "a room" : "the server"} with ${roomGiftCount} characters.`
                     }).then(v => v.crosspost());//.catch((err) => this._logger.error(err));
 
+                }
+
+                if (hoursLeft === 0) {
+                    const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+
+                    for (let i = 0, len = keys.length; i < len; i++) {
+                        if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
+                            if (this.swarm.resources.tracker.player.chars[keys[i]].time !== time) {
+                                this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
+                                this.swarm.resources.tracker.player.chars[keys[i]].time = time;
+                            }
+                        }
+                    }
                 }
             }
 
