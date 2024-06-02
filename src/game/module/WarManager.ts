@@ -137,10 +137,10 @@ export default class WarManager extends BaseModule {
      * @param {number} objId 
      */
     getWarObjectiveData(objId: number) {
-        for (let wod of this.warObjectiveDataList) {
-            if (wod.objectiveId == objId) {
-                return wod;
-            }
+        for (let i = 0, len = this.warObjectiveDataList.length; i < len; i++) {
+            const wod = this.warObjectiveDataList[i];
+
+            if (wod.objectiveId === objId) return wod;
         }
 
         return null;
@@ -285,13 +285,13 @@ export default class WarManager extends BaseModule {
 
         const defenseAlign = this.getControlAlignmentInActiveRegion();
 
-        if (defenseAlign === 1) return {
+        return defenseAlign === 1 ? {
+            exile: [wr.defenseItemId, wr.defenseSuperItemId],
+            legion: [wr.offenseItemId, wr.offenseSuperItemId],
+        } : {
             exile: [wr.offenseItemId, wr.offenseSuperItemId],
             legion: [wr.defenseItemId, wr.defenseSuperItemId],
-        }; return {
-            exile: [wr.offenseItemId, wr.offenseSuperItemId],
-            legion: [wr.defenseItemId, wr.defenseSuperItemId],
-        }
+        };
     }
 
     getAlignMappedByBombId(bombType: true) : Record<number, "basic"|"super">;
@@ -309,9 +309,9 @@ export default class WarManager extends BaseModule {
 
     getControlAlignmentInActiveRegion() {
         let regionMainObj = this.client.boxes.war.getMainObjectiveByRegionId(this.activeRegionId);
-        if (regionMainObj != null) {
+        if (regionMainObj !== null) {
             let regionWod = this.getWarObjectiveData(regionMainObj.objectiveId);
-            if (regionWod != null) return regionWod.alignmentId;
+            if (regionWod !== null) return regionWod.alignmentId;
         } return 0;
     }
 
