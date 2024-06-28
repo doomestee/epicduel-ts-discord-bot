@@ -70,7 +70,7 @@ export default new Command(CommandType.Component, { custom_id: "stat_<type>_<ent
 
         let gEmojis = client.emojiObjs;
 
-        let itemify = (id: number) => { let item = ItemSBox.objMap.get(id); return item ? ("[" + item.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
+        let itemify = (id: number) => { let item = ItemSBox.objMap.get(id); return item ? ("[" + item.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
 
         return interaction.createFollowup({
             embeds: [{

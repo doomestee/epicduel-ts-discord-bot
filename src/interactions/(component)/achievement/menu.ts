@@ -25,7 +25,7 @@ export function paginateCheevo(pageNumber: number = 0, cheevos: CheevoPopulated[
     let result = "";
 
     for (let i = pageNumber*multiplier, count = multiplier+(pageNumber*multiplier), len = cheevos.length; i < count && i < len; i++) {
-        result += `**${i+1}**. [${cheevos[i].achName}](https://epicduelwiki.com/index.php/${encodeURIComponent(cheevos[i].achName.split(" ").join("_"))}) - ${cheevos[i].achRating} Rating\n${parseCheevo(cheevos[i])}\n\n`;
+        result += `**${i+1}**. [${cheevos[i].achName}](https://epicduelwiki.miraheze.org/wiki/${encodeURIComponent(cheevos[i].achName.split(" ").join("_"))}) - ${cheevos[i].achRating} Rating\n${parseCheevo(cheevos[i])}\n\n`;
     }
 
     return result;

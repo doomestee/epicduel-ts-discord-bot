@@ -34,7 +34,7 @@ export default new Command(CommandType.Component, { custom_id: "core_open_<skill
             }, {
                 type: ComponentTypes.BUTTON,
                 style: ButtonStyles.LINK,
-                label: "Wiki Page", url: "https://epicduelwiki.com/index.php/" + encodeURIComponent(core.skill.skillName),
+                label: "Wiki Page", url: "https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(core.skill.skillName),
             }]
         }]
 

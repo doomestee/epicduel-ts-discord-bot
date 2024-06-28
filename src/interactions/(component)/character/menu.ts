@@ -59,7 +59,7 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
         //     let classCores = epicduel.client.boxes.skills.objMap.tree.filter(v => v.classId === classid)
         //         .sort((a, b) => { if (a.treeRow !== b.treeRow) return a.treeRow - b.treeRow; return a.treeColumn - b.treeColumn; });
 
-        //     let itemify = (id) => { let item = epicduel.client.boxes.item.objMap.get(id); return item ? ("[" + item.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
+        //     let itemify = (id) => { let item = epicduel.client.boxes.item.objMap.get(id); return item ? ("[" + item.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
 
         //     return interaction.editOriginal({
         //         embeds: [{
@@ -231,7 +231,7 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
         //     }
         // }
 
-        // let charArm = (id) => { let item = epicduel.client.boxes.item.objMap.get(typeof id === "string" ? parseInt(id) : id); return item ? ("[" + item.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
+        // let charArm = (id) => { let item = epicduel.client.boxes.item.objMap.get(typeof id === "string" ? parseInt(id) : id); return item ? ("[" + item.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(item.itemName) + ")") : "N/A"; }
         // let weapon = (prefix='wpn') => {
         //     let thing = charPg.result[prefix + 'Link']; let isLinkage = true;
 
@@ -243,7 +243,7 @@ export default new Command(CommandType.Component, { custom_id: "char_menu_<userI
         //      */
         //     let item = epicduel.client.boxes.item.objMap.find(v => (isLinkage) ? v.itemLinkage === thing : v.itemId == thing);
 
-        //     return item ? ("[" + item.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(item.itemName) + ")") : "N/A";
+        //     return item ? ("[" + item.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(item.itemName) + ")") : "N/A";
         // };
 
         // if (epicduel.connected && epicduel.client?.boxes.item.objMap.size) {

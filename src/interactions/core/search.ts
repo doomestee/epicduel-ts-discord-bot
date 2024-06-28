@@ -34,7 +34,7 @@ export default new Command(CommandType.Application, { cmd: ["core", "search"], c
             }, {
                 type: ComponentTypes.BUTTON,
                 style: ButtonStyles.LINK,
-                label: "Wiki Page", url: "https://epicduelwiki.com/index.php/" + encodeURIComponent(core.skill.skillName),
+                label: "Wiki Page", url: "https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(core.skill.skillName),
             }]
         }]
 

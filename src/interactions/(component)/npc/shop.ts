@@ -68,7 +68,7 @@ export default new Command(CommandType.Component, { custom_id: "shop_<merchId>_<
 
                     a.itemCat
 
-                    return (itemTypeToEmoji[a.itemCat] ? itemTypeToEmoji[a.itemCat] + " " : "") + "[" + a.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(a.itemName.split(" ").join("_")) + ") - " + `${(credits || varium) ? (credits + " " + varium).trim() : ""} - ${merc.items[i][1] === -1 ? "unlimited" : merc.items[i][1]} stock`
+                    return (itemTypeToEmoji[a.itemCat] ? itemTypeToEmoji[a.itemCat] + " " : "") + "[" + a.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(a.itemName.split(" ").join("_")) + ") - " + `${(credits || varium) ? (credits + " " + varium).trim() : ""} - ${merc.items[i][1] === -1 ? "unlimited" : merc.items[i][1]} stock`
                 }), 4096),
                 title: merc.name + "'s Wares",
                 author: {

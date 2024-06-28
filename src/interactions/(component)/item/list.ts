@@ -77,10 +77,10 @@ export default new Command(CommandType.Component, { custom_id: "list_item_<type>
             let reward = rewards[x]; let { i } = reward;
 
             switch (reward.type) {
-                case 0: desc(i, `${reward.qty > 1 ? reward.qty + "x " : ""}[${reward.item.itemName}](https://epicduelwiki.com/index.php/${encodeURIComponent(reward.item.itemName.split(" ").join("_"))}) (${ItemSBox.ITEM_CATEGORY_MAPPED_BY_ID[reward.item.itemCat]}, ID: ${reward.item.itemId})${reward.item.itemCat === 9 ? "\n" + parseCore(reward.item.coreId) : ""}\n\n`); break;
+                case 0: desc(i, `${reward.qty > 1 ? reward.qty + "x " : ""}[${reward.item.itemName}](https://epicduelwiki.miraheze.org/wiki/${encodeURIComponent(reward.item.itemName.split(" ").join("_"))}) (${ItemSBox.ITEM_CATEGORY_MAPPED_BY_ID[reward.item.itemCat]}, ID: ${reward.item.itemId})${reward.item.itemCat === 9 ? "\n" + parseCore(reward.item.coreId) : ""}\n\n`); break;
                 case 1: desc(i, "Hair Style No. " + reward.styleId + "\n\n"); break;
                 case 2: desc(i, "Home Item No. " + reward.homeItem.id + "\n\n"); break;
-                case 3: desc(i, `[${reward.ach.achName}](https://epicduelwiki.com/index.php/${encodeURIComponent(reward.ach.achName.split(" ").join("_"))}) - ${reward.ach.achRating} Rating\n${parseCheevo(reward.ach)}\n\n`); break;
+                case 3: desc(i, `[${reward.ach.achName}](https://epicduelwiki.miraheze.org/wiki/${encodeURIComponent(reward.ach.achName.split(" ").join("_"))}) - ${reward.ach.achRating} Rating\n${parseCheevo(reward.ach)}\n\n`); break;
                 case 4: desc(i, reward.credits + ` Credits\n\n`); break;
                 case 5: desc(i, reward.exp + " XP\n\n"); break;//stuff.exp += reward.exp; break;
                 case 6: desc(i, reward.varium + " Varium\n\n"); break;//stuff.varium += reward.varium; break;

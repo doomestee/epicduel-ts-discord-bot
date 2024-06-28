@@ -11,6 +11,6 @@ export default class ItemUtil extends null {
 
         if (!it) return "N/A";
 
-        return "[" + it.itemName + "](https://epicduelwiki.com/index.php/" + encodeURIComponent(it.itemName) + ")"
+        return "[" + it.itemName + "](https://epicduelwiki.miraheze.org/wiki/" + encodeURIComponent(it.itemName) + ")"
     }
 }
