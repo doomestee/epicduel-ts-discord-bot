@@ -93,17 +93,17 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
             },
 
             "Daily Solo Champion": {
-                desc: "Won the most solo battle victories during the day.",
+                desc: "Won the most 1v1 PvP victories during the day.",
                 count: 0
             },
 
             "Daily Team Champion": {
-                desc: "Won the most solo battle victories during the day.",
+                desc: "Won the most 2v2 PvP victories during the day.",
                 count: 0
             },
 
             "Daily Jugg Champion": {
-                desc: "Won the most solo battle victories during the day.",
+                desc: "Won the most Juggernaut victories during the day.",
                 count: 0
             }
         }
