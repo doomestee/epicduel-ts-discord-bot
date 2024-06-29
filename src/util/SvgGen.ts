@@ -7,7 +7,7 @@ import Helper from "svg-boundings/util/helper.js";
 import ClassBox from "../game/box/ClassBox.js";
 import sharp, { Blend } from "sharp";
 import Jimp from "jimp";
-import type { ColorActionName } from "@jimp/plugin-color";
+import { ColorActionName } from "@jimp/plugin-color";
 
 
 // import type { ColorActionName } from "../../node_modules/@jimp/plugin-color/index.js"
@@ -15,7 +15,9 @@ import Leader, { LeaderType, LeaderTypeToList } from "../game/module/Leader.js";
 import ItemSBox from "../game/box/ItemBox.js";
 import { lazyFuck } from "./Leaderboard.js";
 import StyleBox from "../game/box/StyleBox.js";
-import { getUserLevelByExp } from "./Misc.js";
+import { findIndex, getUserLevelByExp, map } from "./Misc.js";
+import DatabaseManager, { quickDollars } from "../manager/database.js";
+import { ICharacter } from "../Models/Character.js";
 
 type SvgItem = "armors" | "hairs" | "heads" | "bicepsR" | "symbols";
 
@@ -694,6 +696,25 @@ class Generator {
 
         let text = ["1st", "2nd", "3rd", "4th", "5th"];
 
+        const alignments:Array<[0|1|2, string]> = [];
+
+        if (!isFaction) {
+            const cloney = map(obj, v => v.name.toLowerCase());
+            const charos = await DatabaseManager.cli.query<ICharacter & { faction_name?: string }>(`SELECT character.*, faction.name as faction_name FROM character JOIN faction ON character.faction_id = faction.id WHERE lower(character.name) IN (${quickDollars(obj.length)})`, cloney)
+                .then(v => v.rows);
+
+            if (charos.length) {
+                for (let i = 0, len = charos.length; i < len; i++) {
+                    const char = charos[i];
+                    const index = findIndex(cloney, v => v === char.name.toLowerCase());
+
+                    if (index !== -1 && char.alignment && char.faction_name) alignments[index] = [char.alignment, char.faction_name];
+                }
+            }
+        }
+
+        const scaffold = new Jimp(300, 50);//await Jimp.create(300, 50);
+
         for (let i = 0; i < 5; i++) {
             const thing = obj[i];
 
@@ -719,6 +740,13 @@ class Generator {
                 jimps[0][i].print(smolfont, 30, 105, "Level " + thing.misc.lvl);
             } else if (lazyFuck<CacheTypings.AnyFactionLeaders>(thing, Leader.Indexes.Faction, type)) {
                 jimps[0][i].print(smolfont, 30, 75, thing.misc.align);
+            }
+
+            // Yes, I have to make a bloody image because jimp dont just let you easily decide the colour of loaded font
+            if (alignments[i] !== undefined) {
+                const fontImg = scaffold.clone().print(smolfont, 0, 0, alignments[i][1]);
+                fontImg.color([{ apply: ColorActionName.XOR, params: [alignments[i][0] === 1 ? "#cb6724" : "#16e19c"] }]);
+                jimps[0][i].composite(fontImg, 30, 135);
             }
 
             image.composite(jimps[0][i], 0, 25 + (i*225));
