@@ -62,7 +62,7 @@ export default class EDCycler {
 
         if (this.#swarm.probing) {
             try {
-                const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotEmail, true);
+                const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotPass, true);
 
                 if (attempt.servers.length === 0 || !attempt.servers[0].online) {
                     if (this.debug) Logger.getLogger("Cycler").debug("Probing attempt - no servers.");

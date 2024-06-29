@@ -20,8 +20,8 @@ export default class AdminActionManager extends BaseModule {
                 setTimeout(() => {
                     this.client.swarm.probing = true;
 
+                    // this.client.selfDestruct(false);
                     this.client.smartFox.disconnect();
-                    this.client.selfDestruct(false);
                     //this.client.manager.discord.checkpoints[0] = -1;
                     //this.client.manager.discord.comparisonFiles.skills = this.client.boxes.skills.objList;
                     //this.client.manager.discord.comparisonFiles.item = this.client.boxes.item.objList;
