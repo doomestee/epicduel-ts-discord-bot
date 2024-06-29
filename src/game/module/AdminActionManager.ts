@@ -39,7 +39,7 @@ export default class AdminActionManager extends BaseModule {
                 break;
             // Announcement from an admin.
             case 2:
-                this.client.swarm.execute("onAdminMessage", this.client, { type: 0, message: msg });
+                this.client.swarm.execute("onAdminMessage", this.client, { type: 1, message: msg });
                 // this.client.manager.logEmit("epicduel_notification", {type: 0, message: "**" + msg + "**", args: [msg]});
                 // this.client.manager.logEmit("epicduel_message", {message: msg, type: 2});
                 break;
