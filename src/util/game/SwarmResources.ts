@@ -1,7 +1,13 @@
 import { IUserRecord } from "../../Models/UserRecord.js";
+import { AnyItemRecordsExceptSelf } from "../../game/box/ItemBox.js";
+import SkillsSMBox, { SkillTypes } from "../../game/box/SkillsBox.js";
 import { Gift } from "../../game/module/Advent.js";
+import AllRecord from "../../game/record/skills/AllRecord.js";
+import { ExtractValueType } from "../../manager/cache.js";
 import Logger from "../../manager/logger.js";
 import { requestLangFile, sleep } from "../Misc.js";
+
+// type BecauseICantThink<T extends Exclude<SkillTypes, "tree"> = Exclude<SkillTypes, "tree">> = Record<T, ExtractValueType<typeof SkillsSMBox.objMap[T]>>//T extends "tree" ? typeof SkillsSMBox.objList[T] : ExtractValueType<typeof SkillsSMBox.objMap>[T]>
 
 export default class SwarmResources {
     // boxes = {
@@ -13,11 +19,15 @@ export default class SwarmResources {
 
     gameVersion = "";
 
+    comparisonFiles!: { skills: Record<SkillTypes, any[]>, item: AnyItemRecordsExceptSelf[] };
+
     /**
      * This will be invoked if there's a new game version not identical to previous.
      */
     clear() {
         this.languages = {};
+
+        this.comparisonFiles.skills
 
         this.getNewLang();
     }

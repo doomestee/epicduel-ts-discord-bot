@@ -5,6 +5,7 @@ import { MainMessageStorage } from "../../manager/discord.js";
 import Swarm from "../../manager/epicduel.js";
 import Logger from "../../manager/logger.js";
 import ClientEvent from "../../util/events/ClientEvent.js";
+import { Dispatcher, request } from "undici";
 
 let once = false;
 
@@ -111,5 +112,35 @@ export default new ClientEvent("ready", function () {
                     Logger.getLogger("DNote").error("Missing language version for epicduel.");
                 }
             });
+
+        this.rest.channels.getMessages("1034498187911774278", {limit: 10}).then((messages) : Promise<true | Dispatcher.ResponseData> => {
+            if (!messages.length) return Promise.resolve(true);
+
+            let filtered = messages.filter(v => v.attachments.size);/*/ && v.attachments.some(v => v.filename.endsWith("json")));*/
+            if (!filtered.length) return Promise.resolve(true);
+
+            let attachment = filtered[0].attachments.first();
+            if (!attachment) return Promise.resolve(true);
+
+            return request(attachment.url, {
+                method: "GET"
+            });
+        }).then((stuff) => {
+            if (stuff === true) return false;
+
+            if (!(stuff.statusCode >= 200 && stuff.statusCode < 300)) return false;
+
+            return stuff.body.json();
+        }).then((json) => {
+            if (json === false) return;
+
+            Swarm.resources.comparisonFiles = json as any;
+
+            Swarm.resources.checkpoints.comparison[0] = 1;//.emit("epicduel_epicduel_comparison", 0);
+            return json;
+        }).catch((err) => {
+            Logger.getLogger("Comparison").error(err);
+            return true;
+        });
     }
 });

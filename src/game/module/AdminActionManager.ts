@@ -1,5 +1,7 @@
+import { map } from "../../util/Misc.js";
 import Constants, { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
+import { SkillTypes } from "../box/SkillsBox.js";
 import BaseModule from "./Base.js";
 
 export default class AdminActionManager extends BaseModule {
@@ -19,12 +21,22 @@ export default class AdminActionManager extends BaseModule {
                 this.secondsLeft = 300;
                 setTimeout(() => {
                     this.client.swarm.probing = true;
+                    this.client.swarm.resources.checkpoints.comparison[0] = -1;
+
+                    const obj = {} as Record<SkillTypes, any[]>;
+                    const keys = Object.keys(this.client.boxes.skills.objMap) as unknown as SkillTypes[];
+
+                    const abc = map(keys, v => v === "tree" ? this.client.boxes.skills.objList[v] : this.client.boxes.skills.objMap[v].toArray());
+
+                    for (let i = 0, len = keys.length; i < len; i++) {
+                        obj[keys[i]] = abc[i];
+                    }
+
+                    this.client.swarm.resources.comparisonFiles.skills = obj;
+                    this.client.swarm.resources.comparisonFiles.item = this.client.boxes.item.objMap.toArray();
 
                     // this.client.selfDestruct(false);
                     this.client.smartFox.disconnect();
-                    //this.client.manager.discord.checkpoints[0] = -1;
-                    //this.client.manager.discord.comparisonFiles.skills = this.client.boxes.skills.objList;
-                    //this.client.manager.discord.comparisonFiles.item = this.client.boxes.item.objList;
                     // this.client.manager.langReset = true;
                     //this.client.manager.langVersion++; Commented out just in case they may haven't incremented.
                 }, 300*1000);

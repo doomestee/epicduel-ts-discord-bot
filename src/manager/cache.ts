@@ -42,8 +42,14 @@ interface CacheSettingsInternal {
     tourney: CacheSetting<{ ended: boolean }>
 }
 
-type ExtractKeyType<T> = T extends Collection<infer K, any> ? K : never;
-type ExtractValueType<T> = T extends Collection<any, infer V> ? V : T extends SingularCache<any> ? T : never;
+/**
+ * FOR COLLECTIONS
+ */
+export type ExtractKeyType<T> = T extends Collection<infer K, any> ? K : never;
+/**
+ * FOR COLLECTIONS
+ */
+export type ExtractValueType<T> = T extends Collection<any, infer V> ? V : T extends SingularCache<any> ? T : never;
 
 export type CacheType = keyof CacheInternal;
 
