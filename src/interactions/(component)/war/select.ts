@@ -5,7 +5,7 @@ import { DiscordError, SwarmError } from "../../../util/errors/index.js";
 import DatabaseManager from "../../../manager/database.js";
 import { IRally } from "../../../Models/Rally.js";
 import { IWar } from "../../../Models/War.js";
-import { filter, getHighestTime, getTime, rawHoursified } from "../../../util/Misc.js";
+import { discordDate, filter, getHighestTime, getTime, rawHoursified } from "../../../util/Misc.js";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 
@@ -14,6 +14,7 @@ export default new Command(CommandType.Component, { custom_id: "war_select_<user
         if (interaction.data.componentType !== 3) return;
 
         const time = process.hrtime.bigint();
+        const timeM = Date.now();
 
         let bypass = false;
 
@@ -74,7 +75,7 @@ export default new Command(CommandType.Component, { custom_id: "war_select_<user
                         name: interaction.message.embeds[0].author?.name ?? "unknown user",
                         iconURL: interaction.message.embeds[0].author?.iconURL
                     },
-                    description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : `\n\nThis war has been going on for **${getTime(war ? Date.now () - war.created_at.getTime() : 0, true, "", true)}.`}**`,
+                    description: `War influence required to win: **${points.max[0]}**\n\nExile has **${points.current[1]}** influence (**${points.currentPercent[1]}**).\nLegion has **${points.current[0]}** influence (**${points.currentPercent[0]}**).\n\n${gapCmt}\n\n${rally}${(isInCoolDown) ? `\n\nWar has already ended, it is currently in cooldown for ${ed.modules.WarManager.cooldownHours} hours (<t:${Math.round(rawHoursified(ed.modules.WarManager.cooldownHours, ed.modules.WarManager.cooldownLastUpdated).getTime()/1000)}:F>)` : `\n\nThis war has been going on for **${getTime(war ? Date.now () - war.created_at.getTime() : 0, true, "", true)}.`}**\n\nProjected end date: ${war ? discordDate(war.created_at.getTime() + ((timeM - war.created_at.getTime()) / (Number(points.currentPercent[0].slice(0, -1))/100)) ) : "N/A"}`,
                     footer: {
                         text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
                     }
