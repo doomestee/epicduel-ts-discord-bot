@@ -4,7 +4,7 @@ import { request } from "undici";
 import Logger from "../manager/logger.js";
 import Constants from "../game/Constants.js";
 import { parseStringPromise } from "xml2js";
-import type { Collection } from "oceanic.js";
+import { BASE_URL, Routes, type Collection, type Message } from "oceanic.js";
 
 /**
  * Starts at level 1, even though the index is 0. Level 40 = 39th index
@@ -574,4 +574,15 @@ export function lazyTrimStringList(list: string[], limit=1024, limitByItem=false
             return str;
         } str += list[i] + separator;
     }; return str.slice(0, -separator.length);
+}
+
+// Using this as Oceanic's message#jumplink won't guild id if the message was fetched (not via gateway)
+export function jumpLink(guildId: string, messageId: string, channelId: string) : string
+export function jumpLink(guildId: string, message: Message) : string
+export function jumpLink(guildId: string, messageId: Message | string, channelId?: string) : string {
+    // bloody type checking
+    if (typeof messageId === "string" && channelId) return `${BASE_URL}${Routes.MESSAGE_LINK(guildId, channelId, messageId)}`;
+    if (typeof messageId === "string") return "i will kill myself if this actually shows up";
+
+    return `${BASE_URL}${Routes.MESSAGE_LINK(guildId, messageId.channelID, messageId.id)}`;
 }

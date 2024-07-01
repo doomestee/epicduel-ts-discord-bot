@@ -1,6 +1,6 @@
 import Config from "../../config/index.js";
 import EDEvent from "../../util/events/EDEvent.js";
-import { filter, map } from "../../util/Misc.js";
+import { filter, jumpLink, map } from "../../util/Misc.js";
 
 export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom }) {
     if (Config.isDevelopment) return;
@@ -24,6 +24,6 @@ export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom
     }).catch(e => {console.log(e); return null;});
 
     hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
-        wait: false, content: ((res !== null) ? puppetNTxt + "[Joined room](" + res.jumpLink + ") at <t:" + Math.floor((time/1000)) + ":f>" : puppetNTxt + (puppetNTxt !== "" ? " j" : "J") + "oined room at <t:" + Math.floor((time/1000)) + ':f>')//"**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
+        wait: false, content: ((res !== null) ? puppetNTxt + "[Joined room](" + jumpLink("565155762335383581", res) + ") at <t:" + Math.floor((time/1000)) + ":f>" : puppetNTxt + (puppetNTxt !== "" ? " j" : "J") + "oined room at <t:" + Math.floor((time/1000)) + ':f>')//"**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
     }).catch(e => {console.log(e)});
 });
