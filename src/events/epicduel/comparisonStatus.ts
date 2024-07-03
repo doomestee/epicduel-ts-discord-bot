@@ -9,7 +9,7 @@ import Config from "../../config/index.js";
 export default new EDEvent("onComparisonUpdate", async function (hydra, { part, type }) {
     if (Config.isDevelopment === true) return;
 
-    if (type === 0) this.swarm.resources.checkpoints.comparison[0] = 1;
+    if (type === 0) this.checkpoints.comparison[0] = 1;
     if (type === 1) {
         /*
 
@@ -28,12 +28,20 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
         13 = Skills.Core
 
         */
-        this.swarm.resources.checkpoints.comparison[1][part-1] = 1;
+        this.checkpoints.comparison[1][part-1] = 1;
     }
 
     // if (false) return; // for now
 
-    if (this.swarm.resources.checkpoints.comparison[0] === 0 || this.swarm.resources.checkpoints.comparison[1].some(v => v === 0)) return;
+    if (this.checkpoints.comparison[0] === 0 || this.checkpoints.comparison[1].some(v => v === 0)) return;
+
+    if (this.swarm.resources.comparison.gameVersion === this.currVersion) return;
+
+    this.swarm.resources.comparison = {
+        doneById: this.settings.id,
+        gameVersion: this.currVersion,
+        time: Date.now()
+    };
 
     /**
      * @param {import("../../server/structures/record/item/SelfRecord")} a new

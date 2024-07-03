@@ -164,6 +164,10 @@ export default class Client {
     };
 
     famed: { [id: string]: boolean } = {};
+    
+    checkpoints = {
+        comparison: [0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] as [number, number[]]
+    }
 
     //#endregion
 

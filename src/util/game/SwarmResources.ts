@@ -115,8 +115,10 @@ export default class SwarmResources {
         }
     }
 
-    checkpoints = {
-        comparison: [0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] as [number, number[]]
+    comparison = {
+        gameVersion: "",
+        time: -1,
+        doneById: -1
     }
 }
 
