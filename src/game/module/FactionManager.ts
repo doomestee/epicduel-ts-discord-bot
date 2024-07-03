@@ -1,4 +1,5 @@
 import CacheManager from "../../manager/cache.js";
+import { map } from "../../util/Misc.js";
 import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import Constants, { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
@@ -17,7 +18,7 @@ export interface FactionMember {
 export interface Faction {
     id: number,
     name: string,
-    alignment: number,
+    alignment: 1 | 2,
     flag: {
         symbol: number,
         symbolColor: string,
@@ -93,7 +94,7 @@ export default class FactionManager extends BaseModule {
         const fact:Faction = {
             id: fctId,
             name: data[4],
-            alignment: Number(data[5]),
+            alignment: Number(data[5]) as 1 | 2,
             flag: {
                 symbol: Number(data[6]),
                 symbolColor: data[7],
@@ -151,6 +152,7 @@ export default class FactionManager extends BaseModule {
         CacheManager.update("faction", fctId, fact);
         this.client.smartFox.emit("faction_data", fact, fctId);
         this.client.swarm.execute("onFactionEncounter", this.client, { fact: { id: fact.id, name: fact.name, alignment: fact.alignment as 1 | 2 } });
+        this.client.swarm.execute("onFactionMemberEncounter", this.client, { alignment: fact.alignment, faction_id: fact.id, chars: map(fact.members, v => ({ id: v.id, name: v.name })) });
         // this.client.smartFox.emit("factionData", fctId, this.cache[fctId]);
     }
 

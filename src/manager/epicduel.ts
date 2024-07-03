@@ -367,6 +367,7 @@ export default class Swarm {
         onAdminMessage: undefined, // done
         onComparisonUpdate: undefined, // done
         onFactionEncounter: undefined, // done
+        onFactionMemberEncounter: undefined, // done
         onFriendStatus: undefined, // done
         onJoinRoom: undefined, // done
         onPrivateMessage: undefined, // done
