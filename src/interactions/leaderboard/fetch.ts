@@ -157,16 +157,16 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
                 emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-        if (userSetting.lb_view === 1 || userSetting.lb_view === 2 && isFaction) {
+        if (userSetting.lb_view === 1 || userSetting.lb_view > 1 && isFaction) {
             files = [{
                 contents: await ImageManager.SVG.generator.lb(type, leaders),
                 name: "img.png"
             }]; content = "";
         }
 
-        if (userSetting.lb_view === 2 && !isFaction) {
+        if (userSetting.lb_view > 1 && !isFaction) {
             files = [{
-                contents: await ImageManager.SVG.generator.lb20(type as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[]),
+                contents: await ImageManager.SVG.generator.lb20(type as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[], (userSetting.lb_view - 2) as 0 | 1),
                 name: "img.png"
             }]; content = "";
         }

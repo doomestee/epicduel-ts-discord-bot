@@ -833,7 +833,7 @@ class Generator {
         return image.getBufferAsync(Jimp.MIME_PNG);
     }
 
-    async lb20<T extends CharacterLeaderType>(lbType: T, obj: LeaderTypeToList[T][], storeThoseInFileToo=true) {
+    async lb20<T extends CharacterLeaderType>(lbType: T, obj: LeaderTypeToList[T][], arrangement:0|1=1, storeThoseInFileToo=true) {
         // const isFaction = Leader.Indexes.Faction.includes(lbType);//lazyFuck<CacheTypings.AnyFactionLeaders>(obj, Leader.Indexes.Faction, lbType)//Leader.Indexes.Faction.includes(lbType);
 
         const images = [] as Promise<Buffer>[];
@@ -909,8 +909,10 @@ class Generator {
             await Promise.all(jimps[0]),
             await Promise.all(jimps[1]),
         ];
-        
-        const image = new Jimp(1600, 2400);
+
+        const arrangements = [[1475, 2275], [3650, 925]];
+
+        const image = new Jimp(...arrangements[arrangement]);//arrangement ? ...[1600, 2400] : ...[]);
 
         if (images.length === 0) return image.getBufferAsync(Jimp.MIME_PNG);
 
@@ -975,38 +977,49 @@ class Generator {
                 jimps[0][i].print(smolfont, 30, 45, text[i]);
 
                 image.composite(jimps[0][i], 0, 25 + (i*225));
-                continue;
+                // continue;
+            } else {
+                jimps[0][i].opacity(0.3);
+
+                jimps[0][i].composite(jimps[1][i].scale(0.8), 500, 0)
+
+                jimps[0][i].print(bigfont, 10, 15, obj[i].name);
+                jimps[0][i].print(smolfont, 30, 45, text[i]);
+
+                jimps[0][i].print(smolfont, 30, 75, ClassBox.CLASS_NAME_BY_ID[user.type === 1 ? parseInt(user.char.charClassId) : user.char.classId]);
+                jimps[0][i].print(smolfont, 30, 105, "Level " + (user.type === 1 ? user.char.charLvl : user.char.lvl));
+
+                // Yes, I have to make a bloody image because jimp dont just let you easily decide the colour of loaded font
+                if (alignments[i] !== undefined) {
+                    const fontImg = scaffold.clone().print(smolfont, 0, 0, alignments[i][1]);
+                    fontImg.color([{ apply: ColorActionName.XOR, params: [alignments[i][0] === 1 ? "#cb6724" : "#16e19c"] }]);
+                    jimps[0][i].composite(fontImg, 30, 135);
+                }
+
+                for (let k = 0, ken = keys.length; k < ken; k++) {
+                    // image.print(smolfont, 1450 + (100*x) + (x === 0 ? 0 : 6 * extra[x - 1]), 80 + (i*45), converters[keys[x]](obj[i]));
+                    jimps[0][i].print(smolfont, 275, 45 + (30*k), converters[keys[k]](obj[i]) + " " + keys[k]);
+                }
             }
 
-            jimps[0][i].opacity(0.3);
-
-            jimps[0][i].composite(jimps[1][i].scale(0.8), 500, 0)
-
-            jimps[0][i].print(bigfont, 10, 15, obj[i].name);
-            jimps[0][i].print(smolfont, 30, 45, text[i]);
-
-            jimps[0][i].print(smolfont, 30, 75, ClassBox.CLASS_NAME_BY_ID[user.type === 1 ? parseInt(user.char.charClassId) : user.char.classId]);
-            jimps[0][i].print(smolfont, 30, 105, "Level " + (user.type === 1 ? user.char.charLvl : user.char.lvl));
-
-            // Yes, I have to make a bloody image because jimp dont just let you easily decide the colour of loaded font
-            if (alignments[i] !== undefined) {
-                const fontImg = scaffold.clone().print(smolfont, 0, 0, alignments[i][1]);
-                fontImg.color([{ apply: ColorActionName.XOR, params: [alignments[i][0] === 1 ? "#cb6724" : "#16e19c"] }]);
-                jimps[0][i].composite(fontImg, 30, 135);
-            }
-
-            for (let k = 0, ken = keys.length; k < ken; k++) {
-                // image.print(smolfont, 1450 + (100*x) + (x === 0 ? 0 : 6 * extra[x - 1]), 80 + (i*45), converters[keys[x]](obj[i]));
-                jimps[0][i].print(smolfont, 275, 45 + (30*k), converters[keys[k]](obj[i]) + " " + keys[k]);
-            }
-
+            // arrangement: 0
             // 1 - 25, 25
             // 2 - 750, 25
             // 3 - 25, 250
             // 4 - 750, 250
             // 5 - 25, 475
 
-            image.composite(jimps[0][i], i % 2 === 0 ? 25 : 750, 25 + (Math.floor(i/2) * 225));//25 + (i > 9 ? 725 : 0), 25 + (i > 9 ? ((i-10)*225) : (i*225)));
+            // arrangement: 1
+            // 1 - 25, 25
+            // 2 - 750, 25
+            // 3 - 1475, 25
+            // 4 - 2200, 25
+            // 5 - 2925, 25
+            // 6 - 25, 250
+
+            if (arrangement === 0)      image.composite(jimps[0][i], i % 2 === 0 ? 25 : 750, 25 + (Math.floor(i/2) * 225));//25 + (i > 9 ? 725 : 0), 25 + (i > 9 ? ((i-10)*225) : (i*225)));
+            else if (arrangement === 1) image.composite(jimps[0][i], 25 + ((i % 5) * 725), 25 + (Math.floor(i/5) * 225));
+
             // image.composite(jimps[0][i], 25 + (i > 9 ? 725 : 0), 25 + (i > 9 ? ((i-10)*225) : (i*225)));
         }
 

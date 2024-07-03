@@ -139,16 +139,16 @@ export default new Command(CommandType.Component, { custom_id: "switch_view_lb_<
                 emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-        if (viewType === 1 || viewType === 2 && isFaction) {
+        if (viewType === 1 || viewType > 1 && isFaction) {
             files[0] = {
                 contents: await ImageManager.SVG.generator.lb(lbType, leaders).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
                 name: "img.png"
             }; content = "";
         }
 
-        if (viewType === 2 && !isFaction) {
+        if (viewType > 1 && !isFaction) {
             files = [{
-                contents: await ImageManager.SVG.generator.lb20(lbType as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[]).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
+                contents: await ImageManager.SVG.generator.lb20(lbType as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[], (viewType - 2) as 0 | 1).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
                 name: "img.png"
             }]; content = "";
         }
