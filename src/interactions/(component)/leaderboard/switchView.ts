@@ -1,7 +1,7 @@
 import { ActionRowBase, ButtonStyles, ComponentTypes, SelectMenuComponent, SelectOption, StringSelectMenuOptions, TextButton, File } from "oceanic.js";
 import Command, { CommandType } from "../../../util/Command.js";
 import { DiscordError, SwarmError } from "../../../util/errors/index.js";
-import Leader, { LeaderType } from "../../../game/module/Leader.js";
+import Leader, { CharacterLeaderType, LeaderType } from "../../../game/module/Leader.js";
 import Swarm from "../../../manager/epicduel.js";
 import DatabaseManager, { quickDollars } from "../../../manager/database.js";
 import { AsciiTable3 } from "ascii-table3";
@@ -139,17 +139,24 @@ export default new Command(CommandType.Component, { custom_id: "switch_view_lb_<
                 emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-        if (viewType === 1) {
+        if (viewType === 1 || viewType === 2 && isFaction) {
             files[0] = {
                 contents: await ImageManager.SVG.generator.lb(lbType, leaders).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
                 name: "img.png"
             }; content = "";
-
-            //@ts-expect-error
-            if (files[0].contents === false) return interaction.reply({
-                content: "error, unable to generate lb image", flags: 64
-            })
         }
+
+        if (viewType === 2 && !isFaction) {
+            files = [{
+                contents: await ImageManager.SVG.generator.lb20(lbType as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[]).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
+                name: "img.png"
+            }]; content = "";
+        }
+
+        //@ts-expect-error
+        if (files.length && files[0].contents === false) return interaction.reply({
+            content: "error, unable to generate lb image", flags: 64
+        });
 
         if (components[0].components[0].type === 3 && components[0].components[0].options.length === 0) {
             components[0].components[0].options.push({

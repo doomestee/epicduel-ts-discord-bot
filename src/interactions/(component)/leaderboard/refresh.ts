@@ -1,5 +1,5 @@
 import { AsciiTable3 } from "ascii-table3";
-import Leader, { LeaderType } from "../../../game/module/Leader.js";
+import Leader, { CharacterLeaderType, LeaderType } from "../../../game/module/Leader.js";
 import Swarm from "../../../manager/epicduel.js";
 import Command, { CommandType } from "../../../util/Command.js";
 import { headings, transform } from "../../../util/Leaderboard.js";
@@ -139,17 +139,24 @@ export default new Command(CommandType.Component, { custom_id: "refresh_lb_<type
                 emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-        if (userSetting.lb_view === 1) {
+        if (userSetting.lb_view === 1 || userSetting.lb_view === 2 && isFaction) {
             files[0] = {
                 contents: await ImageManager.SVG.generator.lb(type, leaders).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
                 name: "img.png"
             }; content = "";
-
-            //@ts-expect-error
-            if (files[0].contents === false) return interaction.reply({
-                content: "error, unable to generate lb image", flags: 64
-            })
         }
+
+        if (userSetting.lb_view === 2 && !isFaction) {
+            files = [{
+                contents: await ImageManager.SVG.generator.lb20(type as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[]).catch(() => client.processing[interaction.user.id].refreshLb = false) as Buffer,
+                name: "img.png"
+            }]; content = "";
+        }
+
+        //@ts-expect-error
+        if (files.length && files[0].contents === false) return interaction.reply({
+            content: "error, unable to generate lb image", flags: 64
+        })
         // }
 
         // In case there's nobody in it or smth
