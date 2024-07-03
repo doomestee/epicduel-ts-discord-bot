@@ -51,6 +51,7 @@ export type LeaderTypeToList = {
 export type LeaderType = keyof LeaderTypeToList;
 
 export type FactionLeaderType = 7 | 10 | 8 | 9 | 19 | 12 | 5 | 6 | 18;
+export type CharacterLeaderType = 1 | 2 | 16 | 3 | 4 | 17 | 11 | 13 | 14 | 15 | 20 | 21 | 22;
 
 export default class Leader extends BaseModule {
     static Indexes = {
@@ -142,6 +143,8 @@ export default class Leader extends BaseModule {
                             hairS: parseInt(brags[++i])
                         }
                     });
+
+                    CacheManager.update("player", result[result.length - 1].name.toLowerCase(), { type: 2, char: result[result.length - 1].misc as CacheTypings.PlayerLeaderMiscWithExp });
                 }
 
                 for (let i = 0, len = smalls.length; i < len; i++) {
@@ -177,6 +180,8 @@ export default class Leader extends BaseModule {
                             hairS: parseInt(brags[++i])
                         }
                     });
+
+                    CacheManager.update("player", result[result.length - 1].name.toLowerCase(), { type: 2, char: result[result.length - 1].misc as CacheTypings.PlayerLeaderMiscWithExp });
                 }
 
                 for (let i = 0, len = smalls.length; i < len; i++) {
@@ -329,6 +334,8 @@ export default class Leader extends BaseModule {
                             hairS: parseInt(brags[++i])
                         }
                     });
+
+                    CacheManager.update("player", result[result.length - 1].name.toLowerCase(), { type: 2, char: result[result.length - 1].misc as CacheTypings.PlayerLeaderMiscWithExp });
                 }
 
                 for (let i = 0, len = smalls.length; i < len; i++) {

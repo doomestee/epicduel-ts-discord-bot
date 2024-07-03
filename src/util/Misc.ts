@@ -5,6 +5,7 @@ import Logger from "../manager/logger.js";
 import Constants from "../game/Constants.js";
 import { parseStringPromise } from "xml2js";
 import { BASE_URL, Routes, type Collection, type Message } from "oceanic.js";
+import CacheManager from "../manager/cache.js";
 
 /**
  * Starts at level 1, even though the index is 0. Level 40 = 39th index
@@ -430,7 +431,11 @@ export async function getCharPage(charName: string) : Promise<CharPageResult> {
             result[v[0] as "rating"] = v[1];
         });
 
-        if (Object.keys(result).length === 1) return { success: false, extra: { r: "No character found." } };
+        if (Object.keys(result).length === 1 || result["charId"] === undefined) return { success: false, extra: { r: "No character found." } };
+
+        if (!CacheManager.check("player", result.charName.toLowerCase()).valid) {
+            CacheManager.update("player", result.charName.toLowerCase(), { type: 1, char: result });
+        }
 
         return { success: true, result };
     }

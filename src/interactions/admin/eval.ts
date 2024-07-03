@@ -7,6 +7,7 @@ import Swarm from "../../manager/epicduel.js";
 import ImageManager from "../../manager/image.js";
 import Logger from "../../manager/logger.js";
 import RoomManager from "../../game/module/RoomManager.js";
+import CacheManager from "../../manager/cache.js";
 
 export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
     .attach("run", async ({ client, interaction }) => {
@@ -49,7 +50,8 @@ export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
             let swarm = Swarm;
             let image = ImageManager;
             let logger = Logger;
-            var room = RoomManager;
+            let cache = CacheManager;
+            let room = RoomManager;
 
             if (isAsync === 0) {
                 if (code.startsWith("cope")) {

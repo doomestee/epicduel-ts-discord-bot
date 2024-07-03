@@ -1,5 +1,5 @@
 import { ActionRowBase, ButtonComponent, ButtonStyles, ComponentTypes, MessageActionRow, SelectMenuComponent, SelectOption, StringSelectMenuOptions, TextButton, File } from "oceanic.js";
-import Leader, { LeaderType } from "../../game/module/Leader.js";
+import Leader, { CharacterLeaderType, LeaderType } from "../../game/module/Leader.js";
 import DatabaseManager, { quickDollars } from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
 import Command, { CommandType } from "../../util/Command.js";
@@ -157,9 +157,16 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
                 emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
             });
 
-        if (userSetting.lb_view === 1) {
+        if (userSetting.lb_view === 1 || userSetting.lb_view === 2 && isFaction) {
             files = [{
                 contents: await ImageManager.SVG.generator.lb(type, leaders),
+                name: "img.png"
+            }]; content = "";
+        }
+
+        if (userSetting.lb_view === 2 && !isFaction) {
+            files = [{
+                contents: await ImageManager.SVG.generator.lb20(type as unknown as CharacterLeaderType, leaders as CacheTypings.AnyPlayerLeaders[]),
                 name: "img.png"
             }]; content = "";
         }

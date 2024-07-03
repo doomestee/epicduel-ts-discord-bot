@@ -120,4 +120,7 @@ declare namespace CacheTypings {
     }
 
     // export type isFaction<Type, Result1, Result2> = Type extends AnyFactionLeaders ? Result1 : Result2;
+
+    // Yes, this exists, idk
+    export type Player = { type: 1, char: import("../util/Misc.ts").CharPage } | { type: 2, char: PlayerLeaderMiscWithoutExp | PlayerLeaderMiscWithExp }//CharPage
 }

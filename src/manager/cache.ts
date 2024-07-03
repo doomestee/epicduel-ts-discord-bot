@@ -24,6 +24,14 @@ interface CacheInternal {
     faction: NumberCache<Faction>,
     merchant: NumberCache<Shop>,
     tourney: SingularCache<TournamentLeader[]>,
+
+    /**
+     * This is a collection of players (fetched from char page OR leaderboard).
+     * 
+     * The player from leaderboard will have a higher priority and will always replace each time it gets fetched (if it has misc ofc).
+     * But otherwise, it will be cached for 7 days.
+     */
+    player: StringCache<CacheTypings.Player>
 }
 
 export type CacheSetting<T = undefined> = T extends undefined ? { time: number } : {
@@ -39,13 +47,15 @@ interface CacheSettingsInternal {
     achievement: CacheSetting,
     faction: CacheSetting,
     merchant: CacheSetting,
-    tourney: CacheSetting<{ ended: boolean }>
+    tourney: CacheSetting<{ ended: boolean }>,
+
+    player: CacheSetting,
 }
 
 /**
  * FOR COLLECTIONS
  */
-export type ExtractKeyType<T> = T extends Collection<infer K, any> ? K : never;
+export type ExtractKeyType<T, D=never> = T extends Collection<infer K, any> ? K : D;
 /**
  * FOR COLLECTIONS
  */
@@ -65,7 +75,9 @@ export default class CacheManager {
         faction: new Collection(),
         merchant: new Collection(),
         //@ts-expect-error TODO: make val optional
-        tourney: { _lastGot: 0, val: {} }
+        tourney: { _lastGot: 0, val: {} },
+
+        player: new Collection(),
     };
 
     public static settings:CacheSettingsInternal = {
@@ -77,13 +89,14 @@ export default class CacheManager {
         merchant: { time: 1000*60*60*24 },
         tourney: { time: 1000*60*1, args: { ended: true }, cb() {
             return this.args.ended;
-        }, }
+        }, },
+        player: { time: 1000*60*60*24*7 }
     }
 
     /**
      * If you need to delete a key, use this but with empty value
      */
-    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [value: ExtractValueType<CacheInternal[T]>["val"]] : [id: number, value: ExtractValueType<CacheInternal[T]>["val"]]) {
+    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [value: ExtractValueType<CacheInternal[T]>["val"]] : [id: ExtractKeyType<CacheInternal[T], number>, value: ExtractValueType<CacheInternal[T]>["val"]]) {
         // let obj = this.cols[type].get(key);
 
         let [key, value] = args;
@@ -98,7 +111,7 @@ export default class CacheManager {
                 return true;
             }
 
-            //@ts-expect-error
+            //// @ts-expect-error
             col.val = key;
             col._lastGot = 0;
 
@@ -106,6 +119,7 @@ export default class CacheManager {
         }
 
         if (!value) {
+            //@ts-expect-error
             return col.delete(key);
         }
 
@@ -125,7 +139,7 @@ export default class CacheManager {
     /**
      * Returns a boolean indicating whether if the cache is invalid.
      */
-    static check<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [] : [id: number]) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
+    static check<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [] : [id: ExtractKeyType<CacheInternal[T], number>]) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
     // static check<T extends CacheType>(type:T, key:number) : CheckResult<ExtractValueType<CacheInternal[T]>["val"]> {
 
         const [ key ] = args;
@@ -161,3 +175,4 @@ type CheckResult<T extends Object> = ({ valid: false } | { valid: true, value: T
 
 // CacheManager.update("leaders", 1, []);//, 1, [{  }]);
 // CacheManager.update("gifts", []);//, 1, [{}]);//, 1, [{ }]);
+// CacheManager.update("player", )
