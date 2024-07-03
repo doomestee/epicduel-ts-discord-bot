@@ -21,7 +21,7 @@ export default class AdminActionManager extends BaseModule {
                 this.secondsLeft = 300;
                 setTimeout(() => {
                     this.client.swarm.probing = true;
-                    this.client.swarm.resources.checkpoints.comparison[0] = -1;
+                    // this.client.swarm.resources.checkpoints.comparison[0] = -1;
 
                     const obj = {} as Record<SkillTypes, any[]>;
                     const keys = Object.keys(this.client.boxes.skills.objMap) as unknown as SkillTypes[];

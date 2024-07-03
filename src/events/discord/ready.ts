@@ -136,7 +136,7 @@ export default new ClientEvent("ready", function () {
 
             Swarm.resources.comparisonFiles = json as any;
 
-            Swarm.resources.checkpoints.comparison[0] = 1;//.emit("epicduel_epicduel_comparison", 0);
+            Swarm.resources.comparison.fileRetrieved = true;//checkpoints.comparison[0] = 1;//.emit("epicduel_epicduel_comparison", 0);
             return json;
         }).catch((err) => {
             Logger.getLogger("Comparison").error(err);

@@ -118,7 +118,8 @@ export default class SwarmResources {
     comparison = {
         gameVersion: "",
         time: -1,
-        doneById: -1
+        doneById: -1,
+        fileRetrieved: false
     }
 }
 
