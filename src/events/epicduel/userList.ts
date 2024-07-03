@@ -1,6 +1,7 @@
 import { Entity } from "../../Models/EntityStat.js";
 import { IUserRecord } from "../../Models/UserRecord.js";
 import Config from "../../config/index.js";
+import CacheManager from "../../manager/cache.js";
 import DatabaseManager from "../../manager/database.js";
 import Logger from "../../manager/logger.js";
 import EDEvent from "../../util/events/EDEvent.js";
@@ -9,32 +10,54 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
     const time = Date.now();
 
     if (user.charId !== undefined && user.userId !== undefined) {
-        // for (let i of Object.entries(epicduel.sfsUsers)) {
-        //     if (i[1].charId === user.charId && i[0] != user.id) delete epicduel.sfsUsers[i[0]];
-        // }
+        //@ts-expect-error
+        for (let i of Object.entries(this.swarm.resources.sfsUsers)) {
+            //@ts-expect-error
+            if (i[1].charId === user.charId && i[0] != user.id) delete this.swarm.resources.sfsUsers[i[0]];
+        }
         
-        // epicduel.sfsUsers[user.id] = {
-        //     charName: user.charName,
-        //     charId: user.charId,
-        //     userId: user.userId,
-        //     charLvl: user.charLvl,
-        //     charExp: user.charExp,
-        //     sfsUserId: user.id,
-        //     faction: {
-        //         title: user.charTitle,
-        //         name: user.fctName
-        //     }, totalInf: user.charTotalInfluence,
-        //     warAlign: user.charWarAlign,
-        //     isMod: user.isMod,
-        //     hasLeft: type === 2,
-        //     lastSeen: new Date()
-        // };
+        //@ts-expect-error
+        this.swarm.resources.sfsUsers[user.id] = {
+            charName: user.charName,
+            charId: user.charId,
+            userId: user.userId,
+            charLvl: user.charLvl,
+            charExp: user.charExp,
+            sfsUserId: user.id,
+            faction: {
+                title: user.charTitle,
+                name: user.fctName
+            }, totalInf: user.charTotalInfluence,
+            warAlign: user.charWarAlign,
+            isMod: user.isModerator(),
+            hasLeft: type === 2,
+            lastSeen: new Date()
+        };
+
+        // Also encounters will count!
+        CacheManager.update("player", user.charName.toLowerCase(), {
+            type: 2, char: {
+                pri: user.charPri,
+                sec: user.charSec,
+                hair: user.charHair,
+                hairS: user.charHairS,
+                accnt: user.charAccnt,
+                accnt2: user.charAccnt2,
+                skin: user.charSkin,
+                eye: user.charEye,
+                gender: user.charGender,
+                arm: user.charArm,
+                classId: user.charClassId,
+                exp: user.charExp,
+                lvl: user.charLvl
+            }
+        });
 
         let flags = 0;
 
-        if (user.isLegendary) flags += 1 << 0;
-        if (user.isModerator())       flags += 1 << 1;
-        if (user.isSpectator())      flags += 1 << 2;
+        if (user.isLegendary)   flags += 1 << 0;
+        if (user.isModerator()) flags += 1 << 1;
+        if (user.isSpectator()) flags += 1 << 2;
 
         if (user.isModerator()) {
             hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
