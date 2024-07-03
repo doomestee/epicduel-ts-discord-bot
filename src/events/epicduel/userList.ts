@@ -11,6 +11,9 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
 
     if (user.charId !== undefined && user.userId !== undefined) {
         //@ts-expect-error
+        if (!this.swarm.resources.sfsUsers) this.swarm.resources.sfsUsers = {};
+
+        //@ts-expect-error
         for (let i of Object.entries(this.swarm.resources.sfsUsers)) {
             //@ts-expect-error
             if (i[1].charId === user.charId && i[0] != user.id) delete this.swarm.resources.sfsUsers[i[0]];
