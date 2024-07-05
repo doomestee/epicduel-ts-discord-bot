@@ -15,8 +15,8 @@ export default new EDEvent("onFriendStatus", async function (hydra, obj) {
 
         const char = find(links, v => v.id === obj.charId);//links.result.find(v => v.id === obj.charId);
 
-        if (char && char.flags & 1 << 5) {
-            char.flags -= 1 << 5;
+        if (char && char.link_flags & 1 << 5) {
+            char.link_flags -= 1 << 5;
 
             DatabaseManager.cli.query("UPDATE characterlink SET flags = flags - $1 WHERE id = $2", [1 << 5, obj.charId])
                 // .catch(err => Logger.getLogger("Database").error(err));
