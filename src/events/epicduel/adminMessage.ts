@@ -300,10 +300,10 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
                     // list.length/((lastBomb.exile.time-list[0].time)/1000/60)
 
-                    text += `* Overall:\n  * **Total Bomb(s)**: ${stat.count.exile[0] + stat.count.exile[1] + stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.exile[0] + stat.count.legion[0]}, Super: ${stat.count.exile[1] + stat.count.legion[1]})\n  ` + /** **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - firstBomb.overall.time) / 1000)).toFixed(4)} bomb(s)\n */ `* **Bomb Per Minute**: ${(list.length/((lastBomb.overall.time-firstBomb.overall.time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    text += `* En totalidad:\n  * **Total Bomb(s)**: ${stat.count.exile[0] + stat.count.exile[1] + stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.exile[0] + stat.count.legion[0]}, Super: ${stat.count.exile[1] + stat.count.legion[1]})\n  ` + /** **Bomb Per Second**: ${(list.length / ((lastBomb.overall.time - firstBomb.overall.time) / 1000)).toFixed(4)} bomb(s)\n */ `* **Bombas por minuto**: ${(list.length/((lastBomb.overall.time-firstBomb.overall.time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
-                    if (lastBomb.exile && firstBomb.exile) text += `\n* Exile:\n  * **Total Bomb(s)**: ${stat.count.exile[0] + stat.count.exile[1]} (Regular: ${stat.count.exile[0]}, Super: ${stat.count.exile[1]})\n  * **Total Influence**: ${stat.score.exile}\n  ` + /** * **Bomb Per Second**: ${((stat.count.exile[0] + stat.count.exile[1]) / ((lastBomb.exile.time - firstBomb.exile.time) / 1000)).toFixed(4)} bomb(s)\n */ `* **Bomb Per Minute**: ${((stat.count.exile[0] + stat.count.exile[1])/((lastBomb.exile.time-firstBomb.exile.time)/1000/60)).toFixed(4)} bomb(s).\n`;
-                    if (lastBomb.legion && firstBomb.legion) text += `\n* Legion:\n  * **Total Bomb(s)**: ${stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.legion[0]}, Super: ${stat.count.legion[1]})\n  * **Total Influence**: ${stat.score.legion}\n  ` + /*** **Bomb Per Second**: ${((stat.count.legion[0] + stat.count.legion[1]) / ((lastBomb.legion.time - firstBomb.legion.time) / 1000)).toFixed(4)} bomb(s)\n  */ `* **Bomb Per Minute**: ${((stat.count.legion[0] + stat.count.legion[1])/((lastBomb.legion.time-firstBomb.legion.time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.exile && firstBomb.exile) text += `\n* Exilio:\n  * **Total Bomb(s)**: ${stat.count.exile[0] + stat.count.exile[1]} (Regular: ${stat.count.exile[0]}, Super: ${stat.count.exile[1]})\n  * **Total Influence**: ${stat.score.exile}\n  ` + /** * **Bomb Per Second**: ${((stat.count.exile[0] + stat.count.exile[1]) / ((lastBomb.exile.time - firstBomb.exile.time) / 1000)).toFixed(4)} bomb(s)\n */ `* **Bombas por minuto**: ${((stat.count.exile[0] + stat.count.exile[1])/((lastBomb.exile.time-firstBomb.exile.time)/1000/60)).toFixed(4)} bomb(s).\n`;
+                    if (lastBomb.legion && firstBomb.legion) text += `\n* Legión:\n  * **Total Bomb(s)**: ${stat.count.legion[0] + stat.count.legion[1]} (Regular: ${stat.count.legion[0]}, Super: ${stat.count.legion[1]})\n  * **Total Influence**: ${stat.score.legion}\n  ` + /*** **Bomb Per Second**: ${((stat.count.legion[0] + stat.count.legion[1]) / ((lastBomb.legion.time - firstBomb.legion.time) / 1000)).toFixed(4)} bomb(s)\n  */ `* **Bombas por minuto**: ${((stat.count.legion[0] + stat.count.legion[1])/((lastBomb.legion.time-firstBomb.legion.time)/1000/60)).toFixed(4)} bomb(s).\n`;
 
                     // TODO: biggest bomber by count by score etc for both  side as well
 
@@ -319,6 +319,19 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         orderedUsers[keys[i]] = stat.user[keys[i]];
                     }
 
+                    if (hoursLeft === 0) {
+                        const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+
+                        for (let i = 0, len = keys.length; i < len; i++) {
+                            if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
+                                if (this.swarm.resources.tracker.player.chars[keys[i]].time !== time) {
+                                    this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
+                                    this.swarm.resources.tracker.player.chars[keys[i]].time = time;
+                                }
+                            }
+                        }
+                    }
+
                     return hydra.rest.channels.createMessage("1232008738399981629", {
                         content: text.trim(),
                         files: [{
@@ -330,7 +343,6 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         }]
                         //content: (globalGift === 0 ? `**${gifterName}** sent a present at Central Station, VendBot.` : `**${gifterName}** sent a global present.`) + `\nThis person has given away ${totalGiftCount} in total, to ${globalGift === 0 ? "a room" : "the server"} with ${roomGiftCount} characters.`
                     }).then(v => v.crosspost());//.catch((err) => this._logger.error(err));
-
                 }
 
                 if (hoursLeft === 0) {
