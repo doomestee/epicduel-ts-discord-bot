@@ -622,8 +622,7 @@ class Generator {
         for (let x = 0; x < 5; x++) {
             const thing = obj[x];
 
-            if (!thing) continue;
-            if (!thing["misc"]) {
+            if (thing === undefined || !thing["misc"]) {
                 images[x] = (readFile(Config.svgDir + "/misc/skull.png"));
                 continue;
             }
