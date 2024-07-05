@@ -153,8 +153,8 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
         // if (type !== 666) {// && /*[1, 2, 16, 3, 4, 17,  8, 9, 19, 5, 6, 18].includes(type) && */client.isMaintainer(interaction.member.id)) {
             components[1].components.push({
             // components[components.findIndex(v => v.components[0].customID.startsWith("refresh"))].components.push({
-                type: ComponentTypes.BUTTON, style: 1, customID: `switch_view_lb_${interaction.user.id}_${type}_${userSetting.lb_view === 0 ? 1 : 0}_${cooldown}`, label: "Switch View",
-                emoji: { name: userSetting.lb_view === 1 ? "📰" : "📷" }
+                type: ComponentTypes.BUTTON, style: 1, customID: `switch_view_lb_menu_${interaction.user.id}_${cooldown}`, label: "Switch View",
+                emoji: { name: "🔄" }
             });
 
         if (userSetting.lb_view === 1 || userSetting.lb_view > 1 && isFaction) {
