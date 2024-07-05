@@ -15,7 +15,7 @@ import he from "he";
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 let edClass = (id: number) => { return id == 0 ? "None" : id == 1 ? "Hunter" : id == 2 ? "Mercenary" : id == 3 ? "Mage" : "Unknown" };
 
-export default new Command(CommandType.Component, { custom_id: 'mission_daily_menu_<userId>' })
+export default new Command(CommandType.Component, { custom_id: 'mission_recent_menu_<userId>' })
     .attach('run', async ({ client, interaction, variables: { userId } }) => {
         if (interaction.data.componentType !== ComponentTypes.STRING_SELECT) return;
 
