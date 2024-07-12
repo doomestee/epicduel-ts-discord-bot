@@ -178,7 +178,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             // }
 
             this.swarm.activeWar["done"] = true;
-            this.swarm.scaleFor("war", false);
+            if (!Config.isDevelopment) this.swarm.scaleFor("vendbot");
 
             console.log("War has ended! Ended at " + time);
             break;

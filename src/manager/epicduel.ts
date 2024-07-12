@@ -462,13 +462,15 @@ export default class Swarm {
             // Filter through objectives that are done
             const filtered:[WarObjective, RoomManagerRecord][] = [];
 
-            for (let i = 0, len = objs.length; i < len; i++) {
-                const obj = objs[i];
-                const room = find(roomWithObjs, v => v.objectiveId === obj.objectiveId);
+            if (cli.modules.WarManager.cooldownHours < 1) {
+                for (let i = 0, len = objs.length; i < len; i++) {
+                    const obj = objs[i];
+                    const room = find(roomWithObjs, v => v.objectiveId === obj.objectiveId);
 
-                if (!room) throw Error("Conflicting objectives.");
+                    if (!room) throw Error("Conflicting objectives.");
 
-                if (obj.points !== obj.maxPoints && obj.alignmentId !== oppAlign) filtered.push([obj, room]);
+                    if (obj.points !== obj.maxPoints && obj.alignmentId !== oppAlign) filtered.push([obj, room]);
+                }
             }
 
             if (filtered.length > this.appendages.length) Logger.debug("Swarm").warn(`Not enough accounts (currently ${this.appendages.length}) to cover all war objectives ${filtered.length}.`);
