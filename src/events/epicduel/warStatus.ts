@@ -161,6 +161,15 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             if (!checkTime(obj.type, time)) return;
             activeWar = await this.swarm.getActiveWar();
 
+            {
+                const endedDate = (activeWar.type === 1 ? activeWar.result.ended_at : activeWar.type === 0 ? activeWar.prev.ended_at : null);
+                
+                if (endedDate !== null) {
+                    Logger.getLogger("War").debug("Received an end event, despite the recent war object already having ended.");
+                    return;
+                }
+            }
+
             let ss = DatabaseManager.cli.query(`UPDATE war SET ended_at = $1 WHERE id = $2`, [time, activeWar.type === 1 ? activeWar.result.id : -1] as unknown as [string, string]) // why is pg lib being bitchy about this
                 // .catch(e => {return {error: e}});
 

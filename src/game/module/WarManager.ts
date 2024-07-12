@@ -189,9 +189,8 @@ export default class WarManager extends BaseModule {
             })
         }
 
-        if (this.cooldownHours < 0) {
-            this.client.swarm.execute("onWarStatusChange", this.client, { type: "start" });
-        }
+        if (this.cooldownHours < 0) this.client.swarm.execute("onWarStatusChange", this.client, { type: "start" });
+        else this.client.swarm.execute("onWarStatusChange", this.client, { type: "end", alignment: 1 });
     }
 
     get activeRegion() {
