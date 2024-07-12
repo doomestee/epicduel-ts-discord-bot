@@ -150,6 +150,7 @@ export default class WarManager extends BaseModule {
      * @param {string[]} data 
      */
     warObjectiveAllDataReceived(data: string[]) {
+        // console.log(data);
         this.warObjectiveDataList = [];
 
         this.activeRegionId = parseInt(data[2]);
@@ -186,6 +187,10 @@ export default class WarManager extends BaseModule {
                 maxPoints: maxPoints,
                 alignmentId: alignmentId
             })
+        }
+
+        if (this.cooldownHours < 0) {
+            this.client.swarm.execute("onWarStatusChange", this.client, { type: "start" });
         }
     }
 

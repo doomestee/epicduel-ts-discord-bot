@@ -24,16 +24,16 @@ let lastRally = {
 // let lastType:number = 0;
 
 function checkTime(type: "bomb", date: Date, name: string, inf: number) : boolean
-function checkTime(type: "rally"|"end"|"start", date: Date) : boolean
+function checkTime(type: "rally"|"end"|"start", date: Date, timeLast?: number) : boolean
 function checkTime(type: "rally", date: Date, status: "end"|"start"|"ongoing") : boolean
-function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date, name?: string, inf?: number) {
+function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date, name?: string | number, inf?: number) {
     const time = date.getTime();
 
-    const gap = type === "bomb" ? 2 : 50;
+    const gap = type === "bomb" ? 2 : (typeof name === "number" ? name : 50);
 
     if ((type === "bomb" && (lastTimeSince[type] + gap) > time && lastBomber.name === name && lastBomber.inf === inf) || (type === "rally" && (lastTimeSince[type] + gap) > time && lastRally.status === name) || (type !== "bomb" && (lastTimeSince[type] + gap) > time)) return false;
     else {
-        if (type === "bomb" && name && inf) {
+        if (type === "bomb" && typeof name === "string" && inf) {
             lastBomber.name = name;
             lastBomber.inf = inf;
         }
@@ -147,13 +147,13 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             }
             break;
         case "start":
-            if (!checkTime(obj.type, time)) return;
+            if (!checkTime(obj.type, time, 1000)) return;
             // if (this.modules.WarManager.activeRegionId < 1) return;
 
-            setTimeout(() => {
+            // setTimeout(() => {
                 this.swarm.getActiveWar(true)
                     .then(() => this.swarm.scaleFor("war"));
-            }, 5000);
+            // }, 5000);
 
             // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
             break;
