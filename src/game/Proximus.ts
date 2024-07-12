@@ -617,6 +617,8 @@ export default class Client {
     onAdminMessageHandler(evt: SFSClientEvents["onAdminMessage"][0]) {
         const msgText = evt.message;
 
+        Logger.getLoggerP(this).warn(`Admin message: ` + msgText);
+
         if(msgText == "Watch the language!" || msgText == "You\'re being booted for language!" || msgText == "You\'re being banned for language!" || msgText == "You have been warned for flooding!" || msgText == "You\'re being booted for flooding!" || msgText == "You\'re being banned for flooding!") {
             // this.debug(evt);
             //client.timer.flood.start();
@@ -625,6 +627,8 @@ export default class Client {
 
     onModeratorMessageHandler(evt: SFSClientEvents["onModeratorMessage"][0]) {
         const modCode = Number(evt.message);
+
+        Logger.getLoggerP(this).warn(`Moderator message: ` + modCode);
         // this.debug("Warned by a malderator for: " + modCode);
     }
 
@@ -1532,7 +1536,9 @@ export default class Client {
             this.timer.ping.start();
             this.lobbyInit = true;
             Logger.getLoggerP(this).debug(`Joined the lobby, sending init.`);
-            this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
+            setTimeout(() => {
+                this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
+            }, 2000);
         } else if (room.isBattle) {
             this.battleOver = false;
             /*
