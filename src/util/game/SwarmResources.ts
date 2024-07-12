@@ -27,7 +27,7 @@ export default class SwarmResources {
     clear() {
         this.languages = {};
 
-        this.comparisonFiles.skills
+        // this.comparisonFiles.item.splice(0);
 
         this.getNewLang();
     }

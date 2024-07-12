@@ -489,7 +489,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
 
     if (hasUpdated) {
         const obj = {} as Record<SkillTypes, any[]>;
-        const keys = Object.keys(this.boxes.skills.objMap) as unknown as SkillTypes[];
+        const keys = Object.keys(this.boxes.skills.objMap).concat(Object.keys(this.boxes.skills.objList)) as unknown as SkillTypes[];
 
         const abc = map(keys, v => v === "tree" ? this.boxes.skills.objList[v] : this.boxes.skills.objMap[v].toArray());
 

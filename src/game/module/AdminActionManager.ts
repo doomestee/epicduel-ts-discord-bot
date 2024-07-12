@@ -24,7 +24,7 @@ export default class AdminActionManager extends BaseModule {
                     // this.client.swarm.resources.checkpoints.comparison[0] = -1;
 
                     const obj = {} as Record<SkillTypes, any[]>;
-                    const keys = Object.keys(this.client.boxes.skills.objMap) as unknown as SkillTypes[];
+                    const keys = Object.keys(this.client.boxes.skills.objMap).concat(Object.keys(this.client.boxes.skills.objList)) as unknown as SkillTypes[];
 
                     const abc = map(keys, v => v === "tree" ? this.client.boxes.skills.objList[v] : this.client.boxes.skills.objMap[v].toArray());
 
