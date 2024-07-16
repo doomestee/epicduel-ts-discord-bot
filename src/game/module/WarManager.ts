@@ -162,7 +162,7 @@ export default class WarManager extends BaseModule {
             this.activeRegionId1 = parseInt(data[2]);
         }
 
-        if (this.warRallyStatus != 0 && (this.cooldownHours) < 0) {
+        if (this.warRallyStatus != 0 && (this.cooldownHours) <= 0) {
             this.client.swarm.execute("onWarStatusChange", this.client, { type: "rally", alignment: this.warRallyStatus as 1 | 2, status: "ongoing" });
         }
 
@@ -189,7 +189,7 @@ export default class WarManager extends BaseModule {
             })
         }
 
-        if (this.cooldownHours < 0) this.client.swarm.execute("onWarStatusChange", this.client, { type: "start" });
+        if (this.cooldownHours <= 0) this.client.swarm.execute("onWarStatusChange", this.client, { type: "start" });
         else this.client.swarm.execute("onWarStatusChange", this.client, { type: "end", alignment: 1 });
     }
 

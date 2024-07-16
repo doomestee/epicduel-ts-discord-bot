@@ -20,6 +20,11 @@ let lastBomber = {
 let lastRally = {
     status: ""
 }
+let lastWar = {
+    id: -1,
+    regionId: -1,
+    points: 0,
+}
 // let lastUsed
 // let lastType:number = 0;
 
@@ -150,9 +155,11 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             if (!checkTime(obj.type, time, 1000)) return;
             // if (this.modules.WarManager.activeRegionId < 1) return;
 
+            if (lastWar.regionId === this.modules.WarManager.activeRegionId) return Logger.getLoggerP(this).debug(`Client sent a start event, but war is already ongoing`);
+
             // setTimeout(() => {
                 this.swarm.getActiveWar(true)
-                    .then(() => this.swarm.scaleFor("war"));
+                    .then(() => { lastWar.regionId = this.modules.WarManager.activeRegionId; this.swarm.scaleFor("war") });
             // }, 5000);
 
             // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
