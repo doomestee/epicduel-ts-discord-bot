@@ -1073,9 +1073,15 @@ export default class Client {
                     break;
                 case Responses.RESPONSE_GET_ALL_MISSIONS:
                     this.boxes.mission.populate("self", dataObj.slice(2));
+                    this.boxes.mission.status[0] = 1;
+
+                    if (this.boxes.mission.reset) this.swarm.execute("onDailyMissions", this, { status: this.boxes.mission.status });
                     break;
                 case Responses.RESPONSE_GET_ALL_MISSION_GROUPS:
                     this.boxes.mission.populate("group", dataObj.slice(2));
+                    this.boxes.mission.status[1] = 1;
+
+                    if (this.boxes.mission.reset) this.swarm.execute("onDailyMissions", this, { status: this.boxes.mission.status });
                     break;
                 case Responses.RESPONSE_GET_CLASSES:
                     this.boxes.class.populate(dataObj.slice(2));
@@ -1199,6 +1205,7 @@ export default class Client {
                 case Responses.RESPONSE_NEW_WORLD_CREATED:
                     break; // new world created... what?
                 case Requests.REQUEST_HOURS_LEFT:
+                    console.log(`Hours left`, dataObj);
                     // let [loc53, loc54, loc55, loc56] = [dataObj[2], dataObj[3], dataObj[4], dataObj[5]].map(Number);
 
                     // if (loc54) {

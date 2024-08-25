@@ -1,0 +1,158 @@
+[
+    {
+        "groupId": 16,
+        "groupName": "Exile Offensive",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 17,
+        "groupName": "Legion Offensive",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 29,
+        "groupName": "Dogs of War (Exile)",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 30,
+        "groupName": "Dogs of War (Legion)",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 31,
+        "groupName": "Delta V's Finest (Exile)",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 32,
+        "groupName": "Delta V's Finest (Legion)",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 34,
+        "groupName": "Thesis Proposal",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 35,
+        "groupName": "Warmonger",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 74,
+        "groupName": "Pirate Troubles",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 75,
+        "groupName": "Family Feud",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 76,
+        "groupName": "Seasonal Trading",
+        "groupOrder": 0,
+        "tier": 0
+    },
+    {
+        "groupId": 80,
+        "groupName": "BloodHawk Training",
+        "groupOrder": 0,
+        "tier": 3
+    },
+    {
+        "groupId": 81,
+        "groupName": "Trouble in the Hive",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 82,
+        "groupName": "Mercenary Duties",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
+        "groupId": 146,
+        "groupName": "Cleansing Paradise",
+        "groupOrder": 500,
+        "tier": 3
+    },
+    {
+        "groupId": 148,
+        "groupName": "Beach Bash",
+        "groupOrder": 500,
+        "tier": 5
+    },
+    {
+        "groupId": 150,
+        "groupName": "Three Kings",
+        "groupOrder": 500,
+        "tier": 6
+    },
+    {
+        "groupId": 151,
+        "groupName": "Habuki's Honor",
+        "groupOrder": 500,
+        "tier": 0
+    },
+    {
+        "groupId": 152,
+        "groupName": "Lawman's Orders",
+        "groupOrder": 500,
+        "tier": 2
+    },
+    {
+        "groupId": 153,
+        "groupName": "Restoring Order",
+        "groupOrder": 500,
+        "tier": 6
+    },
+    {
+        "groupId": 154,
+        "groupName": "Sowing Chaos",
+        "groupOrder": 500,
+        "tier": 4
+    },
+    {
+        "groupId": 155,
+        "groupName": "Hazardous Bounties",
+        "groupOrder": 500,
+        "tier": 8
+    },
+    {
+        "groupId": 157,
+        "groupName": "Nightmare Bounties",
+        "groupOrder": 500,
+        "tier": 8
+    },
+    {
+        "groupId": 158,
+        "groupName": "Dual Bounties",
+        "groupOrder": 500,
+        "tier": 8
+    },
+    {
+        "groupId": 197,
+        "groupName": "Token Transaction",
+        "groupOrder": 999,
+        "tier": 9
+    },
+    {
+        "groupId": 199,
+        "groupName": "Coins for Charon",
+        "groupOrder": 999,
+        "tier": 10
+    }
+]

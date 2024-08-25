@@ -374,6 +374,7 @@ export default class Swarm {
         onPublicMessage: undefined, // done
         onUserListUpdate: undefined,
         onWarStatusChange: undefined, // done
+        onDailyMissions: undefined, //done
     };
 
     private static async loadEvents() {
