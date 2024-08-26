@@ -293,7 +293,7 @@ export default class Swarm {
 
         if (!ed) return { reasonType: 0, type: -1 };
 
-        if (!refreshCache && this.activeWar.war.id && !(ed.modules.WarManager.activeRegionId > 0 && this.activeWar.war.region_id !== ed.modules.WarManager.activeRegionId)) return { type: 1, result: this.activeWar.war };
+        if (!refreshCache && this.activeWar.war.id && !this.activeWar.done && !(ed.modules.WarManager.activeRegionId > 0 && this.activeWar.war.region_id !== ed.modules.WarManager.activeRegionId)) return { type: 1, result: this.activeWar.war };
 
         const [sussy] = await DatabaseManager.cli.query<IWar>(`SELECT * FROM war ORDER BY id desc LIMIT 1`).then(v => v.rows);
 

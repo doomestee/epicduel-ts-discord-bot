@@ -29,14 +29,18 @@ let lastWar = {
 // let lastType:number = 0;
 
 function checkTime(type: "bomb", date: Date, name: string, inf: number) : boolean
-function checkTime(type: "rally"|"end"|"start", date: Date, timeLast?: number) : boolean
+function checkTime(type: "end"|"start", date: Date) : boolean
 function checkTime(type: "rally", date: Date, status: "end"|"start"|"ongoing") : boolean
 function checkTime(type: "rally"|"end"|"start"|"bomb", date: Date, name?: string | number, inf?: number) {
     const time = date.getTime();
 
     const gap = type === "bomb" ? 2 : (typeof name === "number" ? name : 50);
 
-    if ((type === "bomb" && (lastTimeSince[type] + gap) > time && lastBomber.name === name && lastBomber.inf === inf) || (type === "rally" && (lastTimeSince[type] + gap) > time && lastRally.status === name) || (type !== "bomb" && (lastTimeSince[type] + gap) > time)) return false;
+    if (
+        (type === "bomb" && (lastTimeSince[type] + gap) > time && lastBomber.name === name && lastBomber.inf === inf)
+     || (type === "rally" && (lastTimeSince[type] + gap) > time && lastRally.status === name)
+     || (type !== "bomb" && (lastTimeSince[type] + gap) > time)
+    ) return false;
     else {
         if (type === "bomb" && typeof name === "string" && inf) {
             lastBomber.name = name;
@@ -103,6 +107,8 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
 
             console.log(points);
 
+            const gapInf = String(Math.abs(parseInt(points.remaining[0]) - parseInt(points.remaining[1])));
+
             // yes i'm awaiting them one by one, for the sake of ratelimits at least. Plus the bot isn't large scale so will be fine for now as it'll loop through like 10 channels at max.
             for (let i = 0; i < notifications.length; i++) {
                 let message = notifications[i].message;
@@ -122,6 +128,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
                         .replace(/%currentPcL%/g, points.currentPercent[0])
                         .replace(/%gapAlign%/g, (points.remaining[0] >= points.remaining[1]) ? "Exile" : "Legion")
                         .replace(/%gapPt%/g, points.gapPt)//Math.abs(points.remaining[0] - points.remaining[1]))
+                        .replace(/%gapInf%/g, gapInf)
                         .replace(/%warRegion%/g, this.modules.WarManager.activeRegion?.warTitle.slice(0, -4) ?? "unknown region");
                 }
 
@@ -152,15 +159,16 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             }
             break;
         case "start":
-            if (!checkTime(obj.type, time, 1000)) return;
+            if (!checkTime(obj.type, time)) return;
             // if (this.modules.WarManager.activeRegionId < 1) return;
 
             if (lastWar.regionId === this.modules.WarManager.activeRegionId) return Logger.getLoggerP(this).debug(`Client sent a start event, but war is already ongoing`);
 
-            // setTimeout(() => {
-                this.swarm.getActiveWar(true)
-                    .then(() => { lastWar.regionId = this.modules.WarManager.activeRegionId; this.swarm.scaleFor("war") });
-            // }, 5000);
+            lastWar.regionId = this.modules.WarManager.activeRegionId;
+
+            setTimeout(() => {
+                this.swarm.scaleFor("war");
+            }, 60000);
 
             // DatabaseManager.insert("war", { created_at: time, ended_at: null, max_points: this.modules.WarManager.warPoints().max[0], region_id: this.modules.WarManager.activeRegionId } satisfies Omit<IWar, "id">);
             break;
@@ -185,6 +193,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             // }
 
             this.swarm.activeWar["done"] = true;
+            this.swarm.getActiveWar(true);
             if (!Config.isDevelopment) this.swarm.scaleFor("vendbot");
 
             console.log("War has ended! Ended at " + time);
