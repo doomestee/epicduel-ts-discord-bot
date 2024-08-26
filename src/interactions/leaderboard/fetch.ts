@@ -13,8 +13,8 @@ import { ICharacter } from "../../Models/Character.js";
 import ClassBox from "../../game/box/ClassBox.js";
 import ImageManager from "../../manager/image.js";
 
-export const lbNames = [map(["1v1 Wins", "2v2 Wins", "Juggernaut Wins", "Personal Influence", "Fame", "Inventory Rarity", "Faction 1v1 Champions", "Faction 2v2 Champions", "Faction Juggernaut Champions", "World Dominations", "War Upgrades", "Faction Influence", "Code Redeems", "Player Rating"], v => 'All - ' + v), map(["1v1 Wins (Default)", "2v2 Wins", "Juggernaut Wins", "Faction 1v1 Wins", "Faction 2v2 Wins", "Faction Juggernaut Wins", "Fame", "Code Redeems"], v => 'Daily - ' + v)].flat(1);
-export const correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 3, 4, 17, 5, 6, 18, 15, 20] as const;
+export const lbNames = [map(["1v1 Wins", "2v2 Wins", "Juggernaut Wins", "Personal Influence", "Fame", "Inventory Rarity", "Faction 1v1 Champions", "Faction 2v2 Champions", "Faction Juggernaut Champions", "World Dominations", "War Upgrades", "Faction Influence", "Code Redeems", "Player Rating", "Player Rank"], v => 'All - ' + v), map(["1v1 Wins (Default)", "2v2 Wins", "Juggernaut Wins", "Faction 1v1 Wins", "Faction 2v2 Wins", "Faction Juggernaut Wins", "Fame", "Code Redeems"], v => 'Daily - ' + v)].flat(1);
+export const correspondingIndexes = [1, 2, 16, 11, 14, 13, 8, 9, 19, 7, 10, 12, 21, 22, 23, 3, 4, 17, 5, 6, 18, 15, 20] as const;
 
 export const lbTypes = {} as { [x in LeaderType]: string };
 
@@ -48,7 +48,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
         const type = interaction.data.options.getInteger("type") as LeaderType ?? 3;
 
         // 666 is custom bot - fame for shame
-        if (type < 1 || (type > 22/* && type !== 666*/)) return interaction.reply({ content: "Invalid type! Valid types are 1-22." });
+        if (type < 1 || (type > 23/* && type !== 666*/)) return interaction.reply({ content: "Invalid type! Valid types are 1-22." });
 
         const table = new AsciiTable3(lbTypes[type]).setAlignLeft(1).setStyle("unicode-double").setHeading("No.", "Name", ...headings(type));
 

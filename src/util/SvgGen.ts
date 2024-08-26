@@ -792,6 +792,9 @@ class Generator {
             case 22:
                 converters = { "Rating": (v) => v.rating, "Level": quickLvl };
                 break;
+            case 23:
+                converters = { "Rank": (v) => v.rank };
+                break;
         }
 
         image.print(bigfont, 800, 35, isFaction ? "Factions" : "Characters");
@@ -939,6 +942,7 @@ class Generator {
 
 
         let converters = {} as Record<string, (v: any) => string | number>;
+        let reversers = {} as Record<string, boolean>;
 
         switch (lbType) {
             // 1v1/2v2/2v1 all time or dailies, including daily factions.
@@ -960,9 +964,14 @@ class Generator {
             case 22:
                 converters = { "RP": (v) => v.rating };
                 break;
+            case 23:
+                converters = { "Rank": (v) => v.rank };
+                reversers = { "Rank": true };
+                break;
         }
 
         const keys = Object.keys(converters);
+        const reversed = map(keys, v => reversers[v] === true);
 
         const scaffold = new Jimp(300, 50);//await Jimp.create(300, 50);
 
@@ -997,7 +1006,7 @@ class Generator {
 
                 for (let k = 0, ken = keys.length; k < ken; k++) {
                     // image.print(smolfont, 1450 + (100*x) + (x === 0 ? 0 : 6 * extra[x - 1]), 80 + (i*45), converters[keys[x]](obj[i]));
-                    jimps[0][i].print(smolfont, 275, 45 + (30*k), converters[keys[k]](obj[i]) + " " + keys[k]);
+                    jimps[0][i].print(smolfont, 275, 45 + (30*k), reversed[k] ? (keys[k] + " " + converters[keys[k]](obj[i])) : (converters[keys[k]](obj[i]) + " " + keys[k]));
                 }
             }
 

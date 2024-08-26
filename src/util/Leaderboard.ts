@@ -12,6 +12,7 @@ export function headings(index: number) {
     if (index === 14 || index === 15) return ["Fame", "Lvl"];
     if (index === 20 || index === 21) return ["Redeems", "Lvl"];
     if (index === 22) return ["Rating", "Lvl"];
+    if (index === 23) return ["Rank"];
     if (index === 666) return ["Incidence"];//, "Lvl"];
 
     return [];
@@ -51,6 +52,9 @@ export function transform<T extends LeaderType = LeaderType>(type: T, obj: Leade
         let name = (type === 11) ? "influence" : (type === 13) ? "rarity" : (type === 14 || type === 15) ? "fame" : (type === 20 || type === 21) ? "redeems" : (type === 22) ? "rating" : "";
 
         return [(obj as any)[name], obj.misc?.lvl ?? ""];
+    }
+    if (lazyFuck<CacheTypings.PlayerLeaderRank>(obj, [23], type)) {
+        return [obj.rank];
     }
 
     return [];

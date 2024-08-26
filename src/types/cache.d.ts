@@ -104,7 +104,12 @@ declare namespace CacheTypings {
      */
     export type PlayerLeaderRating = PlayerLeader<"rating", PlayerLeaderMiscWithExp>;
 
-    export type AnyPlayerLeaders = PlayerLeaderFame | PlayerLeaderRating | PlayerLeaderRedeems | PlayerLeaderRarity | PlayerLeaderInf | PlayerLeaderPvp;
+    /**
+     * 23
+     */
+    export type PlayerLeaderRank = PlayerLeader<"rank", PlayerLeaderMiscWithExp>;
+
+    export type AnyPlayerLeaders = PlayerLeaderFame | PlayerLeaderRating | PlayerLeaderRedeems | PlayerLeaderRarity | PlayerLeaderInf | PlayerLeaderPvp | PlayerLeaderRank;
     export type AnyFactionLeaders = FactionLeaderInf | FactionLeaderCap | FactionLeaderLead | FactionLeaderDom | FactionLeaderPvp;
 
     export type AnyLeaders = AnyPlayerLeaders | AnyFactionLeaders;

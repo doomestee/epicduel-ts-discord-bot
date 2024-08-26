@@ -46,12 +46,13 @@ export type LeaderTypeToList = {
     21: CacheTypings.PlayerLeaderRedeems;
 
     22: CacheTypings.PlayerLeaderRating;
+    23: CacheTypings.PlayerLeaderRank;
 }
 
 export type LeaderType = keyof LeaderTypeToList;
 
 export type FactionLeaderType = 7 | 10 | 8 | 9 | 19 | 12 | 5 | 6 | 18;
-export type CharacterLeaderType = 1 | 2 | 16 | 3 | 4 | 17 | 11 | 13 | 14 | 15 | 20 | 21 | 22;
+export type CharacterLeaderType = 1 | 2 | 16 | 3 | 4 | 17 | 11 | 13 | 14 | 15 | 20 | 21 | 22 | 23;
 
 export default class Leader extends BaseModule {
     static Indexes = {
@@ -70,10 +71,11 @@ export default class Leader extends BaseModule {
             Faction_Influence: 12,
             Redeem: 21,
             Rating: 22,
+            Rank: 23,
 
-            All: [1, 2, 16, 11, 14, 13, 8, 9, 19, 12, 21, 22],
+            All: [1, 2, 16, 11, 14, 13, 8, 9, 19, 12, 21, 22, 23],
             Faction: [7, 10, 8, 9, 19, 12],
-            Char: [1, 2, 16, 11, 14, 13, 21, 22],
+            Char: [1, 2, 16, 11, 14, 13, 21, 22, 23],
         },
         Daily: {
             Solo: 3,
@@ -91,7 +93,7 @@ export default class Leader extends BaseModule {
         },
         All: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
         Faction: [7, 10, 8, 9, 19, 12, 5, 6, 18],
-        Char: [1, 2, 16, 11, 14, 13, 21, 22, 3, 4, 17, 15, 20]
+        Char: [1, 2, 16, 11, 14, 13, 21, 22, 23, 3, 4, 17, 15, 20]
     };
 
     /**
@@ -346,6 +348,40 @@ export default class Leader extends BaseModule {
                     });
                 }
 
+                break;
+            case 23:
+                // ["charName","rank","charLvl","charExp","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
+                for (let i = 0, len = brags.length; i < len; i++) {
+                    (result as CacheTypings.PlayerLeaderRank[]).push({
+                        name: brags[i],
+                        rank: parseInt(brags[++i]),
+                        misc: {
+                            lvl: parseInt(brags[++i]),
+                            exp: parseInt(brags[++i]),
+                            gender: (brags[++i]),
+                            classId: parseInt(brags[++i]),
+                            pri: (brags[++i]),
+                            sec: (brags[++i]),
+                            hair: (brags[++i]),
+                            skin: (brags[++i]),
+                            accnt: (brags[++i]),
+                            accnt2: (brags[++i]),
+                            eye: (brags[++i]),
+                            arm: parseInt(brags[++i]),
+                            hairS: parseInt(brags[++i])
+                        }
+                    });
+
+                    CacheManager.update("player", result[result.length - 1].name.toLowerCase(), { type: 2, char: result[result.length - 1].misc as CacheTypings.PlayerLeaderMiscWithExp });
+                }
+
+                for (let i = 0, len = smalls.length; i < len; i++) {
+                    (result as CacheTypings.PlayerLeaderRank[]).push({
+                        name: smalls[i],
+                        rank: parseInt(smalls[++i]),
+                        // misc: {}
+                    });
+                }
                 break;
         }
 
