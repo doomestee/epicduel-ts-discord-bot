@@ -61,11 +61,14 @@ export default new Command(CommandType.Component, { custom_id: 'mission_menu_<ty
         const groupId = Number(strgroupid);
         const isDaily = type === 1;
 
+        const allMissions = MissionSBox.objMap.self.toArray();
         const missions = MissionSBox.getMissionsByGroupId(groupId);//filter(MissionSBox.objMap.self, v => v.groupId === groupId);
         const groups = filter(MissionSBox.objMap.group, v => v.isActive && isDaily ? (v.categoryId === 1) : (v.categoryId !== -1));
         const group = find(groups, v => v.groupId === groupId);
 
         if (!group || interaction.data.values.raw[0] === "reverse") {
+            if (!isDaily) groups.reverse();
+
             return interaction.editParent({
                 embeds: [{
                     title: isDaily ? (groups.length + "x Daily Mission Chains") : ("Recent " + groups.length + " Mission Chains."),
@@ -82,10 +85,14 @@ export default new Command(CommandType.Component, { custom_id: 'mission_menu_<ty
                     type: 1, components: [{
                         type: 3, customID: (isDaily) ? ("mission_daily_menu_" + userId) : ("mission_recent_menu_" + userId),
                         options: map(groups.slice(0, 25), ((val, index) => {
+                            const groupies = MissionSBox.getMissionsByGroupId(val.groupId, allMissions);
+                            const reward = rewardify(groupies, false);
+                            
                             return {
                                 label: val.groupName,
                                 emoji: emojis.numbers[index],
-                                value: String(val.groupId)
+                                value: String(val.groupId),
+                                description: `${groupies.length} missions, ${reward.creds} credits, ${reward.xp} xp, ${reward.items.length} items, ${reward.cheevos.length} achievements, ${reward.home} home items.`
                             }
                         })), minValues: 1, maxValues: 1, placeholder: "Select a mission chain"
                     }]

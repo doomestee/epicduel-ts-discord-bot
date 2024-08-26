@@ -29,6 +29,7 @@ export default new Command(CommandType.Component, { custom_id: 'mission_daily_me
 
         const groupId = Number(interaction.data.values.raw[0]);
 
+        const allMissions = MissionSBox.objMap.self.toArray();
         const missions = MissionSBox.getMissionsByGroupId(groupId);//filter(MissionSBox.objMap.self, v => v.groupId === groupId);
         const groups = filter(MissionSBox.objMap.group, v => v.categoryId === 1 && v.isActive);
         const group = find(groups, v => v.groupId === groupId);
@@ -44,11 +45,15 @@ export default new Command(CommandType.Component, { custom_id: 'mission_daily_me
                 }}],
                 components: [{
                     type: 1, components: [{
-                        type: 3, customID: "mission_daily_menu_" + userId, options: groups.map((val, index) => {
+                        type: 3, customID: "mission_daily_menu_" + userId, options: map(groups, (val, index) => {
+                            const groupies = MissionSBox.getMissionsByGroupId(val.groupId, allMissions);
+                            const reward = rewardify(groupies, false);
+
                             return {
                                 label: val.groupName,
                                 emoji: emojis.numbers[index],
-                                value: String(val.groupId)
+                                value: String(val.groupId),
+                                description: `${groupies.length} missions, ${reward.creds} credits, ${reward.xp} xp, ${reward.items.length} items, ${reward.cheevos.length} achievements, ${reward.home} home items.`
                             }
                         }), minValues: 1, maxValues: 1, placeholder: "Select a mission chain"
                     }]
