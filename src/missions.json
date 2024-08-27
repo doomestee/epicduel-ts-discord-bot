@@ -36,6 +36,12 @@
         "tier": 1
     },
     {
+        "groupId": 33,
+        "groupName": "Law Enforcement",
+        "groupOrder": 0,
+        "tier": 1
+    },
+    {
         "groupId": 34,
         "groupName": "Thesis Proposal",
         "groupOrder": 0,
@@ -128,6 +134,12 @@
     {
         "groupId": 155,
         "groupName": "Hazardous Bounties",
+        "groupOrder": 500,
+        "tier": 8
+    },
+    {
+        "groupId": 156,
+        "groupName": "Exotic Bounties",
         "groupOrder": 500,
         "tier": 8
     },
