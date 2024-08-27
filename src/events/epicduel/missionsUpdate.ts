@@ -36,9 +36,11 @@ const tiers = ["F-", "F", "F+", "E", "D", "C", "B", "B+", "A", "A+", "S", "S+"];
 const tierEmojis = ["<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:E_:1277405021323005983>", "<:D_:1277403871047712871>", "<:C_:1277403857865150555>", "<:B_:1277403841892974603>", "<:B_:1277403841892974603>", "<:A_:1277403812528787486>", "<:A_:1277403812528787486>", "<:S_:1277403803083079820>", "<:S_:1277403803083079820>"];
 
 export default new EDEvent("onDailyMissions", async function (hydra, { status }) {
-    if (Config.isDocker === true) return;
+    // if (Config.isDocker === false) return;
 
     const date = new Date();
+
+    Logger.getLogger("Mission").debug(`Received new missions, status: ${status[0]}, ${status[1]}`);
 
     if (last.day === date.getUTCDate()) {
         this.boxes.mission.reset = false;

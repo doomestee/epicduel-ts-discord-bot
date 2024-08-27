@@ -1,3 +1,4 @@
+import Logger from "../../manager/logger.js";
 import { map } from "../../util/Misc.js";
 import Constants, { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
@@ -176,6 +177,7 @@ export default class AdminActionManager extends BaseModule {
             // Daily missions reset.
             case 4:
                 // this.client.manager.logEmit("epicduel_notification", {type: 1, message: "Daily missions have been reset."});
+                Logger.getLoggerP(this.client).debug("Daily missions were reset, beginning to purge.");
                 this.client.boxes.mission.objMap.self.clear();
                 this.client.boxes.mission.objMap.group.clear();
                 this.client.boxes.mission.reset = true;
