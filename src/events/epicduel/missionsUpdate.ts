@@ -35,7 +35,7 @@ const tiers = ["F-", "F", "F+", "E", "D", "C", "B", "B+", "A", "A+", "S", "S+"];
  */
 const tierEmojis = ["<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:E_:1277405021323005983>", "<:D_:1277403871047712871>", "<:C_:1277403857865150555>", "<:B_:1277403841892974603>", "<:B_:1277403841892974603>", "<:A_:1277403812528787486>", "<:A_:1277403812528787486>", "<:S_:1277403803083079820>", "<:S_:1277403803083079820>"];
 
-export default new EDEvent("onDailyMissions", async function (hydra, { status }) {
+export default new EDEvent("onDailyMissions", async function (hydra, { status, ping }) {
     // if (Config.isDocker === false) return;
 
     const date = new Date();
@@ -68,11 +68,11 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status })
         const reward = rewardify(groupies, false);
 
         // if (mis.tier) {
-            texts[i] = `${mis.tier !== null ? tierEmojis[mis.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** (${reward.creds} <:Credits:1095129742505689239>)`;
+            texts[i] = `${mis.tier !== null ? tierEmojis[mis.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>`;
         // }
 
         if (mis.tier === null) untiered = true;
-        else if (mis.tier > 7) atLeastOneGoodMission = true;
+        else if (mis.tier > 8) atLeastOneGoodMission = true;
     }
 
     const embeds:Embed[] = [{
@@ -88,6 +88,11 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status })
 
     hydra.rest.channels.createMessage("1091045429367558154", {
         embeds,
-        content: atLeastOneGoodMission ? `<@&1277348948658491412>` : `No ping since there aren't any good daily missions.`
+        content: atLeastOneGoodMission ? `<@&1277348948658491412>` : `No ping since there aren't any good daily missions.`,
+        allowedMentions: {
+            everyone: false,
+            repliedUser: false,
+            roles: ping === false ? false : ["1277348948658491412"]
+        }
     });
 });

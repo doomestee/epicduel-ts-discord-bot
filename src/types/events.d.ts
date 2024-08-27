@@ -84,7 +84,7 @@ export interface MainEDEvents {
     onJoinRoom: [event: { room: Room | null }];
 
     onComparisonUpdate: [event: { type: number, part: number }];
-    onDailyMissions: [event: { status: [0|1, 0|1] }]
+    onDailyMissions: [event: { status: [0|1, 0|1], ping?: boolean }]
 }
 
 export type BothSFSClientEvents = SFSClientEvents & CustomSFSClientEvents;
