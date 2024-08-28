@@ -68,7 +68,7 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status, p
         const reward = rewardify(groupies, false);
 
         // if (mis.tier) {
-            texts[i] = `${mis.tier !== null ? tierEmojis[mis.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>`;
+            texts[i] = `${mis.tier !== null ? tierEmojis[mis.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>${reward.xp ? ` ${reward.xp} <:xp:1143945516229591100>` : ""}`;
         // }
 
         if (mis.tier === null) untiered = true;
