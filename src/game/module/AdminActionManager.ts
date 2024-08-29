@@ -179,6 +179,8 @@ export default class AdminActionManager extends BaseModule {
                 // this.client.manager.logEmit("epicduel_notification", {type: 1, message: "Daily missions have been reset."});
                 Logger.getLoggerP(this.client).debug("Daily missions were reset, beginning to purge.");
                 this.client.boxes.mission.objMap.group.clear();
+                this.client.boxes.mission.ready.group = false;
+                this.client.boxes.mission.status = [1, 0];
                 this.client.boxes.mission.reset = true;
                 this.client.smartFox.sendXtMessage("main", Requests.REQUEST_UPDATE_MISSION_GROUPS, {end: 0}, 2, "json");
                 //MissionGroupsModule.instance.loadData();
