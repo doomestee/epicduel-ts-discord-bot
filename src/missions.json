@@ -105,7 +105,8 @@
         "groupId": 150,
         "groupName": "Three Kings",
         "groupOrder": 500,
-        "tier": 6
+        "tier": 6,
+        "notif": ["BOUNTY"]
     },
     {
         "groupId": 151,
@@ -135,36 +136,42 @@
         "groupId": 155,
         "groupName": "Hazardous Bounties",
         "groupOrder": 500,
-        "tier": 8
+        "tier": 8,
+        "notif": ["BOUNTY"]
     },
     {
         "groupId": 156,
         "groupName": "Exotic Bounties",
         "groupOrder": 500,
-        "tier": 8
+        "tier": 8,
+        "notif": ["BOUNTY"]
     },
     {
         "groupId": 157,
         "groupName": "Nightmare Bounties",
         "groupOrder": 500,
-        "tier": 8
+        "tier": 8,
+        "notif": ["BOUNTY"]
     },
     {
         "groupId": 158,
         "groupName": "Dual Bounties",
         "groupOrder": 500,
-        "tier": 8
+        "tier": 8,
+        "notif": ["BOUNTY"]
     },
     {
         "groupId": 197,
         "groupName": "Token Transaction",
         "groupOrder": 999,
-        "tier": 9
+        "tier": 9,
+        "notif": ["ARCADE"]
     },
     {
         "groupId": 199,
         "groupName": "Coins for Charon",
         "groupOrder": 999,
-        "tier": 10
+        "tier": 10,
+        "notif": ["ARCADE"]
     }
 ]

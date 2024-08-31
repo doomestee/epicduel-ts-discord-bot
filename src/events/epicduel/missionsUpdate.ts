@@ -11,6 +11,11 @@ let last = {
     day: -1,
 }
 
+const roles = {
+    ARCADE: "1277348948658491412",
+    BOUNTY: "1279301115329904693"
+}
+
 /**
  * Tiers go as follow:
  * - 0: F-
@@ -55,11 +60,13 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status, p
 
     if (!dailies.length) Logger.getLogger("Mission").error("Wtf, no daily missions?");
 
-    const withTiers = map(dailies, v => ({ ...v, tier: find(Missions, a => a.groupId === v.groupId)?.tier ?? null }));
+    const withTiers = map(dailies, v => ({ ...v, ext: find(Missions, a => a.groupId === v.groupId) ?? null }));
     const texts:string[] = [];
 
     let untiered = false;
-    let atLeastOneGoodMission = false;
+
+    let pingText = "";
+    const done = { "BOUNTY": false, "ARCADE": false } as Record<string, boolean>;
 
     for (let i = 0, len = withTiers.length; i < len; i++) {
         const mis = withTiers[i];
@@ -68,31 +75,42 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status, p
         const reward = rewardify(groupies, false);
 
         // if (mis.tier) {
-            texts[i] = `${mis.tier !== null ? tierEmojis[mis.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>${reward.xp ? ` ${reward.xp} <:xp:1143945516229591100>` : ""}`;
+            texts[i] = `${mis.ext !== null ? tierEmojis[mis.ext.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>${reward.xp ? ` ${reward.xp} <:xp:1143945516229591100>` : ""}`;
         // }
 
-        if (mis.tier === null) untiered = true;
-        else if (mis.tier > 8) atLeastOneGoodMission = true;
+        if (mis.ext === null) untiered = true;
+
+        const notifs = mis.ext?.notif;
+
+        if (notifs) {
+            for (let n = 0, nen = notifs.length; n < nen; n++) {
+                if (done[notifs[n]]) continue;
+
+                pingText += `<@&${roles[notifs[n] as "BOUNTY"]}>`
+            }
+        }
     }
 
+    if (pingText.length === 0) pingText = "No ping since there aren't any good daily missions.";
+
     const embeds:Embed[] = [{
-        description: `Daily missions have just reset, and they will *usually* last up until the next reset`,
+        description: `Daily missions have just reset, and they will *usually* last up until the next reset.`,
         fields: [{
             name: "Missions",
             value: texts.join("\n")
         }],
         footer: {
-            text: untiered ? `Some of the missions may be untiered, they weren't active at the time of ranking.` : ""
+            text: ping === false ? "This is manually triggered, no pings are triggered." : (untiered ? `Some of the missions may be untiered, they weren't active at the time of ranking.` : "")
         }
     }];
 
     hydra.rest.channels.createMessage("1091045429367558154", {
         embeds,
-        content: atLeastOneGoodMission ? `<@&1277348948658491412>` : `No ping since there aren't any good daily missions.`,
+        content: pingText,
         allowedMentions: {
             everyone: false,
             repliedUser: false,
-            roles: ping === false ? false : ["1277348948658491412"]
+            roles: ping === false ? false : [roles["ARCADE"], roles["BOUNTY"]]
         }
     });
 });
