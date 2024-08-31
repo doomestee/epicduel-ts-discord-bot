@@ -86,7 +86,8 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status, p
             for (let n = 0, nen = notifs.length; n < nen; n++) {
                 if (done[notifs[n]]) continue;
 
-                pingText += `<@&${roles[notifs[n] as "BOUNTY"]}>`
+                pingText += `<@&${roles[notifs[n] as "BOUNTY"]}>`;
+                done[notifs[n]] = true;
             }
         }
     }
