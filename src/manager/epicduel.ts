@@ -470,6 +470,8 @@ export default class Swarm {
 
                     if (!room) throw Error("Conflicting objectives.");
 
+                    if (room.roomName === "TrainHubRight" && this.centralClient?.smartFox.getActiveRoom()?.name.startsWith("TrainHubRight_")) continue;
+
                     if (obj.points !== obj.maxPoints && obj.alignmentId !== oppAlign) filtered.push([obj, room]);
                 }
             }
