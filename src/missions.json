@@ -90,6 +90,18 @@
         "tier": 1
     },
     {
+        "groupId": 147,
+        "groupName": "Tag Team Tribulations",
+        "groupOrder": 500,
+        "tier": 1
+    },
+    {
+        "groupId": 149,
+        "groupName": "Mine Mecha Maintenance",
+        "groupOrder": 500,
+        "tier": 1
+    },
+    {
         "groupId": 146,
         "groupName": "Cleansing Paradise",
         "groupOrder": 500,
@@ -161,8 +173,22 @@
         "notif": ["BOUNTY"]
     },
     {
+        "groupId": 196,
+        "groupName": "Arcade Amnesty",
+        "groupOrder": 999,
+        "tier": 9,
+        "notif": ["ARCADE"]
+    },
+    {
         "groupId": 197,
         "groupName": "Token Transaction",
+        "groupOrder": 999,
+        "tier": 9,
+        "notif": ["ARCADE"]
+    },
+    {
+        "groupId": 198,
+        "groupName": "Dead Token Redemption",
         "groupOrder": 999,
         "tier": 9,
         "notif": ["ARCADE"]
