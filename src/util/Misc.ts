@@ -408,7 +408,9 @@ export interface CharPage {
     rating: string,
     styleHasAbove: string,
     wpnCat: string,
-    wpnLink: string
+    wpnLink: string,
+
+    items: CacheTypings.PlayerItems
 }
 
 export type CharPageResult = { success: true, result: CharPage } | { success: false, extra: { r: string } | { l: number } | { c: number } };
@@ -432,6 +434,30 @@ export async function getCharPage(charName: string) : Promise<CharPageResult> {
         });
 
         if (Object.keys(result).length === 1 || result["charId"] === undefined) return { success: false, extra: { r: "No character found." } };
+
+        const invIndex = html.indexOf("Inventory");
+        const achIndex = html.indexOf("Achievements");
+
+        const inventoryHtml = html.substring(invIndex + 32, achIndex - 42);
+
+        // inventoryHtml.match();
+        // TODO: use more simpler, faster method rather than using an iterator
+
+        const invterators = inventoryHtml.matchAll(/<a href=\'http\:[^ ]*\' target='_blank' >([\w ]*)<\/a>/g);
+        const items:string[] = [];
+
+        const dupes:Record<string, number> = {};
+
+        for (const item of invterators) {
+            if (item.length == 2) {
+                items.push(item[1]);
+                
+                if (dupes[item[1]] === undefined) dupes[item[1]] = 1;
+                else dupes[item[1]]++;
+            }
+        }
+
+        CacheManager.update("useritems", parseInt(result["charId"]), result["items"] = { items, dupes });
 
         if (!CacheManager.check("player", result.charName.toLowerCase()).valid) {
             CacheManager.update("player", result.charName.toLowerCase(), { type: 1, char: result });

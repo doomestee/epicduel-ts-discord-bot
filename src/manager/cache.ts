@@ -32,6 +32,8 @@ interface CacheInternal {
      * But otherwise, it will be cached for 7 days.
      */
     player: StringCache<CacheTypings.Player>
+
+    useritems: NumberCache<CacheTypings.PlayerItems>
 }
 
 export type CacheSetting<T = undefined> = T extends undefined ? { time: number } : {
@@ -50,6 +52,7 @@ interface CacheSettingsInternal {
     tourney: CacheSetting<{ ended: boolean }>,
 
     player: CacheSetting,
+    useritems: CacheSetting,
 }
 
 /**
@@ -78,6 +81,7 @@ export default class CacheManager {
         tourney: { _lastGot: 0, val: {} },
 
         player: new Collection(),
+        useritems: new Collection()
     };
 
     public static settings:CacheSettingsInternal = {
@@ -90,7 +94,8 @@ export default class CacheManager {
         tourney: { time: 1000*60*1, args: { ended: true }, cb() {
             return this.args.ended;
         }, },
-        player: { time: 1000*60*60*24*7 }
+        player: { time: 1000*60*60*24*7 },
+        useritems: { time: 1000*60*60*24 }
     }
 
     /**

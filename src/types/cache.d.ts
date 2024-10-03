@@ -128,4 +128,6 @@ declare namespace CacheTypings {
 
     // Yes, this exists, idk
     export type Player = { type: 1, char: import("../util/Misc.ts").CharPage } | { type: 2, char: PlayerLeaderMiscWithoutExp | PlayerLeaderMiscWithExp }//CharPage
+
+    export type PlayerItems = { items: string[], dupes: Record<string, numebr> }
 }
