@@ -35,7 +35,7 @@ export default class ItemUtil extends null {
                     for (let i = 0, len = items.length; i < len; i++) owned[items[i]] = false;
 
                     for (let i = 0, len = charItems.length; i < len; i++) {
-                        if (remaining < 1) return { success: true, owned, allOwned: true, count: [items.length, items.length], name: charName, playerInvCount: itemBoxArray.length };
+                        if (remaining < 1) return { success: true, owned, allOwned: true, count: [items.length, items.length], name: charName, playerInvCount: res.result.items.items.length };
 
                         const charItem = charItems[i];
 
@@ -47,7 +47,7 @@ export default class ItemUtil extends null {
                         }
                     }
                     
-                    return { success: true, owned, allOwned: remaining === 0, count: [items.length - remaining, items.length], name: charName, playerInvCount: itemBoxArray.length };
+                    return { success: true, owned, allOwned: remaining === 0, count: [items.length - remaining, items.length], name: charName, playerInvCount: res.result.items.items.length };
                 } else return { success: false, reason: "Unable to access the character page.", extra: res.extra };
             })
     }
