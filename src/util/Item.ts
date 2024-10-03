@@ -21,7 +21,7 @@ export default class ItemUtil extends null {
      * 
      * Success of result means it was able to process the character page, not that if it actually has all the items.
      */
-    static async checkIfCharOwns(charName: string, items: number[]) : Promise<{ success: false, reason: string, extra: Record<any, any> } | { success: true, owned: Record<string, boolean>, allOwned: boolean }> {
+    static async checkIfCharOwns(charName: string, items: number[]) : Promise<{ success: false, reason: string, extra: Record<any, any> } | { success: true, owned: Record<string, boolean>, allOwned: boolean, count: [number, number], name: string, playerInvCount: number }> {
         if (ItemSBox.objMap.size === 0) throw Error("Item Shared Box not initialised at least once.");
 
         return getCharPage(charName)
@@ -35,7 +35,7 @@ export default class ItemUtil extends null {
                     for (let i = 0, len = items.length; i < len; i++) owned[items[i]] = false;
 
                     for (let i = 0, len = charItems.length; i < len; i++) {
-                        if (remaining < 1) return { success: true, owned, allOwned: true };
+                        if (remaining < 1) return { success: true, owned, allOwned: true, count: [items.length, items.length], name: charName, playerInvCount: itemBoxArray.length };
 
                         const charItem = charItems[i];
 
@@ -47,7 +47,7 @@ export default class ItemUtil extends null {
                         }
                     }
                     
-                    return { success: true, owned, allOwned: remaining === 0 };
+                    return { success: true, owned, allOwned: remaining === 0, count: [items.length - remaining, items.length], name: charName, playerInvCount: itemBoxArray.length };
                 } else return { success: false, reason: "Unable to access the character page.", extra: res.extra };
             })
     }
