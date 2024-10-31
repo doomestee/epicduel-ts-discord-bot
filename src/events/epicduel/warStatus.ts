@@ -142,6 +142,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
                             deletes.push(notifications[i]);
                         // 50001 is missing access, meaning bot can't send there anymore
                         } else if (err.code === 50001) {
+                            deletes.push(notifications[i]);
                             return hydra.rest.channels.createDM(notifications[i].creator_id)
                                 .then((chnl) => chnl.createMessage({ content: `WARNING!\n\nThe bot can't send rally notifications to the channel <#${notifications[i].channel_id}> due to **missing permissions**.\nPlease fix this, or delete the notification (the notification ID is ${notifications[i].id}) via /notification rally delete in the server.` }))
                                 .catch((err) => {
