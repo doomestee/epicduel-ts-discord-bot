@@ -9,6 +9,7 @@ import { INotification } from "../Models/Notification.js";
 import { IRally } from "../Models/Rally.js";
 import { IUserSettings } from "../Models/UserSettings.js";
 import type DatabaseManager from "../manager/database.js";
+import { ICharacterName } from "../Models/CharacterName.js";
 
 export type CharLink = ICharacterLink & ICharacter & { link_flags: number };
 export type CharLinkFact = ICharacter & { discord_id: string, link_date: Date, link_flags: number, fact_name: string, fact_alignment: 1|2 };
@@ -86,6 +87,26 @@ export default class DBHelper {
     getCharacterFactLinks(charId: number) : Promise<CharLinkFact[]>;
     getCharacterFactLinks(charId: number | string) {
         return this.#cli.query<CharLinkFact>(`select char.*, link.discord_id, link.link_date as link_date, link.flags as link_flags, faction.name as fact_name, faction.alignment as fact_alignment from character as char left join characterlink as link on link.user_id = char.user_id and link.id = char.id left join faction on faction.id = char.faction_id where ${typeof charId === "string" ? "link.discord_id" : "char.id"} = $1`, [charId])
+            .then(v => v.rows);
+    }
+
+    getAssociatedCharactersByCharId(charId: number) {
+        return this.#cli.query<ICharacter>("select * from character where user_id = (select user_id from character where char_id = $1)", [charId])
+            .then(v => v.rows);
+    }
+
+    getCharactersByUserId(userId: number) {
+        return this.#cli.query<ICharacter>("select * from character where user_id = $1", [userId])
+            .then(v => v.rows);
+    }
+
+    getCharacter(charId: number) {
+        return this.#cli.query<ICharacter>("select * from character where id = $1", [charId])
+            .then(v => v.rows);
+    }
+
+    getCharacterName(charId: number) {
+        return this.#cli.query<ICharacterName>("select * from character_name where id = $1", [charId])
             .then(v => v.rows);
     }
 
