@@ -12,8 +12,9 @@ export default class ActiveTargetRulesRecord {
     static FIELD_reqSomeEnergy = "reqSomeEnergy";
     static FIELD_reqTargets = "reqTargets";
     static FIELD_reqRealPlayers = "reqRealPlayers";
+    static FIELD_reqBossBattle = "reqBossBattle";
 
-    static templates  = [ActiveTargetRulesRecord.FIELD_targetRulesId,ActiveTargetRulesRecord.FIELD_targetCode,ActiveTargetRulesRecord.FIELD_reqLessThanFullHealth,ActiveTargetRulesRecord.FIELD_reqLessThanFullEnergy,ActiveTargetRulesRecord.FIELD_reqLessThanFullHealthOrEnergy,ActiveTargetRulesRecord.FIELD_reqLessThanFullRage,ActiveTargetRulesRecord.FIELD_reqAtLeast1Buff,ActiveTargetRulesRecord.FIELD_reqAtLeast1Debuff,ActiveTargetRulesRecord.FIELD_reqGunOrAux,ActiveTargetRulesRecord.FIELD_reqSomeHealth,ActiveTargetRulesRecord.FIELD_reqSomeEnergy,ActiveTargetRulesRecord.FIELD_reqTargets,ActiveTargetRulesRecord.FIELD_reqRealPlayers];
+    static templates  = [ActiveTargetRulesRecord.FIELD_targetRulesId,ActiveTargetRulesRecord.FIELD_targetCode,ActiveTargetRulesRecord.FIELD_reqLessThanFullHealth,ActiveTargetRulesRecord.FIELD_reqLessThanFullEnergy,ActiveTargetRulesRecord.FIELD_reqLessThanFullHealthOrEnergy,ActiveTargetRulesRecord.FIELD_reqLessThanFullRage,ActiveTargetRulesRecord.FIELD_reqAtLeast1Buff,ActiveTargetRulesRecord.FIELD_reqAtLeast1Debuff,ActiveTargetRulesRecord.FIELD_reqGunOrAux,ActiveTargetRulesRecord.FIELD_reqSomeHealth,ActiveTargetRulesRecord.FIELD_reqSomeEnergy,ActiveTargetRulesRecord.FIELD_reqTargets,ActiveTargetRulesRecord.FIELD_reqRealPlayers,ActiveTargetRulesRecord.FIELD_reqBossBattle];
 
     targetRulesId: number;
     targetCode: number;
@@ -28,6 +29,7 @@ export default class ActiveTargetRulesRecord {
     reqSomeEnergy: boolean;
     reqTargets: number;
     reqRealPlayers: boolean;
+    reqBossBattle: boolean;
 
     constructor(obj: any) {
         this.targetRulesId = parseInt(obj["targetRulesId"]);
@@ -43,5 +45,6 @@ export default class ActiveTargetRulesRecord {
         this.reqSomeEnergy = Boolean(parseInt(obj["reqSomeEnergy"]));
         this.reqTargets = (parseInt(obj["reqTargets"]));
         this.reqRealPlayers = Boolean(parseInt(obj["reqRealPlayers"]));
+        this.reqBossBattle = Boolean(parseInt(obj["reqBossBattle"]));
     }
 }

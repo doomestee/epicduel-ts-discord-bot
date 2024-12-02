@@ -12,8 +12,9 @@ export default class PassiveRecord {
     static FIELD_turnRulesId = "turnRulesId";
     static FIELD_miscRulesId = "miscRulesId";
     static FIELD_initialize = "initialize";
+    static FIELD_passiveRestrictGroupId2 = "passiveRestrictGroupId2";
     
-    static templates  = [PassiveRecord.FIELD_skillId,PassiveRecord.FIELD_passiveRestrictGroupId,PassiveRecord.FIELD_passiveLink,PassiveRecord.FIELD_displayOnChar,PassiveRecord.FIELD_displayInStats,PassiveRecord.FIELD_isDebuff,PassiveRecord.FIELD_duration,PassiveRecord.FIELD_rateRulesId,PassiveRecord.FIELD_statRulesId,PassiveRecord.FIELD_defendRulesId,PassiveRecord.FIELD_turnRulesId,PassiveRecord.FIELD_miscRulesId,PassiveRecord.FIELD_initialize];
+    static templates  = [PassiveRecord.FIELD_skillId,PassiveRecord.FIELD_passiveRestrictGroupId,PassiveRecord.FIELD_passiveLink,PassiveRecord.FIELD_displayOnChar,PassiveRecord.FIELD_displayInStats,PassiveRecord.FIELD_isDebuff,PassiveRecord.FIELD_duration,PassiveRecord.FIELD_rateRulesId,PassiveRecord.FIELD_statRulesId,PassiveRecord.FIELD_defendRulesId,PassiveRecord.FIELD_turnRulesId,PassiveRecord.FIELD_miscRulesId,PassiveRecord.FIELD_initialize,PassiveRecord.FIELD_passiveRestrictGroupId2];
      
 
     skillId: number;
@@ -29,6 +30,7 @@ export default class PassiveRecord {
     turnRulesId: number;
     miscRulesId: number;
     initialize: number;
+    passiveRestrictGroupId2: number; 
 
     constructor(obj: any) {
         this.skillId = parseInt(obj["skillId"]);
@@ -44,5 +46,6 @@ export default class PassiveRecord {
         this.turnRulesId = parseInt(obj["turnRulesId"]);
         this.miscRulesId = parseInt(obj["miscRulesId"]);
         this.initialize = parseInt(obj["initialize"]);
+        this.passiveRestrictGroupId2 = obj["passiveRestrictGroupId2"];
     }
 }

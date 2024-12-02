@@ -11,8 +11,9 @@ export default class ClientRequirementsRecord {
     static FIELD_reqEquipItemCat1 = "reqEquipItemCat1";
     static FIELD_reqEquipItemCat2 = "reqEquipItemCat2";
     static FIELD_reqHealth = "reqHealth";
+    static FIELD_reqCriticalHealth2 = "reqCriticalHealth2";
     
-    static templates  = [ClientRequirementsRecord.FIELD_skillId,ClientRequirementsRecord.FIELD_reqCriticalHealth,ClientRequirementsRecord.FIELD_reqEnergy,ClientRequirementsRecord.FIELD_reqEnergyStep,ClientRequirementsRecord.FIELD_reqStat,ClientRequirementsRecord.FIELD_reqStatBase,ClientRequirementsRecord.FIELD_reqStatStepPerLevel,ClientRequirementsRecord.FIELD_reqLessThanFullHealth,ClientRequirementsRecord.FIELD_reqLessThanFullEnergy,ClientRequirementsRecord.FIELD_reqEquipItemCat1,ClientRequirementsRecord.FIELD_reqEquipItemCat2,ClientRequirementsRecord.FIELD_reqHealth];
+    static templates  = [ClientRequirementsRecord.FIELD_skillId,ClientRequirementsRecord.FIELD_reqCriticalHealth,ClientRequirementsRecord.FIELD_reqEnergy,ClientRequirementsRecord.FIELD_reqEnergyStep,ClientRequirementsRecord.FIELD_reqStat,ClientRequirementsRecord.FIELD_reqStatBase,ClientRequirementsRecord.FIELD_reqStatStepPerLevel,ClientRequirementsRecord.FIELD_reqLessThanFullHealth,ClientRequirementsRecord.FIELD_reqLessThanFullEnergy,ClientRequirementsRecord.FIELD_reqEquipItemCat1,ClientRequirementsRecord.FIELD_reqEquipItemCat2,ClientRequirementsRecord.FIELD_reqHealth,ClientRequirementsRecord.FIELD_reqCriticalHealth2];
 
     skillId: number;
     reqCriticalHealth: boolean;
@@ -26,6 +27,7 @@ export default class ClientRequirementsRecord {
     reqEquipItemCat1: number;
     reqEquipItemCat2: number;
     reqHealth: number;
+    reqCriticalHealth2: boolean;
 
     constructor(obj: any) {
         this.skillId = parseInt(obj["skillId"]);
@@ -40,5 +42,6 @@ export default class ClientRequirementsRecord {
         this.reqEquipItemCat1 = parseInt(obj["reqEquipItemCat1"]);
         this.reqEquipItemCat2 = parseInt(obj["reqEquipItemCat2"]);
         this.reqHealth = parseInt(obj["reqHealth"]);
+        this.reqCriticalHealth2 = Boolean(parseInt(obj["reqCriticalHealth2"]));
     }
 }

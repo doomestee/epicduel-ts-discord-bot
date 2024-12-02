@@ -40,8 +40,12 @@ export default class PassiveStatRulesRecord {
     static FIELD_chgResistByFvPercent2 = "chgResistByFvPercent2";
     static FIELD_chgHighStatByFv = "chgHighStatByFv";
     static FIELD_chgHighStatBySv = "chgHighStatBySv";
+    static FIELD_chgBotDmgBySvPercent = "chgBotDmgBySvPercent";
+    static FIELD_reducePriDmgBySvPercent = "reducePriDmgBySvPercent";
+    static FIELD_reduceSidearmDmgBySvPercent = "reduceSidearmDmgBySvPercent";
+    static FIELD_reduceAuxDmgBySvPercent = "reduceAuxDmgBySvPercent";
     
-    static templates  = [PassiveStatRulesRecord.FIELD_statRulesId,PassiveStatRulesRecord.FIELD_addSvDmgVsFvNpcId,PassiveStatRulesRecord.FIELD_addSvDmgToFvSkillId,PassiveStatRulesRecord.FIELD_chgSidearmDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgResistanceByFvPercentOfSv,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercentOfSv,PassiveStatRulesRecord.FIELD_chgDefenseVsNpcId,PassiveStatRulesRecord.FIELD_chgDefenseVsNpcIdByFv,PassiveStatRulesRecord.FIELD_chgStrengthBySv,PassiveStatRulesRecord.FIELD_chgDexterityBySv,PassiveStatRulesRecord.FIELD_chgTechnologyBySv,PassiveStatRulesRecord.FIELD_chgSupportBySv,PassiveStatRulesRecord.FIELD_chgSupportBySvPercent,PassiveStatRulesRecord.FIELD_chgSupportBySvPercentOfTargetSupport,PassiveStatRulesRecord.FIELD_chgHighStatBySvPercent,PassiveStatRulesRecord.FIELD_chgCurrentDefenseBySvPercent,PassiveStatRulesRecord.FIELD_chgCurrentResistancebySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthByFv,PassiveStatRulesRecord.FIELD_chgDexterityByFv,PassiveStatRulesRecord.FIELD_chgTechnologyByFv,PassiveStatRulesRecord.FIELD_chgSupportByFv,PassiveStatRulesRecord.FIELD_chgDefensesByLvlOverDuration,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercent,PassiveStatRulesRecord.FIELD_chgResistByFvPercent,PassiveStatRulesRecord.FIELD_addAllStatsByFvPercent,PassiveStatRulesRecord.FIELD_chgAuxDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthBySvPercent,PassiveStatRulesRecord.FIELD_chgDexterityBySvPercent,PassiveStatRulesRecord.FIELD_chgTechnologyBySvPercent,PassiveStatRulesRecord.FIELD_addSvDmgToFvSkillId2,PassiveStatRulesRecord.FIELD_chgPriDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgLowDefBySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthByFvPercent,PassiveStatRulesRecord.FIELD_chgDexterityByFvPercent,PassiveStatRulesRecord.FIELD_chgTechnologyByFvPercent,PassiveStatRulesRecord.FIELD_chgSupportByFvPercent,PassiveStatRulesRecord.FIELD_chgHighStatByFvPercent,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercent2,PassiveStatRulesRecord.FIELD_chgResistByFvPercent2,PassiveStatRulesRecord.FIELD_chgHighStatByFv,PassiveStatRulesRecord.FIELD_chgHighStatBySv];
+    static templates  = [PassiveStatRulesRecord.FIELD_statRulesId,PassiveStatRulesRecord.FIELD_addSvDmgVsFvNpcId,PassiveStatRulesRecord.FIELD_addSvDmgToFvSkillId,PassiveStatRulesRecord.FIELD_chgSidearmDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgResistanceByFvPercentOfSv,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercentOfSv,PassiveStatRulesRecord.FIELD_chgDefenseVsNpcId,PassiveStatRulesRecord.FIELD_chgDefenseVsNpcIdByFv,PassiveStatRulesRecord.FIELD_chgStrengthBySv,PassiveStatRulesRecord.FIELD_chgDexterityBySv,PassiveStatRulesRecord.FIELD_chgTechnologyBySv,PassiveStatRulesRecord.FIELD_chgSupportBySv,PassiveStatRulesRecord.FIELD_chgSupportBySvPercent,PassiveStatRulesRecord.FIELD_chgSupportBySvPercentOfTargetSupport,PassiveStatRulesRecord.FIELD_chgHighStatBySvPercent,PassiveStatRulesRecord.FIELD_chgCurrentDefenseBySvPercent,PassiveStatRulesRecord.FIELD_chgCurrentResistancebySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthByFv,PassiveStatRulesRecord.FIELD_chgDexterityByFv,PassiveStatRulesRecord.FIELD_chgTechnologyByFv,PassiveStatRulesRecord.FIELD_chgSupportByFv,PassiveStatRulesRecord.FIELD_chgDefensesByLvlOverDuration,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercent,PassiveStatRulesRecord.FIELD_chgResistByFvPercent,PassiveStatRulesRecord.FIELD_addAllStatsByFvPercent,PassiveStatRulesRecord.FIELD_chgAuxDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthBySvPercent,PassiveStatRulesRecord.FIELD_chgDexterityBySvPercent,PassiveStatRulesRecord.FIELD_chgTechnologyBySvPercent,PassiveStatRulesRecord.FIELD_addSvDmgToFvSkillId2,PassiveStatRulesRecord.FIELD_chgPriDmgBySvPercent,PassiveStatRulesRecord.FIELD_chgLowDefBySvPercent,PassiveStatRulesRecord.FIELD_chgStrengthByFvPercent,PassiveStatRulesRecord.FIELD_chgDexterityByFvPercent,PassiveStatRulesRecord.FIELD_chgTechnologyByFvPercent,PassiveStatRulesRecord.FIELD_chgSupportByFvPercent,PassiveStatRulesRecord.FIELD_chgHighStatByFvPercent,PassiveStatRulesRecord.FIELD_chgDefenseByFvPercent2,PassiveStatRulesRecord.FIELD_chgResistByFvPercent2,PassiveStatRulesRecord.FIELD_chgHighStatByFv,PassiveStatRulesRecord.FIELD_chgHighStatBySv,PassiveStatRulesRecord.FIELD_chgBotDmgBySvPercent,PassiveStatRulesRecord.FIELD_reducePriDmgBySvPercent,PassiveStatRulesRecord.FIELD_reduceSidearmDmgBySvPercent,PassiveStatRulesRecord.FIELD_reduceAuxDmgBySvPercent];
 
     statRulesId: number;
     addSvDmgVsFvNpcId: number;
@@ -84,6 +88,10 @@ export default class PassiveStatRulesRecord {
     chgResistByFvPercent2: number;
     chgHighStatByFv: number;
     chgHighStatBySv: boolean;
+    chgBotDmgBySvPercent: boolean;
+    reducePriDmgBySvPercent: boolean;
+    reduceSidearmDmgBySvPercent: boolean;
+    reduceAuxDmgBySvPercent: boolean;
 
     constructor(obj: any) {
         this.statRulesId = parseInt(obj["statRulesId"]);
@@ -127,5 +135,9 @@ export default class PassiveStatRulesRecord {
         this.chgResistByFvPercent2 = Number(obj["chgResistByFvPercent2"]);
         this.chgHighStatByFv = parseInt(obj["chgHighStatByFv"]);
         this.chgHighStatBySv = Boolean(parseInt(obj["chgHighStatBySv"]));
+        this.chgBotDmgBySvPercent = Boolean(parseInt(obj["chgBotDmgBySvPercent"]));
+        this.reducePriDmgBySvPercent = Boolean(parseInt(obj["reducePriDmgBySvPercent"]));
+        this.reduceSidearmDmgBySvPercent = Boolean(parseInt(obj["reduceSidearmDmgBySvPercent"]));
+        this.reduceAuxDmgBySvPercent = Boolean(parseInt(obj["reduceAuxDmgBySvPercent"]));
     }
 }
