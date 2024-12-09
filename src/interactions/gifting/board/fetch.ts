@@ -75,7 +75,7 @@ export default new Command(CommandType.Application, { cmd: ["gifting", "board", 
             embeds[1] = { fields: [] };
 
             if (leaders.season.length > 25 && embeds[1]["fields"]) embeds[1]["fields"][0] = { name: "Overall", value: mapper(leaders.season.slice(25)), inline: true };
-            if (leaders.daily.length > 25 && embeds[1]["fields"]) embeds[1]["fields"].push({ name: "Overall", value: mapper(leaders.daily.slice(25)), inline: true });
+            if (leaders.daily.length > 25 && embeds[1]["fields"]) embeds[1]["fields"].push({ name: "Daily", value: mapper(leaders.daily.slice(25)), inline: true });
         }
 
         return interaction.createFollowup({embeds, components: [{
