@@ -1346,7 +1346,7 @@ export default class Client {
                     this.modules.MailManager.handleGetMail(dataObj);
                     break;
                 case Responses.RESPONSE_NEW_MAIL:
-                    console.log("A new mail?!?!!!!? idk");
+                    // console.log("A new mail?!?!!!!? idk");
                     this.modules.MailManager.getNewMail();
                     break;
                 case Requests.REQUEST_SEND_PLAYER_MAIL:
@@ -1455,7 +1455,7 @@ export default class Client {
                     // no
                     break;
                 case Responses.RESPONSE_GOT_FAME:
-                    console.log("Received a fame from " + dataObj[2]);
+                    // console.log("Received a fame from " + dataObj[2]);
                     //client.manager._logger.info("Famed... by", )
                     //FameManager.fameReceived(_loc3_ as Array);
                     break;
