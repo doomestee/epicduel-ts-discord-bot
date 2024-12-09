@@ -6,10 +6,31 @@ import Logger from "../../manager/logger.js";
 import { countCommonStrings, findIndex } from "../../util/Misc.js";
 import EDEvent from "../../util/events/EDEvent.js";
 
-export default new EDEvent("onPublicMessage", function (hydra, { message, user: author }) {
+let lastChatter = {
+    sfsId: -1,
+    time: -1,
+    msg: "",
+
+    roomId: -1
+}
+
+// 0.1s grace
+function checkTime(time: number, sfsId: number, msg: string, roomId: number) {
+    if ((lastChatter.time + 100) > time && roomId === lastChatter.roomId) return false;
+
+    lastChatter = {
+        msg, sfsId, time, roomId
+    };
+
+    return true;
+}
+
+export default new EDEvent("onPublicMessage", function (hydra, { message, user: author, roomId }) {
     if (Config.isDevelopment && this.smartFox.getActiveRoom()?.name === "TrainHubRight_0") return;
 
     const time = Date.now();
+
+    if (!checkTime(time, author.id, message, roomId)) return;
 
     // let puppetNTxt = `Puppet ID: ${this.settings.id}`;
 
@@ -91,7 +112,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
     // if (hydra.messages[0].value.fames?.all.length) list[1] = [...list[1], ...hydra.messages[0].value.fames.all];
 
     if (list[0].some(v => content.includes(v)) || list[1].some(v => v === content)) {
-        DatabaseManager.helper.incrementFameCounter(author.charId, author.charName, 1, Date.now()).catch(err => { Logger.getLogger("Database").error(err) });
+        DatabaseManager.helper.incrementFameCounter(author.charId, author.charName, 1, time).catch(err => { Logger.getLogger("Database").error(err) });
     }
 
     const edChat = hydra.cache.edChat[author.charId];
@@ -104,7 +125,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         edChat.msg.push({ c: content, t: time });
 
         if (edChat.msg.length >= 3 && (countCommonStrings(edChat.msg) || (edChat.msg.every(a => a.c === content) && edChat.msg.every(v => (v.t + (1000*150)) > time)))) /*//highestOccurence(edChat.msg)// && edChat.every(v => (v + (1000*30)) > time)) */{
-            let punishTime = Date.now();
+            let punishTime = time;
             let cc = "🔇 **" + ((author.charName) ? author.charName + "**" + ' (**' + author.charId + '**)' : author.charId + "**");
 
             if (!(author.charName.toLowerCase().includes("voxry") || content.includes("voxry"))) {
