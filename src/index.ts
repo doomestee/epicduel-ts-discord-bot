@@ -49,11 +49,17 @@ process
         // Logger.getLogger("Unhandled Rejection | Promise").error(p);
         // p.catch(v => Logger.getLogger("Unhandled Rejection | Promise").error(v));
     })
-    .once("SIGINT", () => {
-        process.kill(process.pid, "SIGINT");
+    .once("SIGINT", (signal) => {
+        bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
+            .then(() => process.kill(process.pid, "SIGINT"), () => process.kill(process.pid, "SIGINT"));
+
+        // process.kill(process.pid, "SIGINT");
     })
-    .once("SIGTERM", () => {
-        process.kill(process.pid, "SIGTERM");
+    .once("SIGTERM", (signal) => {
+        bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
+            .then(() => process.kill(process.pid, "SIGTERM"), () => process.kill(process.pid, "SIGTERM"));
+
+        // process.kill(process.pid, "SIGTERM");
     });
 
 await DatabaseManager.initialise();
