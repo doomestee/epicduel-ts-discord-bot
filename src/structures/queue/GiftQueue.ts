@@ -31,7 +31,7 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
             //`**${giftObj.gift.name}** sent a ${giftObj.gift.isGlobal ? "global " : ""}gift to the room with ${giftObj.gift.}`
 
             if ((text[textDex].length + toPut.length) > 1999) {
-                text.push(toPut);
+                text.push(toPut + "\n");
                 textDex++;
             } else {
                 text[textDex] += toPut + "\n";
