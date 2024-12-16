@@ -254,3 +254,21 @@ CREATE TABLE war (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at   TIMESTAMP NULL DEFAULT NULL
 ); -- ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Gift
+
+CREATE TABLE gifts {
+    id SERIAL PRIMARY KEY,
+
+    char_name VARCHAR(255) NOT NULL,
+    char_id INT NULL,
+    count_room INT NOT NULL,
+    count_total INT NOT NULL,
+    count_combo INT NOT NULL,
+    fire_tier INT(1) NOT NULL,
+    global BOOLEAN NOT NULL,
+    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+};
+
+CREATE INDEX ON gifts(char_name);
+CREATE INDEX ON gifts(char_id);

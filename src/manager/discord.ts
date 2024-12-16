@@ -9,6 +9,7 @@ import { ImportResult } from "../util/types.js";
 import CommandHandler from "../handler/command.js";
 import type Queue from "../structures/queue/GenericQueue.js";
 import type { GiftObject } from "../game/module/Advent.js";
+import QueueHandler from "../handler/queue.js";
 
 interface UserProcessState {
     refreshLb: boolean;
@@ -90,6 +91,7 @@ export default class Hydra extends Client {
     async launch() {
         await this.loadEvents();
         await CommandHandler.loadCommands();
+        await QueueHandler.loadQueues(this);
         await this.refreshCommands(await this.rest.applications.getClient().then(ap => ap.id));//CommandHandler.uploadCommands(this, await this.rest.applications.getClient().then(ap => ap.id));
 
         this.connectedAt = Date.now();

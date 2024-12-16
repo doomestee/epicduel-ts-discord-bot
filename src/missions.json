@@ -204,7 +204,7 @@
         "groupId": 201,
         "groupName": "Epic Ingot Investing",
         "groupOrder": 999,
-        "tier": 10,
+        "tier": 11,
         "notif": ["ARCADE"]
     }
 ]
