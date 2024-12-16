@@ -4,7 +4,7 @@ import ImageManager from "../../manager/image.js";
 import EDEvent from "../../util/events/EDEvent.js";
 import { replaceHTMLbits } from "../../manager/designnote.js";
 import { findLast, map } from "../../util/Misc.js";
-import { TrackedWarUse } from "../../util/game/SwarmResources.js";
+import SwarmResources, { TrackedWarUse } from "../../util/game/SwarmResources.js";
 
 /*
 
@@ -177,7 +177,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     // Now, for the sake of pissing few people off.
 
                     if (v[2].success) {
-                        const toId = this.swarm.resources.tracker.player.charToId;
+                        const toId = SwarmResources.tracker.player.charToId;
 
                         let str = ``;
 
@@ -187,7 +187,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                             //@ts-expect-error
                             if (toId[m.name] !== undefined) {
                                 const charId = toId[m.name as "Despair"];
-                                const track = this.swarm.resources.tracker.player.chars[charId];
+                                const track = SwarmResources.tracker.player.chars[charId];
 
                                 if (track.lastJugg[0] !== -1) {
                                     if (track.lastJugg[1] === m.bat) { track.time = time; continue; }
@@ -216,14 +216,14 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
 
             // }
 
-                if (this.modules.WarManager.cooldownHours < 1 && this.swarm.resources.tracker.war.active) {
-                    const list:TrackedWarUse[] = this.swarm.resources.tracker.war.list.splice(0);
-                    const lastTime = this.swarm.resources.tracker.war.startedSince;
+                if (this.modules.WarManager.cooldownHours < 1 && SwarmResources.tracker.war.active) {
+                    const list:TrackedWarUse[] = SwarmResources.tracker.war.list.splice(0);
+                    const lastTime = SwarmResources.tracker.war.startedSince;
 
                     if (list.length === 0) break; // No war bombs were collected.
 
-                    // this.swarm.resources.tracker.war.list = [];
-                    this.swarm.resources.tracker.war.startedSince = time;
+                    // SwarmResources.tracker.war.list = [];
+                    SwarmResources.tracker.war.startedSince = time;
 
                     const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
                     const bombsToType = this.modules.WarManager.getAlignMappedByBombId(true);
@@ -233,7 +233,7 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                         overall: list[list.length - 1],
                         exile: undefined as TrackedWarUse | undefined,//findLast(list, v => bombsToAlign[v.usedItemId] === "exile"),//undefined as unknown as TrackedWarUse,
                         legion: undefined as TrackedWarUse | undefined,//findLast(list, v => bombsToAlign[v.usedItemId] === "legion")//undefined as unknown as TrackedWarUse,
-                    };//list[list.length - 1];//this.swarm.resources.tracker.war.list[this.swarm.resources.tracker.war.list.length - 1];
+                    };//list[list.length - 1];//SwarmResources.tracker.war.list[SwarmResources.tracker.war.list.length - 1];
                     // let lastExileBomb: TrackedWarUse;
                     // let lastLegionBomb: TrackedWarUse;
 
@@ -320,13 +320,13 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     }
 
                     if (hoursLeft === 0) {
-                        const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+                        const keys = Object.keys(SwarmResources.tracker.player.chars);
 
                         for (let i = 0, len = keys.length; i < len; i++) {
-                            if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
-                                if (this.swarm.resources.tracker.player.chars[keys[i]].time !== time) {
-                                    this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
-                                    this.swarm.resources.tracker.player.chars[keys[i]].time = time;
+                            if (SwarmResources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
+                                if (SwarmResources.tracker.player.chars[keys[i]].time !== time) {
+                                    SwarmResources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
+                                    SwarmResources.tracker.player.chars[keys[i]].time = time;
                                 }
                             }
                         }
@@ -346,13 +346,13 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                 }
 
                 if (hoursLeft === 0) {
-                    const keys = Object.keys(this.swarm.resources.tracker.player.chars);
+                    const keys = Object.keys(SwarmResources.tracker.player.chars);
 
                     for (let i = 0, len = keys.length; i < len; i++) {
-                        if (this.swarm.resources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
-                            if (this.swarm.resources.tracker.player.chars[keys[i]].time !== time) {
-                                this.swarm.resources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
-                                this.swarm.resources.tracker.player.chars[keys[i]].time = time;
+                        if (SwarmResources.tracker.player.chars[keys[i]].lastJugg[0] !== -1) {
+                            if (SwarmResources.tracker.player.chars[keys[i]].time !== time) {
+                                SwarmResources.tracker.player.chars[keys[i]].lastJugg = [0, 0];
+                                SwarmResources.tracker.player.chars[keys[i]].time = time;
                             }
                         }
                     }

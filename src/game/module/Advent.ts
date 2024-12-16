@@ -8,6 +8,15 @@ export interface Gift {
     name: string, count: { room: number, total: number, combo: number }, sfsId: number, onFireTier: number, isGlobal: boolean, time: number
 };
 
+/**
+ * For swarm resources
+ */
+export interface GiftObject {
+    gift: Gift,
+    char_id?: number,
+    puppet_id: number
+};
+
 export default class Advent extends BaseModule {
     static STATUS_BEFORE = -2;
     static STATUS_OVER = -1;
@@ -31,20 +40,17 @@ export default class Advent extends BaseModule {
     }
 
     receiveGiveGiftResponse(data: string[]) {
-        let giftData = data.slice(2);
+        const giftData = data.slice(2);
 
-        if (parseInt(giftData[0]) == Advent.STATUS_BEFORE) {
+        if (parseInt(giftData[0]) === Advent.STATUS_BEFORE) {
             this.status = parseInt(giftData[0]);
             return console.log("Sorry, this event just ended, thank you for participating!");
         }
 
-        let gifterName = giftData[1];
-        let [roomGiftCount, totalGiftCount, senderSfsUserId, onFireTier, comboCount, globalGift] = [2, 3, 4, 5, 6, 7].map(v => parseInt(giftData[v]));
+        const gifterName = giftData[1];
+        const [roomGiftCount, totalGiftCount, senderSfsUserId, onFireTier, comboCount, globalGift] = [2, 3, 4, 5, 6, 7].map(v => parseInt(giftData[v]));
 
-        //let myUser = this.client.getMyUser();
-        //if (myUser != null) {
-
-        let obj = {
+        const gift:Gift = {
             name: gifterName,
             count: {
                 room: roomGiftCount, total: totalGiftCount, combo: comboCount
@@ -53,6 +59,8 @@ export default class Advent extends BaseModule {
             isGlobal: globalGift === 1,
             time: Date.now()
         };
+
+        this.client.swarm.execute("onReceiveGift", this.client, gift);
 
         // this.client.gifts.push(obj);
 

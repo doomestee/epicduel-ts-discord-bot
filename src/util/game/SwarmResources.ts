@@ -1,40 +1,44 @@
-import { IUserRecord } from "../../Models/UserRecord.js";
-import { AnyItemRecordsExceptSelf } from "../../game/box/ItemBox.js";
-import SkillsSMBox, { SkillTypes } from "../../game/box/SkillsBox.js";
-import { Gift } from "../../game/module/Advent.js";
-import AllRecord from "../../game/record/skills/AllRecord.js";
-import { ExtractValueType } from "../../manager/cache.js";
+import type { AnyItemRecordsExceptSelf } from "../../game/box/ItemBox.js";
+import type { SkillTypes } from "../../game/box/SkillsBox.js";
+import type { GiftObject } from "../../game/module/Advent.js";
+import type Room from "../../game/sfs/data/Room.js";
 import Logger from "../../manager/logger.js";
+import type { IUserRecord } from "../../Models/UserRecord.js";
 import { requestLangFile, sleep } from "../Misc.js";
 
 // type BecauseICantThink<T extends Exclude<SkillTypes, "tree"> = Exclude<SkillTypes, "tree">> = Record<T, ExtractValueType<typeof SkillsSMBox.objMap[T]>>//T extends "tree" ? typeof SkillsSMBox.objList[T] : ExtractValueType<typeof SkillsSMBox.objMap>[T]>
 
+/**
+ * This is a bit weird but I have converted this to static since nearly the end of 2024 as it's better a design choice.
+ */
 export default class SwarmResources {
-    // boxes = {
+    static languages:Record<string, string> = {};
 
-    // }
+    static version = {
+        game: "",
+        lang: -1
+    };
 
-    languages:Record<string, string> = {};
-    langVersion = -1;
+    static comparisonFiles: { skills: Record<SkillTypes, any[]>, item: AnyItemRecordsExceptSelf[] };
 
-    gameVersion = "";
-
-    comparisonFiles!: { skills: Record<SkillTypes, any[]>, item: AnyItemRecordsExceptSelf[] };
+    static comparison = {
+        gameVersion: "",
+        time: -1,
+        doneById: -1,
+        fileRetrieved: false
+    }
 
     /**
-     * This will be invoked if there's a new game version not identical to previous.
+     * This will be invoked if there's a new game update.
      */
-    clear() {
+    static clear() {
         this.languages = {};
-
-        // this.comparisonFiles.item.splice(0);
-
         this.getNewLang();
     }
 
     // 504 as of 14-04-2024
-    async getNewLang() {
-        let v = this.langVersion > 0 ? this.langVersion - 2 : 504;
+    static async getNewLang() {
+        let v = this.version.lang > 0 ? this.version.lang - 2 : 504;
 
         // fails is an array, 1st index is the number of time it has failed overall, 2nd index is the number of times it has failed for that version.
         let fails = [0, 0];
@@ -80,18 +84,18 @@ export default class SwarmResources {
         }
 
         if (finalSuccess) {
-            this.langVersion = index;
+            this.version.lang = index;
         }
 
         return { index, success: finalSuccess };
     }
 
-    skills: { [userId: number | number]: { id: number, lvl: number }[] | undefined } = {};
-    records: { [userId: number | number]: Omit<IUserRecord, "char_id"> | undefined } = {};
+    static skills: { [userId: number | number]: { id: number, lvl: number }[] | undefined } = {};
+    static records: { [userId: number | number]: Omit<IUserRecord, "char_id"> | undefined } = {};
 
-    tracker = {
+    static tracker = {
         war: lazyMakeTracker<TrackedWarUse>("War"),
-        gift: lazyMakeTracker<Gift>("Gift"),
+        gift: lazyMakeTracker<GiftObject>("Gift"),
         // TODO: simplify this if we get another similar unorthodox tracker.
         player: {
             active: true,
@@ -115,12 +119,7 @@ export default class SwarmResources {
         }
     }
 
-    comparison = {
-        gameVersion: "",
-        time: -1,
-        doneById: -1,
-        fileRetrieved: false
-    }
+    static rooms = new Map<number, Room>();
 }
 
 function lazyMakeTracker<T>(name: string) {

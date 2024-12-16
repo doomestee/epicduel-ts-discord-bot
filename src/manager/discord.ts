@@ -7,6 +7,8 @@ import ClientEvent from "../util/events/ClientEvent.js";
 import Logger from "./logger.js";
 import { ImportResult } from "../util/types.js";
 import CommandHandler from "../handler/command.js";
+import type Queue from "../structures/queue/GenericQueue.js";
+import type { GiftObject } from "../game/module/Advent.js";
 
 interface UserProcessState {
     refreshLb: boolean;
@@ -52,7 +54,11 @@ export default class Hydra extends Client {
          */
         edChat: {} as { [charID: string|number]: { msg: {c: string, t: number}[], mutedUntil?: number, repeats: number, ignores: string[] }},
         war: {},
-    }
+    };
+
+    queues = {
+        gift: undefined as unknown as Queue<GiftObject>
+    };
 
     processing = {} as { [discordId: string]: UserProcessState };
 

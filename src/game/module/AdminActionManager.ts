@@ -1,5 +1,6 @@
 import Logger from "../../manager/logger.js";
 import { map } from "../../util/Misc.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 import Constants, { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
 import { SkillTypes } from "../box/SkillsBox.js";
@@ -22,7 +23,7 @@ export default class AdminActionManager extends BaseModule {
                 this.secondsLeft = 300;
                 setTimeout(() => {
                     this.client.swarm.probing = true;
-                    // this.client.swarm.resources.checkpoints.comparison[0] = -1;
+                    // SwarmResources.checkpoints.comparison[0] = -1;
 
                     const obj = {} as Record<SkillTypes, any[]>;
                     const keys = Object.keys(this.client.boxes.skills.objMap).concat(Object.keys(this.client.boxes.skills.objList)) as unknown as SkillTypes[];
@@ -33,8 +34,8 @@ export default class AdminActionManager extends BaseModule {
                         obj[keys[i]] = abc[i];
                     }
 
-                    this.client.swarm.resources.comparisonFiles.skills = obj;
-                    this.client.swarm.resources.comparisonFiles.item = this.client.boxes.item.objMap.toArray();
+                    SwarmResources.comparisonFiles.skills = obj;
+                    SwarmResources.comparisonFiles.item = this.client.boxes.item.objMap.toArray();
 
                     // this.client.selfDestruct(false);
                     this.client.smartFox.disconnect();

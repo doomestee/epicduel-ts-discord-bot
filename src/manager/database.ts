@@ -9,13 +9,13 @@ import Config from "../config/index.js";
  * This is to avoid use of map excessively, as it's significantly weaker (in terms of performance) compared to for loop
  * @param length 
  */
-export function quickDollars(length: number | Array<any>) : string {
+export function quickDollars(length: number | Array<any>, index = 0) : string {
     const len = Array.isArray(length) ? length.length : length;
 
     let str = "";
 
     for (let i = 0; i < len; i++) {
-        str += "$" + (i + 1);//values[i] + ", "
+        str += "$" + (i + index + 1);//values[i] + ", "
 
         if ((i + 1) !== len) str += ", "
     }

@@ -1,5 +1,6 @@
 import { IFaction } from "../Models/Faction.ts";
 import { Cheevo } from "../game/module/Achievements.ts";
+import { Gift } from "../game/module/Advent.ts";
 import { Faction } from "../game/module/FactionManager.ts";
 import { LeaderTypeToStruct } from "../game/module/Leader.ts";
 import { Shop } from "../game/module/Merchant.ts";
@@ -50,7 +51,7 @@ export interface CustomSFSClientEvents {
     merch_item: [result: Shop, id: number];
     leader_war: [result: WarSide, type: "overall" | "daily"],
     leader_war_gfx: [result: WarSideGFX],
-    advent_gift: [result: { status: number, prize: number, value: number, credits: number }],
+    advent_gift: [result: { status: -1 } | { status: 0 } | { status: 1, prize: number, value: number, credits: number }],
     leader_gift: [result: CacheTypings.GiftingLeader];
 
     tourney_leader: [result: TournamentLeader[]];
@@ -84,7 +85,9 @@ export interface MainEDEvents {
     onJoinRoom: [event: { room: Room | null }];
 
     onComparisonUpdate: [event: { type: number, part: number }];
-    onDailyMissions: [event: { status: [0|1, 0|1], ping?: boolean }]
+    onDailyMissions: [event: { status: [0|1, 0|1], ping?: boolean }];
+
+    onReceiveGift: [event: Gift]
 }
 
 export type BothSFSClientEvents = SFSClientEvents & CustomSFSClientEvents;

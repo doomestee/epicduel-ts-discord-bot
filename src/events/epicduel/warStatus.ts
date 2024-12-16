@@ -6,6 +6,7 @@ import { INotification } from "../../Models/Notification.js";
 import { IWar } from "../../Models/War.js";
 import Config from "../../config/index.js";
 import { filter } from "../../util/Misc.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 let lastTimeSince = {
     rally: 0,
@@ -205,7 +206,7 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
             const bombsToAlign = this.modules.WarManager.getAlignMappedByBombId();
             const bombsToType = this.modules.WarManager.getAlignMappedByBombId(true);
 
-            if (this.swarm.resources.tracker.war.active) this.swarm.resources.tracker.war.list.push({
+            if (SwarmResources.tracker.war.active) SwarmResources.tracker.war.list.push({
                 name: obj.name,
                 influence: obj.influence,
                 usedItemId: obj.usedItemId,

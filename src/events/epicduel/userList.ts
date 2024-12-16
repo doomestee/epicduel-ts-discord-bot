@@ -5,22 +5,23 @@ import CacheManager from "../../manager/cache.js";
 import DatabaseManager from "../../manager/database.js";
 import Logger from "../../manager/logger.js";
 import EDEvent from "../../util/events/EDEvent.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 export default new EDEvent("onUserListUpdate", async function (hydra, { list, type, user }) {
     const time = Date.now();
 
     if (user.charId !== undefined && user.userId !== undefined) {
         //@ts-expect-error
-        if (!this.swarm.resources.sfsUsers) this.swarm.resources.sfsUsers = {};
+        if (!SwarmResources.sfsUsers) SwarmResources.sfsUsers = {};
 
         //@ts-expect-error
-        for (let i of Object.entries(this.swarm.resources.sfsUsers)) {
+        for (let i of Object.entries(SwarmResources.sfsUsers)) {
             //@ts-expect-error
-            if (i[1].charId === user.charId && i[0] != user.id) delete this.swarm.resources.sfsUsers[i[0]];
+            if (i[1].charId === user.charId && i[0] != user.id) delete SwarmResources.sfsUsers[i[0]];
         }
         
         //@ts-expect-error
-        this.swarm.resources.sfsUsers[user.id] = {
+        SwarmResources.sfsUsers[user.id] = {
             charName: user.charName,
             charId: user.charId,
             userId: user.userId,

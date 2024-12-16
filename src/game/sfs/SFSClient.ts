@@ -9,6 +9,7 @@ import { Requests, Responses } from "../Constants.js";
 import { deserialize, encodeEntities, serialize } from "../../util/XML.js";
 import ExtHandler from "./handlers/ExtHandler.js";
 import Logger from "../../manager/logger.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 type SendHeader = { t: HandlerType };
 type HandlerType = "sys" | "xt";
@@ -96,7 +97,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     myUserName = "";
     amIModerator = false;
 
-    roomList: Map<number, Room> = new Map();
+    // roomList: Map<number, Room> = new Map();
 
     handlers = {
         message: {
@@ -220,8 +221,10 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
             const b = Buffer.alloc(1);
             b.writeInt8(0);
     
+            //@ts-expect-error
             this.socket?.write(Buffer.concat([a, b]), 'utf-8');
         } else {
+            //@ts-expect-error
             this.socket?.write(a);
         }
     }
@@ -275,7 +278,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
         if (!isLogOut) {
             this.connected = false;
         }
-        this.roomList.clear();
+        // this.roomList.clear();
     }
 
     getRandomKey() {
@@ -466,9 +469,12 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
         // }
     }
 
+    /**
+     * Keeping this for backward compatibility, use SwarmResources.rooms.get(roomId);
+     */
     getRoom(roomId: number) {
         if(!this.checkRoomList()) return null;
-        return this.roomList.get(roomId) ?? null;//[roomId];
+        return SwarmResources.rooms.get(roomId);//this.roomList.get(roomId) ?? null;//[roomId];
     }
 
     //#region Garbage that idk how to categorize
@@ -511,13 +517,15 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     getActiveRoom() {
         if (!this.checkRoomList() || !this.checkJoin()) return null;
 
-        return this.roomList.get(this.activeRoomId) ?? null;
+        return SwarmResources.rooms.get(this.activeRoomId) ?? null;
+
+        // return this.roomList.get(this.activeRoomId) ?? null;
     }
 
     getActiveRoomFr() {
         if (!this.checkRoomList() || !this.checkJoin()) throw Error("Empty rooms, or didnt join?");
 
-        const room = this.roomList.get(this.activeRoomId);
+        const room = SwarmResources.rooms.get(this.activeRoomId);//roomList.get(this.activeRoomId);
 
         if (room === undefined) throw Error("Undefined room");
 
@@ -525,7 +533,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     }
 
     getRoomList() {
-        return Array.from(this.roomList.values());
+        return Array.from(SwarmResources.rooms.values());//this.roomList.values());
     }
 
     static EOM = 0;

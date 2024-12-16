@@ -6,6 +6,7 @@ import Swarm from "../../manager/epicduel.js";
 import Logger from "../../manager/logger.js";
 import ClientEvent from "../../util/events/ClientEvent.js";
 import { Dispatcher, request } from "undici";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 let once = false;
 
@@ -59,9 +60,9 @@ export default new ClientEvent("ready", function () {
                         // } else epicduel.compareFiles = false;
 
                         // epicduel.langVersion = json.v;
-                        Swarm.resources.langVersion = json.v;
+                        SwarmResources.version.lang = json.v;
 
-                        Swarm.resources.getNewLang().then(v => {
+                        SwarmResources.getNewLang().then(v => {
                             if (this.isBotMain() && v.index && json.v !== v.index && v.index !== -1 && v.success) {
                                 message.edit({
                                     content: "Stuff: " + JSON.stringify({
@@ -134,9 +135,9 @@ export default new ClientEvent("ready", function () {
         }).then((json) => {
             if (json === false) return;
 
-            Swarm.resources.comparisonFiles = json as any;
+            SwarmResources.comparisonFiles = json as any;
 
-            Swarm.resources.comparison.fileRetrieved = true;//checkpoints.comparison[0] = 1;//.emit("epicduel_epicduel_comparison", 0);
+            SwarmResources.comparison.fileRetrieved = true;//checkpoints.comparison[0] = 1;//.emit("epicduel_epicduel_comparison", 0);
             return json;
         }).catch((err) => {
             Logger.getLogger("Comparison").error(err);

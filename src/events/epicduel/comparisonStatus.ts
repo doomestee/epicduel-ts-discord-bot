@@ -5,11 +5,12 @@ import Logger from "../../manager/logger.js";
 import { SkillTypes } from "../../game/box/SkillsBox.js";
 import { map } from "../../util/Misc.js";
 import Config from "../../config/index.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 export default new EDEvent("onComparisonUpdate", async function (hydra, { part, type }) {
     if (Config.isDevelopment === true) return;
 
-    if (type === 0) this.swarm.resources.comparison.fileRetrieved = true;//.checkpoints.comparison[0] = 1;
+    if (type === 0) SwarmResources.comparison.fileRetrieved = true;//.checkpoints.comparison[0] = 1;
     if (type === 1) {
         /*
 
@@ -33,11 +34,11 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
 
     // if (false) return; // for now
 
-    if (!this.swarm.resources.comparison.fileRetrieved || this.checkpoints.comparison.includes(0)) return;
+    if (!SwarmResources.comparison.fileRetrieved || this.checkpoints.comparison.includes(0)) return;
 
-    if (this.swarm.resources.comparison.gameVersion === this.currVersion) return;
+    if (SwarmResources.comparison.gameVersion === this.currVersion) return;
 
-    this.swarm.resources.comparison = {
+    SwarmResources.comparison = {
         doneById: this.settings.id,
         gameVersion: this.currVersion,
         time: Date.now(),
@@ -125,8 +126,8 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
     }
 
     //@ts-expect-error
-    const zamn = this.swarm.resources.zamn = {
-        item: compare(this.swarm.resources.comparisonFiles.item, this.boxes.item.objMap.toArray(), "itemId"),
+    const zamn = SwarmResources.zamn = {
+        item: compare(SwarmResources.comparisonFiles.item, this.boxes.item.objMap.toArray(), "itemId"),
         skills: {
             /*all: compare(client.comparisonFiles.skills.all, epicduel.client.boxes.skills.objMap.all.toArray(), "skillId"),
             // I notice that tree may have more than one identifier, will add support for that soon.
@@ -167,7 +168,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
         }
 
         //@ts-expect-error
-        this.swarm.resources.shazamn = {
+        SwarmResources.shazamn = {
             adds, removes, changes
         };
 
@@ -176,7 +177,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
          * @param {[itemID: number, import("../../server/structures/record/item/SelfRecord")]} item
          */
         let embed = (type: "~"|"+"|"-", item: [number, AnyItemRecordsExceptSelf]) => {
-            let obj = (type === "~") ? this.swarm.resources.comparisonFiles.item.find(v => v.itemId === item[0]) : item[1];
+            let obj = (type === "~") ? SwarmResources.comparisonFiles.item.find(v => v.itemId === item[0]) : item[1];
             let jsonStringified = JSON.stringify(obj, undefined, 2);
 
             if (type === "~") {
@@ -237,7 +238,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
                             // "item log" forum channel
                             if (thread.parentID !== "1159896720717656205" || thread.type !== ChannelTypes.PUBLIC_THREAD) continue;
 
-                            if (thread.name.includes(this.swarm.resources.gameVersion)) {
+                            if (thread.name.includes(SwarmResources.version.game)) {
                                 if (thread.appliedTags.includes("1159899392287981578")) threads.a = thread.id; // "Added" tag
                                 if (thread.appliedTags.includes("1159899426542854255")) threads.c = thread.id; // "Changed" tag
                                 if (thread.appliedTags.includes("1159899451779977316")) threads.r = thread.id; // "Removed" tag
@@ -250,9 +251,9 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
             if (threads.c !== "") threadies.push(hydra.rest.channels.getMessages(threads.c, { after: threads.c.slice(0, -2) + "0", limit: 1 }));
             if (threads.r !== "") threadies.push(hydra.rest.channels.getMessages(threads.r, { after: threads.r.slice(0, -2) + "0", limit: 1 }));
 
-            if (adds.length    && threads.a === "") threads.a = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: adds.length    + " item(s) were added, as of v" + this.swarm.resources.gameVersion },  name: "New Items - v" +      this.swarm.resources.gameVersion }).then(v => v.edit({appliedTags: ["1159899392287981578"]})).then(v => v.id);
-            if (changes.length && threads.c === "") threads.c = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: changes.length + " item(s) were changed, as of v" + this.swarm.resources.gameVersion }, name: "Changed Items - v" + this.swarm.resources.gameVersion }).then(v => v.edit({appliedTags: ["1159899426542854255"]})).then(v => v.id);
-            if (removes.length && threads.r === "") threads.r = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: removes.length + " item(s) were removed, as of v" + this.swarm.resources.gameVersion }, name: "Removed Items - v" + this.swarm.resources.gameVersion }).then(v => v.edit({appliedTags: ["1159899451779977316"]})).then(v => v.id);
+            if (adds.length    && threads.a === "") threads.a = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: adds.length    + " item(s) were added, as of v" + SwarmResources.version.game },  name: "New Items - v" +      SwarmResources.version.game }).then(v => v.edit({appliedTags: ["1159899392287981578"]})).then(v => v.id);
+            if (changes.length && threads.c === "") threads.c = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: changes.length + " item(s) were changed, as of v" + SwarmResources.version.game }, name: "Changed Items - v" + SwarmResources.version.game }).then(v => v.edit({appliedTags: ["1159899426542854255"]})).then(v => v.id);
+            if (removes.length && threads.r === "") threads.r = await hydra.rest.channels.startThreadInThreadOnlyChannel("1159896720717656205", { message: { content: removes.length + " item(s) were removed, as of v" + SwarmResources.version.game }, name: "Removed Items - v" + SwarmResources.version.game }).then(v => v.edit({appliedTags: ["1159899451779977316"]})).then(v => v.id);
         }
 
         for (let i = 0; i < adds.length; i++) {
@@ -497,7 +498,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
             obj[keys[i]] = abc[i];
         }
 
-        this.swarm.resources.comparisonFiles = {
+        SwarmResources.comparisonFiles = {
             // TODO: skilllllllllllls objlist cri
             skills: obj,
             item: this.boxes.item.objMap.toArray()
@@ -505,7 +506,7 @@ export default new EDEvent("onComparisonUpdate", async function (hydra, { part, 
 
         hydra.rest.channels.createMessage("1034498187911774278", {
             files: [{
-                contents: Buffer.from(JSON.stringify(this.swarm.resources.comparisonFiles)),
+                contents: Buffer.from(JSON.stringify(SwarmResources.comparisonFiles)),
                 name: "jason.json"
             }]
         }).catch((err) => Logger.getLogger("Comparison").error(err));

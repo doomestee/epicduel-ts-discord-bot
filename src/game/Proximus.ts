@@ -58,6 +58,7 @@ import { WaitForResult, waitFor } from "../util/WaitStream.js";
 import { IUserRecord } from "../Models/UserRecord.js";
 import DatabaseManager from "../manager/database.js";
 import { find } from "../util/Misc.js";
+import SwarmResources from "../util/game/SwarmResources.js";
 
 export interface ClientSettings {
     id: number;
@@ -713,12 +714,12 @@ export default class Client {
                     break;
                 case Responses.RESPONSE_LOGIN_OK:
                     if (dataObj.ver !== this.version) this.currVersion = dataObj.ver; // TODO: idk
-                    if (this.swarm.resources.gameVersion !== this.currVersion) {
-                        this.swarm.resources.gameVersion = this.currVersion;
-                        this.swarm.resources.clear();
+                    if (SwarmResources.version.game !== this.currVersion) {
+                        SwarmResources.version.game = this.currVersion;
+                        SwarmResources.clear();
 
                         this.swarm.probing = false; // Game is alive.
-                        // this.swarm.resources["getLang"]();
+                        // SwarmResources["getLang"]();
                     }
 
                     this.smartFox.myUserId = dataObj.userId;
@@ -959,13 +960,18 @@ export default class Client {
                     break;
                 case Responses.RESPONSE_ADVENT_CLAIM_STATUS:
                     console.log("oCk");
+                    return console.log(dataObj);
                 case Requests.REQUEST_CLAIM_ADVENT_PRESENT:
                     console.log(dataObj);
 
-                    if (dataObj[2] === "-1") return console.log("The gifting has ended, can't claim advent present.");
+                    if (dataObj[2] === "1" && dataObj.length > 3) {
+                        this.smartFox.emit("advent_gift", { status: 1, prize: parseInt(dataObj[3]), value: parseInt(dataObj[4]), credits: parseInt(dataObj[5]) });
+                        return console.log("Successfully claimed daily advent present; prize %i, value %i, %i credits", dataObj[3], dataObj[4], dataObj[5]);
+                    } else {
+                        this.smartFox.emit("advent_gift", { status: parseInt(dataObj[2]) as -1 | 0 });
 
-                    if (dataObj[2] === "1"  && dataObj.length > 3) console.log("Successfully claimed daily advent present; prize %i, value %i, %i credits", dataObj[3], dataObj[4], dataObj[5]);
-                    else console.log("Not able to claim daily advent present, you may have to wait tomorrow.");
+                        return console.log(dataObj[2] === -1 ? "The gifting has ended, can't claim advent present." : "Not able to claim daily advent present, you may have to wait tomorrow.");
+                    }
 
                     // this.smartFox.emit("advent_gift", dataObj[2] !== "1" ? { status: parseInt(dataObj[2]) } : { status: parseInt(dataObj[2]), prize: parseInt(dataObj[3]), value: parseInt(dataObj[4]), credits: parseInt(dataObj[5]) });
 
@@ -1149,7 +1155,7 @@ export default class Client {
                         npc: parseInt(dataObj[9]),
                     };
 
-                    this.swarm.resources.records[dataObj[2]] = rec;
+                    SwarmResources.records[dataObj[2]] = rec;
                     this.smartFox.emit("user_record", rec, parseInt(dataObj[2]));
 
                     // this.manager.logEmit("epicduel_user", {
@@ -1180,7 +1186,7 @@ export default class Client {
                     }
 
                     if (parseInt(dataObj[2]) === this.smartFox.myUserId) this.user._mySkills = skills;
-                    else this.swarm.resources.skills[dataObj[2]] = skills;
+                    else SwarmResources.skills[dataObj[2]] = skills;
 
                     // if (dataObj[2] == this.smartFox.myUserId) {
                     //     this.user._mySkills = loc48;
@@ -2300,7 +2306,7 @@ export default class Client {
         if (userId === this.smartFox.myUserId && this.user._mySkills != null && Object.keys(this.user._mySkills).length) {
             return [];//this.user._mySkills.skills;
         } else {
-            let playerSkills = this.swarm.resources.skills[userId];
+            let playerSkills = SwarmResources.skills[userId];
 
             if (!this.battleOver && playerSkills != null && playerSkills && !screwBattle) {
                 return playerSkills;
@@ -2338,7 +2344,7 @@ export default class Client {
         //     else loadFresh = true;
         // }
 
-        let urr = this.swarm.resources.records[userId];
+        let urr = SwarmResources.records[userId];
         if (urr) {
             // 1 hour cache
             if ((urr.last_fetched.getTime() + 60000*60) > Date.now()) return { success: true, value: urr };//{...urr[1], fresh: false};

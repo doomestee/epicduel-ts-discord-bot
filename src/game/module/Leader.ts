@@ -8,6 +8,7 @@ import { CharPage, CharPageResult, filter, find, findIndex, getCharPage, map } f
 import DatabaseManager, { quickDollars } from "../../manager/database.js";
 import { ICharacter } from "../../Models/Character.js";
 import Logger from "../../manager/logger.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 // function quickResult(result: Array<any>, func: ())
 
@@ -412,9 +413,9 @@ export default class Leader extends BaseModule {
             const { rows: chars } = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE lower(name) IN (${quickDollars(names.length)})`, names);
 
             for (let i = 0, len = chars.length; i < len; i++) {
-                if (this.client.swarm.resources.tracker.player.idToChar[chars[i].id] !== undefined) {
-                    this.client.swarm.resources.tracker.player.idToChar[chars[i].id] = chars[i].name;
-                    this.client.swarm.resources.tracker.player.charToId[chars[i].name as "Despair"] = chars[i].id;
+                if (SwarmResources.tracker.player.idToChar[chars[i].id] !== undefined) {
+                    SwarmResources.tracker.player.idToChar[chars[i].id] = chars[i].name;
+                    SwarmResources.tracker.player.charToId[chars[i].name as "Despair"] = chars[i].id;
                 }
             }
 
@@ -449,9 +450,9 @@ export default class Leader extends BaseModule {
                 
                 if (exist === undefined) { Leader.ignoreJuggs.push(charPgs[i].charName.toLowerCase()); continue; }
 
-                if (this.client.swarm.resources.tracker.player.idToChar[exist.id] !== undefined) {
-                    this.client.swarm.resources.tracker.player.idToChar[exist.id] = charPgs[i].charName;
-                    this.client.swarm.resources.tracker.player.charToId[charPgs[i].charName as "Despair"] = exist.id;
+                if (SwarmResources.tracker.player.idToChar[exist.id] !== undefined) {
+                    SwarmResources.tracker.player.idToChar[exist.id] = charPgs[i].charName;
+                    SwarmResources.tracker.player.charToId[charPgs[i].charName as "Despair"] = exist.id;
                 }
 
                 const user = charPgs[i];

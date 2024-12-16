@@ -265,13 +265,16 @@ export default class Swarm {
     static readonly resources = new SwarmResources()
 
     static get languages() {
-        return this.resources.languages;
+        return SwarmResources.languages;
     }
 
     static langCheck(key: string) {
-        return this.resources.languages[key] ?? key;
+        return SwarmResources.languages[key] ?? key;
     }
 
+    static settings = {
+        giftLog: false
+    }
 
     // TODO: move this somewhere
 
@@ -375,6 +378,7 @@ export default class Swarm {
         onUserListUpdate: undefined,
         onWarStatusChange: undefined, // done
         onDailyMissions: undefined, //done
+        onReceiveGift: undefined
     };
 
     private static async loadEvents() {
