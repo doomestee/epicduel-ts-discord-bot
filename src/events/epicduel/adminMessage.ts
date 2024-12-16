@@ -28,10 +28,30 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
         lastTime = time;
     }
 
-    if (obj.message.startsWith("Titan}")) console.log(obj);
+    let content = "";
 
     switch (obj.type) {
         case 0:
+            if (Config.isDevelopment) return;
+
+            content = `**${obj.message}**`;
+
+            let webhook = Config.webhooks.entryTracker;//{ id: process.env.ENTRY_TRACKER_WEBHOOK_ID, token: process.env.ENTRY_TRACKER_WEBHOOK_TOKEN };
+
+            if (["new shipment", "rebooting", "updating"].some(v => obj.message.toLowerCase().includes(v))) {
+                let isShipment = obj.message.toLowerCase().includes("new shipment");
+
+                content = (isShipment ? `<@&1125895863550607470> ` : `<@&1152343294727176333> `) + content;
+                webhook = Config.webhooks.updateTracker;//{ id: process.env.UPDATE_TRACKER_WEBHOOK_ID, token: process.env.UPDATE_TRACKER_WEBHOOK_TOKEN };
+            }
+
+            return hydra.rest.webhooks.execute(webhook.id, webhook.token, {
+                wait: true, content, allowedMentions: {
+                    roles: ["1125895863550607470", "1152343294727176333"]
+                }
+            }).catch(e => {console.log(e); return null;});
+            break;
+        case 1:
             if (Config.isDevelopment) return;
 
             let send = {
@@ -73,7 +93,15 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     })
             }
 
+            if (["new shipment", "rebooting", "updating"].some(v => obj.message.toLowerCase().includes(v))) {
+                let isShipment = obj.message.toLowerCase().includes("new shipment");
+
+                content = (isShipment ? `<@&1125895863550607470> ` : `<@&1152343294727176333> `);
+                webhook = Config.webhooks.updateTracker;//{ id: process.env.UPDATE_TRACKER_WEBHOOK_ID, token: process.env.UPDATE_TRACKER_WEBHOOK_TOKEN };
+            }
+
             return hydra.rest.webhooks.execute(Config.webhooks.updateTracker.id, Config.webhooks.updateTracker.token, {
+                content,
                 embeds: [{
                     author: {
                         name: send.npc
@@ -81,26 +109,6 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
                     description: replaceHTMLbits(send.message)
                 }]
             })
-            break;
-        case 1:
-            if (Config.isDevelopment) return;
-
-            let content = `**${obj.message}**`;
-
-            let webhook = Config.webhooks.entryTracker;//{ id: process.env.ENTRY_TRACKER_WEBHOOK_ID, token: process.env.ENTRY_TRACKER_WEBHOOK_TOKEN };
-
-            if (["new shipment", "rebooting", "updating"].some(v => obj.message.toLowerCase().includes(v))) {
-                let isShipment = obj.message.toLowerCase().includes("new shipment");
-
-                content = (isShipment ? `<@&1125895863550607470> ` : `<@&1152343294727176333> `) + content;
-                webhook = Config.webhooks.updateTracker;//{ id: process.env.UPDATE_TRACKER_WEBHOOK_ID, token: process.env.UPDATE_TRACKER_WEBHOOK_TOKEN };
-            }
-
-            return hydra.rest.webhooks.execute(webhook.id, webhook.token, {
-                wait: true, content, allowedMentions: {
-                    roles: ["1125895863550607470", "1152343294727176333"]
-                }
-            }).catch(e => {console.log(e); return null;});
             break;
         case 2:
             let msgParts = obj.message.split(',');

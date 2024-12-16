@@ -4,6 +4,7 @@ import type { GiftObject } from "../../game/module/Advent.js";
 import DatabaseManager, { quickDollars } from "../../manager/database.js";
 import Logger from "../../manager/logger.js";
 import { QueueFuncParameters, QueueFuncResult } from "../../types/queue.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 import Queue from "./GenericQueue.js";
 
 let breaker = false;
@@ -24,7 +25,11 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
             if (i !== 0) query += ","
 
             query += ` (${quickDollars(8, i * 8)})`;
-            toQuery.push(giftObj.gift.name, giftObj.char_id ?? null, giftObj.gift.count.room, giftObj.gift.count.total, giftObj.gift.count.combo, giftObj.gift.onFireTier, giftObj.gift.isGlobal, new Date(giftObj.gift.time));
+            
+            toQuery.push(giftObj.gift.name, typeof giftObj.char_id === "number" ? giftObj.char_id :
+                //@ts-expect-error
+                (SwarmResources.sfsUsers?.[giftObj.gift.sfsId]?.charId
+                ?? null), giftObj.gift.count.room, giftObj.gift.count.total, giftObj.gift.count.combo, giftObj.gift.onFireTier, giftObj.gift.isGlobal, new Date(giftObj.gift.time));
 
             let toPut = (giftObj.gift.isGlobal) ? `**${giftObj.gift.name}** sent a gift to the server with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
                 : `**${giftObj.gift.name}** sent a gift to Central Station, Vendbot w0 with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
