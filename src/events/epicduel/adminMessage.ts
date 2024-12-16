@@ -28,6 +28,8 @@ export default new EDEvent("onAdminMessage", async function (hydra, obj) {
         lastTime = time;
     }
 
+    if (obj.message.startsWith("Titan}")) console.log(obj);
+
     switch (obj.type) {
         case 0:
             if (Config.isDevelopment) return;
