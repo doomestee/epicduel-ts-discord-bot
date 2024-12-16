@@ -8,4 +8,4 @@ export interface QueueFuncParameters {
 
 export type QueueFuncResult = { queue: Queue, type: keyof Hydra["queues"] };
 
-export type QueueFunc = function (params: QueueFuncParameters) : QueueFuncResult;
+export type QueueFunc = (params: QueueFuncParameters) => QueueFuncResult;
