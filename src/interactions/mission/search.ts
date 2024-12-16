@@ -4,13 +4,13 @@ import Command, { CommandType } from "../../util/Command.js";
 import { SwarmError } from "../../util/errors/index.js";
 import Config from "../../config/index.js";
 import { ButtonComponent, ButtonStyles, ComponentTypes } from "oceanic.js";
-import Swarm from "../../manager/epicduel.js";
 import { emojis, filter, find, getHighestTime, map } from "../../util/Misc.js";
 import MissionSBox from "../../game/box/MissionBox.js";
 import MerchantSBox from "../../game/box/MerchantBox.js";
 import { objectify, rewardify } from "./recent.js";
 import { replaceHTMLbits } from "../../manager/designnote.js";
 import he from "he";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 let edClass = (id: number) => { return id == 0 ? "None" : id == 1 ? "Hunter" : id == 2 ? "Mercenary" : id == 3 ? "Mage" : "Unknown" };
@@ -49,10 +49,10 @@ export default new Command(CommandType.Application, { cmd: ["mission", "search"]
                 title: "Mission Chain: " + group?.groupName,
                 fields: [{
                     name: "Before",
-                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_mission_chat_" + mission.missionId])),
+                    value: he.decode(replaceHTMLbits(SwarmResources.languages["SQL_mission_chat_" + mission.missionId])),
                 }, {
                     name: "After",
-                    value: he.decode(replaceHTMLbits(Swarm.languages["SQL_missions_txt_end" + mission.missionId])),
+                    value: he.decode(replaceHTMLbits(SwarmResources.languages["SQL_missions_txt_end" + mission.missionId])),
                 }, {
                     name: "Reward(s)",
                     value: rewardify([mission], true),

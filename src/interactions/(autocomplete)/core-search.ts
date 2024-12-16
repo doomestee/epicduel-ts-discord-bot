@@ -2,8 +2,7 @@ import { AutocompleteChoice } from "oceanic.js";
 import Command, { CommandType } from "../../util/Command.js";
 import FuzzySearch from "fuzzy-search"
 import SkillsSMBox from "../../game/box/SkillsBox.js";
-import Swarm from "../../manager/epicduel.js";
-import type AllRecord from "../../game/record/skills/AllRecord.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 function truncateResults(values: AutocompleteChoice[], max=25) : AutocompleteChoice[] {
     if (values.length === 0) return [{name: `0 Result`, value: "102030405"}];
@@ -50,8 +49,8 @@ export default new Command(CommandType.Autocomplete, { cmd: ["core", "search"], 
         for (let i = preitems.length, y = 0; i > 0; i--, y++) {//, len = preitems.length; i < len; i++) {
             const skill = preitems[i - 1];
             items[y] = {
-                skillName: Swarm.langCheck(skill.skillName),
-                skillDesc: Swarm.langCheck(skill.skillDesc),
+                skillName: SwarmResources.langCheck(skill.skillName),
+                skillDesc: SwarmResources.langCheck(skill.skillDesc),
                 skillId: skill.skillId,
             }
         }

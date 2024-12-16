@@ -9,7 +9,7 @@ import { Entity, IEntityStat, IStat } from "../../../Models/EntityStat.js";
 import { IEntitySkill } from "../../../Models/EntitySkill.js";
 import ClassBox from "../../../game/box/ClassBox.js";
 import SkillsSMBox from "../../../game/box/SkillsBox.js";
-import Swarm from "../../../manager/epicduel.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
 
 /**
  * @param {{ str: number, dex: number, tech: number, supp: number }} statical
@@ -110,17 +110,17 @@ export default new Command(CommandType.Component, { custom_id: "stat_<type>_<ent
                         value: "unknown skill, id: " + id
                     }
 
-                    let sName = Swarm.langCheck(skillInfo.skill.skillName);
+                    let sName = SwarmResources.langCheck(skillInfo.skill.skillName);
                     let eName = sName.replace(/( |-)/g, "");
 
                     if (gEmojis[eName] == undefined && gEmojis[skillInfo.skill.skillLink]) eName = skillInfo.skill.skillLink;
 
                     let energyCost = skillInfo.cr.reqEnergy + (skillInfo.cr.reqEnergyStep ? skillInfo.cr.reqEnergyStep * lvl : 0);
-                    let unit = skillInfo.isTree() ? skillInfo.tree.getLevelValue(lvl) + " " + Swarm.langCheck(skillInfo.skill.skillUnit) + "\n" : ""
+                    let unit = skillInfo.isTree() ? skillInfo.tree.getLevelValue(lvl) + " " + SwarmResources.langCheck(skillInfo.skill.skillUnit) + "\n" : ""
 
                     return {
                         name: sName,
-                        value: `<:${eName}:${gEmojis[eName]}> Lvl: ${lvl}\nEnergy Cost: ${energyCost} ${skillInfo.skill.skillPassive ? "(Passive)" : ""}\n${unit}\n${Swarm.langCheck(skillInfo.skill.skillDesc)}`,
+                        value: `<:${eName}:${gEmojis[eName]}> Lvl: ${lvl}\nEnergy Cost: ${energyCost} ${skillInfo.skill.skillPassive ? "(Passive)" : ""}\n${unit}\n${SwarmResources.langCheck(skillInfo.skill.skillDesc)}`,
                         inline: true
                     }
                 }),

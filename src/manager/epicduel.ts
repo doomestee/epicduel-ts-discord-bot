@@ -8,7 +8,6 @@ import { MainEDEvents, SFSClientEvents } from "../types/events.js";
 import { Requests } from "../game/Constants.js";
 import Logger from "./logger.js";
 import EDCycler from "../util/EDCycler.js";
-import SwarmResources from "../util/game/SwarmResources.js";
 import { IWar } from "../Models/War.js";
 import DatabaseManager from "./database.js";
 import { readdir } from "fs/promises";
@@ -260,14 +259,6 @@ export default class Swarm {
         }
 
         return undefined;
-    }
-
-    static get languages() {
-        return SwarmResources.languages;
-    }
-
-    static langCheck(key: string) {
-        return SwarmResources.languages[key] ?? key;
     }
 
     static settings = {

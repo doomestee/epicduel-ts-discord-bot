@@ -5,11 +5,11 @@ import Command, { CommandType } from "../../util/Command.js";
 import { SwarmError } from "../../util/errors/index.js";
 import Config from "../../config/index.js";
 import { ButtonComponent, ButtonStyles, ComponentTypes } from "oceanic.js";
-import Swarm from "../../manager/epicduel.js";
 import { getHighestTime, map } from "../../util/Misc.js";
 import { replaceHTMLbits } from "../../manager/designnote.js";
 import RoomManager from "../../game/module/RoomManager.js";
 import RoomManagerRecord from "../../game/record/RoomManagerRecord.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 export default new Command(CommandType.Application, { cmd: ["npc", "search"], category: "NPC", description: "Pulls up the information about an Epicduel npc." })
     .attach('run', async  ({ client, interaction }) => {
@@ -83,8 +83,8 @@ export default new Command(CommandType.Application, { cmd: ["npc", "search"], ca
                 /*image: {
                     url: "https://edwiki-image-proxy.cyclic.cloud/image?path=" + lang(merchant.mercName).replace(/[^a-zA-Z0-9]/g, "") + ".png"
                 },*/
-                title: Swarm.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchLvl + ")",
-                description: replaceHTMLbits(Swarm.langCheck(merchant.mercChat)),
+                title: SwarmResources.langCheck(merchant.mercName) + " (ID: " + merchant.merchantId + ", Lvl: " + merchant.merchLvl + ")",
+                description: replaceHTMLbits(SwarmResources.langCheck(merchant.mercChat)),
                 author: {
                     name: interaction.user.username,
                     iconURL: interaction.user.avatarURL()

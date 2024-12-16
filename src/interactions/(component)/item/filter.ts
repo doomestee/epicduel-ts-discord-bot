@@ -5,6 +5,7 @@ import ItemSBox from "../../../game/box/ItemBox.js";
 import Swarm from "../../../manager/epicduel.js";
 import AchievementRecord from "../../../game/record/AchievementRecord.js";
 import SkillsSMBox from "../../../game/box/SkillsBox.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 
@@ -20,7 +21,7 @@ let parseCore = (coreId: number) => {
 
     if (!allRec) return "UNABLE TO GRAB SKILL DESCRIPTION";
 
-    return Swarm.langCheck(allRec.skillDesc);
+    return SwarmResources.langCheck(allRec.skillDesc);
 }
 
 type OptType = "ENHANCED_ONLY"|"NO_STYLES"|"CORE_ONLY";

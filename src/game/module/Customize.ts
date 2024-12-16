@@ -1,3 +1,4 @@
+import SwarmResources from "../../util/game/SwarmResources.js";
 import { waitFor } from "../../util/WaitStream.js";
 import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
@@ -36,7 +37,7 @@ export default class Customize extends BaseModule {
      */
     responseBoughtHair(data: string[]) {
         // this.client.smartFox.emit("hair_buy", styleId, cost);
-        if (data[2] !== "1") return console.log(this.client.swarm.languages["DYN_npc_err_buyHairFail"]);
+        if (data[2] !== "1") return console.log(SwarmResources.languages["DYN_npc_err_buyHairFail"]);
 
         let cost = {
             credit: parseInt(data[3]),

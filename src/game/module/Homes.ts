@@ -1,3 +1,4 @@
+import SwarmResources from "../../util/game/SwarmResources.js";
 import { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
 import HomeRecord from "../record/HomeRecord.js";
@@ -89,9 +90,9 @@ export default class Homes extends BaseModule {
         if (!homeRecord) throw Error("Unknown home, ID: " + this.homeId);
 
         if (Boolean(data.saleFail)) {
-            console.log(this.client.swarm.languages["DYN_home_err_buyFail"]); return;
+            console.log(SwarmResources.languages["DYN_home_err_buyFail"]); return;
         } if (Boolean(data.noSale)) {
-            console.log(this.client.swarm.languages["DYN_home_err_noMeetReqs"]); return;
+            console.log(SwarmResources.languages["DYN_home_err_noMeetReqs"]); return;
         }
 
         if (mode === 1) {

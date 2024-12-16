@@ -8,6 +8,7 @@ import ImageManager from "../manager/image.js";
 import { readFile } from "fs/promises";
 import Config from "../config/index.js";
 import { filter, lazyTrimStringList, map } from "../util/Misc.js";
+import SwarmResources from "../util/game/SwarmResources.js";
 
 // WE LOVE MUTABILITY!
 function coreItemIdToFull(itemId: number, cores: [number, number], type: 0 | 1) {
@@ -22,8 +23,8 @@ function coreItemIdToFull(itemId: number, cores: [number, number], type: 0 | 1) 
 
     if (!skill || !core) return "N/A";
 
-    const skillName = Swarm.languages[skill.skillName] || skill.skillName;
-    const skillDesc = Swarm.languages[skill.skillDesc] || skill.skillDesc;
+    const skillName = SwarmResources.languages[skill.skillName] || skill.skillName;
+    const skillDesc = SwarmResources.languages[skill.skillDesc] || skill.skillDesc;
 
     cores[type] = core.skillId;
 
@@ -57,7 +58,7 @@ export class Item {
         if ("itemDesc" in item) {
             embeds[0].description = item.itemDesc;
 
-            if (Swarm.languages[item.itemDesc]) embeds[0].description = Swarm.languages[item.itemDesc];
+            if (SwarmResources.languages[item.itemDesc]) embeds[0].description = SwarmResources.languages[item.itemDesc];
         }
         
         // const [finderRec] = ItemFinder.search(itemId, true);
@@ -135,7 +136,7 @@ export class Item {
             case ItemSBox.ITEM_CATEGORY_MISSION_ID:
                 embeds[0].fields?.push({
                     name: "Misc Item - Description",
-                    value: Swarm.languages[item.itemDesc] ?? item.itemDesc
+                    value: SwarmResources.languages[item.itemDesc] ?? item.itemDesc
                 });
                 break;
         }
@@ -166,7 +167,7 @@ export class Item {
                         })
                     };
 
-                    embeds[0].description = Swarm.languages[skill.skillDesc] || skill.skillDesc;
+                    embeds[0].description = SwarmResources.languages[skill.skillDesc] || skill.skillDesc;
                 }
             }
         } else {

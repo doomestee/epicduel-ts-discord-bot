@@ -5,9 +5,9 @@ import ImageManager from "../../manager/image.js";
 import { readFile } from "fs/promises";
 import Config from "../../config/index.js";
 import ItemSBox from "../../game/box/ItemBox.js";
-import Swarm from "../../manager/epicduel.js";
 import { SwarmError } from "../../util/errors/index.js";
 import { getHighestTime } from "../../util/Misc.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
 export default new Command(CommandType.Application, { cmd: ["core", "search"], cooldown: 5000, usableEdRestricted: true })
     .attach('run', async ({ client, interaction }) => {
@@ -95,7 +95,7 @@ export default new Command(CommandType.Application, { cmd: ["core", "search"], c
             if (core.activeSkill.createPassive) passive();
         } else if (core.passiveSkill) passive();
 
-        let parse = (con: string) => { if (Swarm.languages[con]) return Swarm.languages[con]; else return con; }
+        let parse = (con: string) => { if (SwarmResources.languages[con]) return SwarmResources.languages[con]; else return con; }
 
         return interaction.createFollowup({
             embeds: [{

@@ -17,7 +17,7 @@ export default new EDEvent("onReceiveGift", function (hydra, gift) {
     };
 
     for (let i = 0, len = lastGifters.length; i < len; i++) {
-        const lastGift = lastGifters[i - 1];
+        const lastGift = lastGifters[i];
 
         if (lastGift.gift.name === gift.name && lastGift.gift.count.total === gift.count.total) {
             if (lastGift.char_id === undefined && gift.sfsId) {

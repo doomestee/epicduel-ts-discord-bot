@@ -1,3 +1,4 @@
+import SwarmResources from "../../util/game/SwarmResources.js";
 import { Requests } from "../Constants.js";
 import Client from "../Proximus.js";
 import MailMessageRecord from "../record/MailMessageRecord.js";
@@ -98,7 +99,7 @@ export default class MailManager extends BaseModule {
      * @returns
      */
     openCreateMail(recipients: string[]) {
-        if (this.client.user._chatBlock) return { type: -1, v: this.client.swarm.languages["DYN_mail_msg_muted"] };
+        if (this.client.user._chatBlock) return { type: -1, v: SwarmResources.languages["DYN_mail_msg_muted"] };
         this.recipients = [];
 
         if (recipients) {}

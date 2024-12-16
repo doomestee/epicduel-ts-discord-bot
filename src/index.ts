@@ -65,6 +65,7 @@ await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
     cli.settings.reconnectable = true;
 
     SwarmResources.tracker.war.activate();
+    SwarmResources.tracker.gift.activate();
     // cli["connect"]();
 }).catch(sike => {
     if (sike instanceof SwarmError) {

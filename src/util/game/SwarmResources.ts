@@ -14,6 +14,10 @@ import { requestLangFile, sleep } from "../Misc.js";
 export default class SwarmResources {
     static languages:Record<string, string> = {};
 
+    static langCheck(key: string) {
+        return SwarmResources.languages[key] ?? key;
+    }
+
     static version = {
         game: "",
         lang: -1

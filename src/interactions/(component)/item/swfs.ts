@@ -2,9 +2,9 @@ import { ButtonStyles, ComponentTypes, Embed, EmbedField, MessageActionRow } fro
 import Command, { CommandType } from "../../../util/Command.js";
 import { DiscordError, SwarmError } from "../../../util/errors/index.js";
 import ItemSBox from "../../../game/box/ItemBox.js";
-import Swarm from "../../../manager/epicduel.js";
 import AchievementRecord from "../../../game/record/AchievementRecord.js";
 import SkillsSMBox from "../../../game/box/SkillsBox.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
 
 let alignment = (id: number) => { return id == 0 ? "None" : id == 1 ? "Exile" : id == 2 ? "Legion" : "Unknown" };
 
@@ -20,7 +20,7 @@ let parseCore = (coreId: number) => {
 
     if (!allRec) return "UNABLE TO GRAB SKILL DESCRIPTION";
 
-    return Swarm.langCheck(allRec.skillDesc);
+    return SwarmResources.langCheck(allRec.skillDesc);
 }
 
 export default new Command(CommandType.Component, { custom_id: "item_swf_links_<itemId>" })

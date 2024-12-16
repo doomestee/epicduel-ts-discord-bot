@@ -907,8 +907,8 @@ export default class Client {
                     break;
                 case Responses.RESPONSE_PM_FAIL:
                     switch (dataObj.err) {
-                        case 1: console.log(this.swarm.languages["DYN_chat_err_pmOffline"]); break;
-                        case 2: console.log(this.swarm.languages["DYN_buddy_err_justLoggedIn"]); break;
+                        case 1: console.log(SwarmResources.languages["DYN_chat_err_pmOffline"]); break;
+                        case 2: console.log(SwarmResources.languages["DYN_buddy_err_justLoggedIn"]); break;
                         case 3: console.log("This user has activated Do Not Disturb mode!"); break;
                         default: console.log("Unknown error for PM fail"); console.log(dataObj); break;
                     }
@@ -1266,22 +1266,22 @@ export default class Client {
                     if(dataObj[2] == 1) this.jumpToRoomConfirm(dataObj[3], dataObj[4]);
                     else {
                         switch (parseInt(dataObj[3])) {
-                            case 1: console.log(this.swarm.languages["DYN_buddy_err_worldFull"]); break;
-                            case 2: console.log(this.swarm.languages["DYN_buddy_err_inHQ"]); break;
-                            case 3: console.log(this.swarm.languages["DYN_buddy_err_inBattle"]); break;
-                            case 4: console.log(this.swarm.languages["DYN_buddy_err_justLoggedIn"]); break;
-                            case 5: console.log(this.swarm.languages["DYN_err_alreadyThere"]); break;
-                            case 6: console.log(this.swarm.languages["DYN_buddy_err_jumpFail"]); break;
-                            case 7: console.log(this.swarm.languages["DYN_chat_err_pmOffline"]); break;
-                            case 8: console.log(this.swarm.languages["DYN_chat_err_homePermission"]); break;
-                            case 9: console.log(this.swarm.languages["DYN_buddy_err_restrictedJump"]); break;
+                            case 1: console.log(SwarmResources.languages["DYN_buddy_err_worldFull"]); break;
+                            case 2: console.log(SwarmResources.languages["DYN_buddy_err_inHQ"]); break;
+                            case 3: console.log(SwarmResources.languages["DYN_buddy_err_inBattle"]); break;
+                            case 4: console.log(SwarmResources.languages["DYN_buddy_err_justLoggedIn"]); break;
+                            case 5: console.log(SwarmResources.languages["DYN_err_alreadyThere"]); break;
+                            case 6: console.log(SwarmResources.languages["DYN_buddy_err_jumpFail"]); break;
+                            case 7: console.log(SwarmResources.languages["DYN_chat_err_pmOffline"]); break;
+                            case 8: console.log(SwarmResources.languages["DYN_chat_err_homePermission"]); break;
+                            case 9: console.log(SwarmResources.languages["DYN_buddy_err_restrictedJump"]); break;
                             case 10: console.log("Unable to jump to player, user has activated Do Not Disturb mode!"); break;
                         }
                     }
                     break;
                 case Responses.RESPONSE_FRIEND_FAIL:
-                    if (dataObj[2] == "0") console.log(this.swarm.languages["DYN_buddy_err_outOfRoomYou"]);
-                    else if (dataObj[3] == "0") console.log(this.swarm.languages["DYN_buddy_err_outOfRoomThem"]);
+                    if (dataObj[2] == "0") console.log(SwarmResources.languages["DYN_buddy_err_outOfRoomYou"]);
+                    else if (dataObj[3] == "0") console.log(SwarmResources.languages["DYN_buddy_err_outOfRoomThem"]);
                     break;
                 case Requests.REQUEST_BUY_ACHIEVEMENT:
                     break;
@@ -1336,7 +1336,7 @@ export default class Client {
                     // this.modules.MissionManager.myMissionsReceived(dataObj);
                     break;
                 case Responses.RESPONSE_HOME_JUMP_PERM_FAIL:
-                    console.log(this.swarm.languages["DYN_chat_err_homePermission"]);
+                    console.log(SwarmResources.languages["DYN_chat_err_homePermission"]);
                     if (dataObj[2] == "1") this.play();
                     break; // maybe?
                 case Responses.RESPONSE_TESTER_COMMANDS:
@@ -1817,7 +1817,7 @@ export default class Client {
 
         if (!roomRecord) return;
 
-        if (roomRecord.levelRequired > this.getMyUserFr().charLvl && bypassRestrictions < 1) return this.swarm.languages["DYN_map_err_lowLevel"];
+        if (roomRecord.levelRequired > this.getMyUserFr().charLvl && bypassRestrictions < 1) return SwarmResources.languages["DYN_map_err_lowLevel"];
         if (RoomManager.roomIsHome(currentRoom.getName()) && !RoomManager.roomIsHQ(currentRoom.getName())) {
             if (RoomManager.roomIsHome(targetRoomName) || RoomManager.roomIsHQ(targetRoomName)) {
                 this.user._returnFromHomeRoomName = currentRoom.getName();

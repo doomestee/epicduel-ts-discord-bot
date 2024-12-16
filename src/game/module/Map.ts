@@ -1,3 +1,4 @@
+import SwarmResources from "../../util/game/SwarmResources.js";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import BaseModule from "./Base.js";
@@ -52,7 +53,7 @@ export default class MapModule extends BaseModule {
     }
 
     joinWorldFailed() {
-        console.log(this.client.swarm.languages["DYN_map_err_worldFull"])
+        console.log(SwarmResources.languages["DYN_map_err_worldFull"])
     }
 
     saveLocation() {

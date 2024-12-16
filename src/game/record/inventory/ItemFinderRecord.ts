@@ -1,4 +1,4 @@
-import Swarm from "../../../manager/epicduel.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
 import type Client from "../../Proximus.js";
 import ItemSBox, { AnyItemRecordsExceptSelf } from "../../box/ItemBox.js";
 import MerchantSBox from "../../box/MerchantBox.js";
@@ -57,9 +57,9 @@ export default class ItemFinderRecord {
             this.reason = "";
 
             switch (this.itemRecord.itemSrcId) {
-                case ItemSBox.SOURCE_LEGACY: this.reason = Swarm.languages["DYN_inv_txt_srcLegacy"];
-                case ItemSBox.SOURCE_BATTLE_DROP: this.reason = Swarm.languages["DYN_inv_txt_srcBattleDrop"];
-                case ItemSBox.SOURCE_PROMO: this.reason = Swarm.languages["DYN_inv_txt_srcPromo"];
+                case ItemSBox.SOURCE_LEGACY: this.reason = SwarmResources.languages["DYN_inv_txt_srcLegacy"];
+                case ItemSBox.SOURCE_BATTLE_DROP: this.reason = SwarmResources.languages["DYN_inv_txt_srcBattleDrop"];
+                case ItemSBox.SOURCE_PROMO: this.reason = SwarmResources.languages["DYN_inv_txt_srcPromo"];
                 case ItemSBox.SOURCE_ARCADE_PRIZE: this.reason = "ARCADE TOKEN";
                 case ItemSBox.SOURCE_MISSION_ITEM: this.reason = "MISSION ITEM";
             }
