@@ -262,8 +262,6 @@ export default class Swarm {
         return undefined;
     }
 
-    static readonly resources = new SwarmResources()
-
     static get languages() {
         return SwarmResources.languages;
     }

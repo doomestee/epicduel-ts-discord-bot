@@ -21,6 +21,8 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
         for (let i = 0, len = list.length; i < len; i++) {
             const giftObj = list[i];
 
+            if (i !== 0) query += ","
+
             query += ` (${quickDollars(8, i * 8)})`;
             toQuery.push(giftObj.gift.name, giftObj.char_id ?? null, giftObj.gift.count.room, giftObj.gift.count.total, giftObj.gift.count.combo, giftObj.gift.onFireTier, giftObj.gift.isGlobal, giftObj.gift.time);
 
@@ -32,11 +34,19 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
                 text.push(toPut);
                 textDex++;
             } else {
-                text[textDex] += toPut;
+                text[textDex] += toPut + "\n";
             }
         }
         
-        DatabaseManager.cli.query(query, toQuery as string[]);
+        DatabaseManager.cli.query(query, toQuery as string[]).catch(console.log);
+
+        //@ts-ignore
+        if (global.testiaefnwia === true) {
+            console.log(query);
+            console.log(toQuery);
+
+            console.log(text);
+        }
 
         // Leaving this as I will be testing it tonight :3
         if (breaker) return;
