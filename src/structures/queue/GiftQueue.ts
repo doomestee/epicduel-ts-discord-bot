@@ -26,8 +26,8 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
             query += ` (${quickDollars(8, i * 8)})`;
             toQuery.push(giftObj.gift.name, giftObj.char_id ?? null, giftObj.gift.count.room, giftObj.gift.count.total, giftObj.gift.count.combo, giftObj.gift.onFireTier, giftObj.gift.isGlobal, new Date(giftObj.gift.time));
 
-            let toPut = (giftObj.gift.isGlobal) ? `**${giftObj.gift.name}** sent a gift to the server with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score:\` ${giftObj.gift.count.total}\`.`
-                : `**${giftObj.gift.name}** sent a gift to Central Station, Vendbot w0 with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score:\` ${giftObj.gift.count.total}\`.`
+            let toPut = (giftObj.gift.isGlobal) ? `**${giftObj.gift.name}** sent a gift to the server with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
+                : `**${giftObj.gift.name}** sent a gift to Central Station, Vendbot w0 with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
             //`**${giftObj.gift.name}** sent a ${giftObj.gift.isGlobal ? "global " : ""}gift to the room with ${giftObj.gift.}`
 
             if ((text[textDex].length + toPut.length) > 1999) {
