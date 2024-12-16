@@ -97,6 +97,9 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     myUserName = "";
     amIModerator = false;
 
+    get roomList() {
+        return SwarmResources.rooms;
+    }
     // roomList: Map<number, Room> = new Map();
 
     handlers = {
@@ -221,10 +224,10 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
             const b = Buffer.alloc(1);
             b.writeInt8(0);
     
-            //@ts-expect-error
+            //@ts-ignore
             this.socket?.write(Buffer.concat([a, b]), 'utf-8');
         } else {
-            //@ts-expect-error
+            //@ts-ignore
             this.socket?.write(a);
         }
     }
@@ -474,7 +477,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
      */
     getRoom(roomId: number) {
         if(!this.checkRoomList()) return null;
-        return SwarmResources.rooms.get(roomId);//this.roomList.get(roomId) ?? null;//[roomId];
+        return SwarmResources.rooms.get(roomId) ?? null;//this.roomList.get(roomId) ?? null;//[roomId];
     }
 
     //#region Garbage that idk how to categorize

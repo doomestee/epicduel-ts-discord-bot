@@ -12,6 +12,7 @@ import pg from "pg";
 // This will just let the image manager load.
 import "./manager/image.js";
 import { SwarmError } from "./util/errors/index.js";
+import SwarmResources from "./util/game/SwarmResources.js";
 
 Logger._saveToRotatingFile(Config.logsDirectory);
 
@@ -62,7 +63,8 @@ Swarm.cycler.checkForChanges();
 await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
     Logger.getLogger("Swarm").debug("Connected, as user Id: " + cli.user.userid);
     cli.settings.reconnectable = true;
-    Swarm.resources.tracker.war.activate();
+
+    SwarmResources.tracker.war.activate();
     // cli["connect"]();
 }).catch(sike => {
     if (sike instanceof SwarmError) {
