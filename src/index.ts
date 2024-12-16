@@ -51,13 +51,13 @@ process
     })
     .once("SIGINT", (signal) => {
         bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
-            .then(() => process.kill(process.pid, "SIGINT"), () => process.kill(process.pid, "SIGINT"));
+            .then(() => process.kill(process.pid, "SIGKILL"), () => process.kill(process.pid, "SIGKILL"));
 
         // process.kill(process.pid, "SIGINT");
     })
     .once("SIGTERM", (signal) => {
         bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
-            .then(() => process.kill(process.pid, "SIGTERM"), () => process.kill(process.pid, "SIGTERM"));
+            .then(() => process.kill(process.pid, "SIGKILL"), () => process.kill(process.pid, "SIGKILL"));
 
         // process.kill(process.pid, "SIGTERM");
     });
