@@ -257,7 +257,7 @@ CREATE TABLE war (
 
 -- Gift
 
-CREATE TABLE gifts {
+CREATE TABLE gifts (
     id SERIAL PRIMARY KEY,
 
     char_name VARCHAR(255) NOT NULL,
@@ -265,10 +265,10 @@ CREATE TABLE gifts {
     count_room INT NOT NULL,
     count_total INT NOT NULL,
     count_combo INT NOT NULL,
-    fire_tier INT(1) NOT NULL,
+    fire_tier SMALLINT NOT NULL,
     global BOOLEAN NOT NULL,
-    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-};
+    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE INDEX ON gifts(char_name);
 CREATE INDEX ON gifts(char_id);
