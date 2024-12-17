@@ -12,9 +12,19 @@ const lastGifters = [] as Array<GiftObject>;
 export default new EDEvent("onReceiveGift", function (hydra, gift) {
     // if (!gift || gift.name === undefined) return;
 
+    const currRoom = this.smartFox.getActiveRoom();
+
     const giftObj:GiftObject = {
         gift, puppet_id: this.settings.id
     };
+
+    if (currRoom) {
+        giftObj.room = {
+            id: currRoom.id,
+            name: currRoom.name,
+            world: currRoom.name.slice(-1)
+        }
+    }
 
     for (let i = 0, len = lastGifters.length; i < len; i++) {
         const lastGift = lastGifters[i];

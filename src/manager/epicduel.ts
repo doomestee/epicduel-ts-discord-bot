@@ -50,9 +50,9 @@ export default class Swarm {
      * 
      * If there's none, check purgatory.
      */
-    protected static readonly clients:Client[] = [];
+    static readonly clients:Client[] = [];
 
-    protected static readonly purgatory:Client[] = [];
+    static readonly purgatory:Client[] = [];
 
 
     /**

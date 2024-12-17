@@ -49,15 +49,43 @@ process
         // Logger.getLogger("Unhandled Rejection | Promise").error(p);
         // p.catch(v => Logger.getLogger("Unhandled Rejection | Promise").error(v));
     })
-    .once("SIGINT", (signal) => {
-        bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
-            .then(() => process.kill(process.pid, "SIGKILL"), () => process.kill(process.pid, "SIGKILL"));
+    .once("SIGINT", async () => {
+        try {
+            let promises: Promise<any>[] = [];
 
-        // process.kill(process.pid, "SIGINT");
+            if (bot.queues.gift) {// && cli && cli.modules.Advent.status >= 0) {
+                promises.push(bot.queues.gift._elapsed());
+            }
+
+            promises.push(bot.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
+                content: "The bot has received a signal to terminate. It'll shut down."
+            }));
+
+            await Promise.all(promises);
+
+            const edClis = Swarm.clients.concat(Swarm.purgatory);
+
+
+            for (let i = 0, len = edClis.length; i < len; i++) {
+                const ed = edClis[i];
+
+                ed.settings.reconnectable = false;
+                ed.smartFox?.disconnect?.();
+            }
+
+            bot.disconnect(false);
+            DatabaseManager.cli.end();
+        } catch (err) {
+            Logger.getLogger("Process").error(err);
+
+            process.exit();
+        } finally {
+            process.kill(process.pid, "SIGINT");
+        }
     })
     .once("SIGTERM", (signal) => {
         bot.rest.channels.createMessage("988216659665903647", { content: "SIGINT - " + signal })
-            .then(() => process.kill(process.pid, "SIGKILL"), () => process.kill(process.pid, "SIGKILL"));
+            .then(() => process.kill(process.pid, "SIGTERM"), () => process.kill(process.pid, "SIGTERM"));
 
         // process.kill(process.pid, "SIGTERM");
     });
@@ -71,7 +99,7 @@ await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {
     cli.settings.reconnectable = true;
 
     SwarmResources.tracker.war.activate();
-    SwarmResources.tracker.gift.activate();
+    // SwarmResources.tracker.gift.activate();
     // cli["connect"]();
 }).catch(sike => {
     if (sike instanceof SwarmError) {

@@ -20,8 +20,10 @@ export default class Queue<T> {
 
     /**
      * The trigger function will receive the list immediately, which was spliced immediately upon elapse to avoid the potential disaster from race condition.
+     * 
+     * isManual is optional, but it will be true if the _elapsed function was manually triggered.
      */
-    trigger?: (list: T[]) => any;
+    trigger?: (list: T[], isManual: boolean) => any;
 
     constructor(delayMs: number, threshold: number) {
         this.delayMs = delayMs;
@@ -30,15 +32,20 @@ export default class Queue<T> {
 
     /**
      * While meant to be private, this allows for earlier invocation.
+     * 
+     * Please do not pass any parameters lmao
      */
-    _elapsed() {
+    _elapsed() : Promise<any>;
+    _elapsed(forced=true) {
         const list = this.list.splice(0);
 
         clearTimeout(this.timer);
 
         if (!this.trigger) return Logger.getLogger("Queue").warn("No function for invocation!");
 
-        return Promise.resolve(this.trigger(list))
+        if (list.length === 0) return Logger.getLogger("Queue").warn("No items in the queue..?");
+
+        return Promise.resolve(this.trigger(list, forced))
             .then(res => {
                 // this.count = 0;
             })

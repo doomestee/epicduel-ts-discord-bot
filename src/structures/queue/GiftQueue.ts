@@ -12,7 +12,7 @@ let breaker = false;
 export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
     const queue = new Queue<GiftObject>(30000, 100);
 
-    queue.trigger = (list) => {
+    queue.trigger = (list, isForced) => {
         let query = "INSERT INTO gifts (char_name, char_id, count_room, count_total, count_combo, fire_tier, global, time) VALUES";
         let toQuery = [];
 
@@ -31,8 +31,8 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
                 (SwarmResources.sfsUsers?.[giftObj.gift.sfsId]?.charId
                 ?? null), giftObj.gift.count.room, giftObj.gift.count.total, giftObj.gift.count.combo, giftObj.gift.onFireTier, giftObj.gift.isGlobal, new Date(giftObj.gift.time));
 
-            let toPut = (giftObj.gift.isGlobal) ? `**${giftObj.gift.name}** sent a gift to the server with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
-                : `**${giftObj.gift.name}** sent a gift to Central Station, Vendbot w0 with \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
+            let toPut = (giftObj.gift.isGlobal) ? `**${giftObj.gift.name}** sent a global gift to \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
+                : `**${giftObj.gift.name}** sent a gift to \`${giftObj.gift.count.room.toString().padStart(3, "0")}\` characters at Central Station, Vendbot w${giftObj.room?.world ?? "0"}, combo: \`${giftObj.gift.count.combo.toString().padStart(4, "0")}\`, person's total score: \`${giftObj.gift.count.total}\`.`
             //`**${giftObj.gift.name}** sent a ${giftObj.gift.isGlobal ? "global " : ""}gift to the room with ${giftObj.gift.}`
 
             if ((text[textDex].length + toPut.length) > 1999) {

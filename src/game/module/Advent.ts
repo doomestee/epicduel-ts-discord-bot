@@ -14,6 +14,11 @@ export interface Gift {
 export interface GiftObject {
     gift: Gift,
     char_id?: number,
+    room?: {
+        id: number;
+        name: string;
+        world: number | string;
+    };
     puppet_id: number
 };
 
