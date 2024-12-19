@@ -627,7 +627,7 @@ export default class Swarm {
         }
 
         if (typeof account === "undefined") {
-            const used:string[] = map(filter(map(this.clients, v => [v.user.username, v.user.password] as [string, string]).concat(map(this.purgatory, v => [v.user.username, v.user.password] as [string, string])), v => v[0].startsWith("justforoncedm02+") && v[1] === Config.edPuppetPass), v => v[0].slice(16, -10));
+            const used:string[] = map(filter(map(this.clients, v => [v.user.username, v.user.password] as [string, string]).concat(map(this.purgatory, v => [v.user.username, v.user.password] as [string, string])), v => v[0].startsWith(Config.edPuppetEmailBase + "+") && v[1] === Config.edPuppetPass), v => v[0].slice(16, -10));
 
             for (let i = 0, len = this.appendages.length; i < len; i++) {
                 if (findIndex(used, v => v === this.appendages[i]) !== -1) continue;
