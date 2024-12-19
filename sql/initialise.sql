@@ -47,6 +47,7 @@ CREATE TABLE character_name (
 
 CREATE INDEX ON character_name (last_seen);
 CREATE INDEX ON character_name (id);
+CREATE INDEX ON character_name (name);
 
 -- Character Link
 
@@ -272,3 +273,4 @@ CREATE TABLE gifts (
 
 CREATE INDEX ON gifts(char_name);
 CREATE INDEX ON gifts(char_id);
+CREATE INDEX on gifts(global);

@@ -76,7 +76,7 @@ export interface ClientSettings {
 export default class Client {
     settings: ClientSettings;
 
-    protected isFresh = true;
+    isFresh = true;
 
     //#region yes
 

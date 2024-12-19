@@ -9,6 +9,7 @@ import ImageManager from "../../manager/image.js";
 import Logger from "../../manager/logger.js";
 import RoomManager from "../../game/module/RoomManager.js";
 import CacheManager from "../../manager/cache.js";
+import ProxyManager from "../../manager/proxy.js";
 import DesignNoteManager from "../../manager/designnote.js";
 
 export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
@@ -56,6 +57,7 @@ export default new Command(CommandType.Application, { cmd: ["admin", "eval"]})
             let logger = Logger;
             let cache = CacheManager;
             let room = RoomManager;
+            let proxy = ProxyManager;
 
             if (isAsync === 0) {
                 if (code.startsWith("cope")) {

@@ -615,11 +615,13 @@ export default class Swarm {
      * If passed undefined, it will pick a fresh one from the queue.
      * 
      * NOTE: PLEASE SET isFresh to false AND set initialised to false or self destruct ASAP, otherwise it will never be logged in unless manually called later.
+     * 
+     * Or throw in true for the 3rd parameter anyway
      */
     static loginQueue() : Client | false;
-    static loginQueue(email: string, password: string) : Client | false;
+    static loginQueue(email: string, password: string, lazy?: boolean) : Client | false;
     static loginQueue(account: { email: string, pass: string }) : Client | false;
-    static loginQueue(account?: string | { email: string, pass: string }, password?: string) {
+    static loginQueue(account?: string | { email: string, pass: string }, password?: string, lazy=false) {
         if (typeof account === "string") {
             account = { email: account, pass: password as string };
         }
@@ -631,7 +633,7 @@ export default class Swarm {
                 if (findIndex(used, v => v === this.appendages[i]) !== -1) continue;
 
                 account = {
-                    email: "justforoncedm02+" + this.appendages[i] + "@gmail.com",
+                    email: Config.edPuppetEmailBase + "+" + this.appendages[i] + "@gmail.com",
                     pass: Config.edPuppetPass
                 };
                 break;
@@ -657,6 +659,13 @@ export default class Swarm {
             client.restrictedMode = this.restrictedMode;
 
             // client.homeJump = true;
+        }
+
+        if (lazy) {
+            client.selfDestruct();
+            client.initialised = false;
+            client.isFresh = false;
+            client.settings.reconnectable = true;
         }
 
         this.purgatory.push(client);

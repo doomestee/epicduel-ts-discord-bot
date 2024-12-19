@@ -92,6 +92,10 @@ export default class Config {
         return process.env.ED_PASS;
     }
 
+    static get edPuppetEmailBase() {
+        return process.env.BULK_EMAIL;
+    }
+
     static get edPuppetPass() {
         return process.env.BULK_PASS;
     }
