@@ -960,6 +960,8 @@ export default class Client {
                     break;
                 case Responses.RESPONSE_ADVENT_CLAIM_STATUS:
                     console.log("oCk");
+
+                    if (dataObj[2] === "0") this.modules.Advent.claimPresent();
                     return console.log(dataObj);
                 case Requests.REQUEST_CLAIM_ADVENT_PRESENT:
                     console.log(dataObj);
