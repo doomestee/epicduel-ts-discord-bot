@@ -607,12 +607,12 @@ export default class Swarm {
                 availClis[i].settings.reconnectable = true;
                 if (availClis[i]["connected"]) {
                     if (roomie) {
-                        availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+                        availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0 && !v.isHomeOrHQ()).roomName + "_0";
                         availClis[i].joinRoom(availClis[i].settings.startRoom);
                     }
                     // availClis[i].joinRoom(availClis[i].settings.startRoom);
                 } else if (availClis[i]["isFresh"]) {
-                    availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+                    availClis[i].settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0 && !v.isHomeOrHQ()).roomName + "_0";
                     availClis[i]["connect"]();
                 }
 

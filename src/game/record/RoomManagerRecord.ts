@@ -41,4 +41,16 @@ export default class RoomManagerRecord {
     get saveDisabled() {
         return this.permissions[3] == 1;
     }
+
+    isHome() {
+        return this.roomName.includes("HOME");
+    }
+
+    isHQ() {
+        return this.roomName.includes("FACT");
+    }
+
+    isHomeOrHQ() {
+        return this.isHome() || this.isHQ();
+    }
 }
