@@ -518,6 +518,7 @@ export default class Swarm {
                 queued.settings.reconnectable = true;
                 queued.settings.scalable = true;
                 queued.settings.startRoom = filtered[i][1].roomName + "_0";
+                queued.settings.proxy = 0;
                 queued["isFresh"] = false;
                 queued.selfDestruct();
             }
@@ -564,6 +565,7 @@ export default class Swarm {
                 queued.settings.reconnectable = true;
                 queued.settings.scalable = true;
                 queued.settings.startRoom = RoomManager.TRAIN_HUB_RIGHT + "_" + (i + 1);//filtered[i][1].roomName + "_0";
+                queued.settings.proxy = 0;
                 queued["isFresh"] = false;
                 queued.selfDestruct();
             }
@@ -626,6 +628,7 @@ export default class Swarm {
             queued.settings.reconnectable = true;
             queued.settings.scalable = true;
             queued.settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0).roomName + "_0";
+            queued.settings.proxy = 0;
             queued["isFresh"] = false;
             queued.selfDestruct();
         }
@@ -702,6 +705,7 @@ export default class Swarm {
             client.initialised = false;
             client.isFresh = false;
             client.settings.reconnectable = true;
+            client.settings.proxy = -1;
         }
 
         // if (!proxiable) {
