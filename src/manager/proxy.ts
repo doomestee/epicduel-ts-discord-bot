@@ -1,6 +1,7 @@
 import { RequestInit, fetch as unFetch } from "undici";
 import Logger from "./logger.js";
 import { getHighestTime } from "../util/Misc.js";
+import Timer from "../game/Timer.js";
 
 /**
  * This is effectively a wrapper to the proxy service
@@ -8,12 +9,16 @@ import { getHighestTime } from "../util/Misc.js";
 export default class ProxyManager {
     static readonly PROXY_URL = "http://crimson.containers.local:8000";
 
-    static stat() {
+    static stat() : Promise<StatResult | false> {
         const time = Date.now();
 
         return this.fetch("/stat")
             .then(r => r.json() as unknown as StatResult)
-            .then(r => { r["latency"] = (Date.now() - time); return r; });
+            .then(r => { r["latency"] = (Date.now() - time); return r; })
+            .catch(r => {
+                Logger.getLogger("Proxy").error(r);
+                return false;
+            });
     }
 
     static async login(email: string, password: string) : Promise<ProxyFetchResult<"Missing email"|"Missing password"|"Ratelimited"|"Artix_blocked"|"Exhausted Requests">> {
@@ -49,6 +54,12 @@ export default class ProxyManager {
     static healthCheck() {
         return this.stat()
             .then(res => {
+                if (res === false) {
+                    this.available = false;
+
+                    return;
+                }
+
                 if (res.latency > 5000) {
                     if (!this.#warned) Logger.getLogger("Proxy").warn("Latency is " + getHighestTime(res.latency));
 
@@ -65,6 +76,8 @@ export default class ProxyManager {
                 this.available = false;
             });
     }
+
+    static readonly timer = new Timer(10000, this.healthCheck.bind(this), true, true);//setInterval(() => this.healthCheck(), 10000);
 }
 
 interface StatResult {

@@ -45,15 +45,19 @@ export default class Timer<T> {
         this.turns = turns ?? Infinity;
     }
 
-    start(ms?: number, startFirstLoop=false) {
+    
+    start(startFirstLoop: boolean) : void;
+    start(ms?: number, startFirstLoop?: boolean) : void;
+    start(ms?: number | boolean, startFirstLoop=false) {
         if (this.running) return false;
         if (this.stopping) return false;
         if (!this.callback) throw Error("Timer callback is not defined");
-        if (ms) this.ms = ms;
+
+        if (typeof ms === "number" && ms) this.ms = ms;
         //this.running = true;
         this.started = Date.now();
 
-        this._run(startFirstLoop);
+        this._run(typeof ms === "boolean" ? ms : startFirstLoop);
     }
 
     /**
@@ -169,7 +173,7 @@ export default class Timer<T> {
                 });
             }
 
-            this.callback(this.args);
+            return this.callback(this.args);
         }
 
         this.loop = setTimeout(loopCheck, (this.ms > 30000 && this.turns != undefined) ? this._scatterMs : this.ms);

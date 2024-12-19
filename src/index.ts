@@ -13,6 +13,7 @@ import pg from "pg";
 import "./manager/image.js";
 import { SwarmError } from "./util/errors/index.js";
 import SwarmResources from "./util/game/SwarmResources.js";
+import ProxyManager from "./manager/proxy.js";
 
 Logger._saveToRotatingFile(Config.logsDirectory);
 
@@ -92,6 +93,7 @@ process
 
 await DatabaseManager.initialise();
 
+await ProxyManager.timer.start(true);
 Swarm.cycler.checkForChanges();
 
 await Swarm["create"](Config.edBotEmail, Config.edBotPass).then(cli => {

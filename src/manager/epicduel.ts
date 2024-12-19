@@ -176,7 +176,8 @@ export default class Swarm {
 
         let xml;
 
-        if (proxy) {
+        //@ts-expect-error
+        if (typeof proxy !== "undefined" && ProxyManager.available && proxy !== -1 && proxy !== false) {
             const res = await ProxyManager.login(email, pass);
 
             if (res.success) {

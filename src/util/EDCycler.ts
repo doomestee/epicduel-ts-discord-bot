@@ -4,6 +4,7 @@ import Config from "../config/index.js";
 import type Swarm from "../manager/epicduel.js";
 import Logger from "../manager/logger.js";
 import { SwarmError } from "./errors/index.js";
+import ProxyManager from "../manager/proxy.js";
 
 export default class EDCycler {
     #swarm: typeof Swarm;
@@ -55,14 +56,14 @@ export default class EDCycler {
                 continue;
             }
         }
-
-        if (this.delayUntil > 0) {
+        
+        if (this.delayUntil > 0 && !ProxyManager.available) {
             if (Date.now() < this.delayUntil) return this.reassignTimer();
         }
 
         if (this.#swarm.probing) {
             try {
-                const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotPass, true);
+                const attempt = await this.#swarm["login"](Config.edBotEmail, Config.edBotPass, 0);
 
                 if (attempt.servers.length === 0 || !attempt.servers[0].online) {
                     if (this.debug) Logger.getLogger("Cycler").debug("Probing attempt - no servers.");
@@ -90,7 +91,7 @@ export default class EDCycler {
                     switch (err.type) {
                         case "RATELIMITED":
                             Logger.getLogger("Swarm").error("Ratelimited, delaying probing by an hour.");
-                            this.delayUntil = Date.now() + 1000*60*60;
+                            if (!ProxyManager.available) this.delayUntil = Date.now() + 1000*60*60;
                             break;
                         default: Logger.getLogger("Swarm").error(err);
                     }
@@ -103,11 +104,15 @@ export default class EDCycler {
             const purgs = this.#swarm["purgatory"];
 
             let count = 0;
+            let countProxy = await ProxyManager.stat().then(v => v === false ? 0 : (v.proxy.unblocked - v.proxy.cooling));
+
+            // if (countProxy === 0 && findIndex(purgs, v => v.settings.proxy === 1) !== -1) Logger.getLogger("Cycler").warn("There are proxied clients waiting to be connected, but")
 
             for (let i = 0, len = purgs.length; i < len; i++) {
                 const purg = purgs[i];
+                const isProxied = purg.settings.proxy === 1;
 
-                if (count > 0) continue;
+                if ((!isProxied && count > 0) || (isProxied && countProxy < 1)) continue;
                 if (!purg.settings.reconnectable) continue;
                 if (purg["isFresh"]) continue;
 
@@ -121,14 +126,15 @@ export default class EDCycler {
                 }
 
                 // Doesn't matter if successfully logged in or not, ed login asp ratelimits ip.
-                count++;
+                if (!isProxied) count++;
+                else countProxy--;
 
                 const bool = await purg.initialise()
                     .catch(err => {
                         if (err instanceof SwarmError) {
                             if (err.type === "RATELIMITED") {
                                 Logger.getLogger("Swarm").error("Ratelimited, delaying logging by an hour.");
-                                this.delayUntil = Date.now() + 1000*60*60;
+                                if (!isProxied) this.delayUntil = Date.now() + 1000*60*60;
                                 return false;
                             }
                             if (err.type === "NO_SERVER") {
