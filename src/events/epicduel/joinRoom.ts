@@ -23,7 +23,13 @@ export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom
         }] : []
     }).catch(e => {console.log(e); return null;});
 
-    hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
-        wait: false, content: ((res !== null) ? puppetNTxt + "[Joined room](" + jumpLink("565155762335383581", res) + ") at <t:" + Math.floor((time/1000)) + ":f>" : puppetNTxt + (puppetNTxt !== "" ? " j" : "J") + "oined room at <t:" + Math.floor((time/1000)) + ':f>')//"**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
-    }).catch(e => {console.log(e)});
+    hydra.queues.spy.invoke(
+        (res !== null)
+            ? `${puppetNTxt}[Joined room](${jumpLink("565155762335383581", res)}) at <t:${Math.floor((time/1000))}:f>`
+            : `${puppetNTxt + (puppetNTxt !== "" ? "j" : "J")}oined room at <t:${Math.floor(time/1000)}:f>`
+    );
+
+    // hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
+    //     wait: false, content: ((res !== null) ? puppetNTxt + "[Joined room](" + jumpLink("565155762335383581", res) + ") at <t:" + Math.floor((time/1000)) + ":f>" : puppetNTxt + (puppetNTxt !== "" ? " j" : "J") + "oined room at <t:" + Math.floor((time/1000)) + ':f>')//"**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
+    // }).catch(e => {console.log(e)});
 });

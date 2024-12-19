@@ -120,7 +120,7 @@ export default class SysHandler {
         //     roomList.delete[i];
         //     count.delete++;
         // }
-        roomList.clear();
+        // roomList.clear();
 
         //let keys = Object.keys(o.body.rmList["rm"]);
         //for (let i = 0; i < keys.length; i++) {

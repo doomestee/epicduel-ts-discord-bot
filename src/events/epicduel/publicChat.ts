@@ -148,6 +148,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 cc += "'s one of the message will be filtered (content: `" + content + "`) from now on during the bot's run."
             }
 
+            // Non queue
             return hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                 wait: false, content: cc,
             }).catch(e => {console.log(e)});
@@ -216,7 +217,8 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
             webGuy.username = "At Unknown Area";
         }
     }
-
+    
+    // Non queue
     hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
         wait: false, content: "**" + ((author.charName) ? author.charName + "**" + ' (**' + author.charId + '**)' : author.charId + "**") + ': ' + message,
         username: webGuy.username,

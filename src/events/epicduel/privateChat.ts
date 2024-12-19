@@ -23,6 +23,7 @@ export default new EDEvent("onPrivateMessage", function (hydra, { isFromMe, mess
         }
     }
 
+    // Non queue
     hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
         wait: false, content//: "**" + ((author.charName) ? author.charName + "**" + ' (**' + author.charId + '**)' : author.charId + "**") + ': ' + message,
     }).catch(e => {console.log(e)});

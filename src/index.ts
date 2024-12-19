@@ -58,6 +58,10 @@ process
                 promises.push(bot.queues.gift._elapsed());
             }
 
+            if (bot.queues.spy) {
+                promises.push(bot.queues.spy._elapsed());
+            }
+
             promises.push(bot.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                 content: "The bot has received a signal to terminate. It'll shut down."
             }));

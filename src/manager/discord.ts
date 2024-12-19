@@ -58,7 +58,8 @@ export default class Hydra extends Client {
     };
 
     queues = {
-        gift: undefined as unknown as Queue<GiftObject>
+        gift: undefined as unknown as Queue<GiftObject>,
+        spy: undefined as unknown as Queue<string>
     };
 
     processing = {} as { [discordId: string]: UserProcessState };

@@ -64,6 +64,7 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
         if (user.isSpectator()) flags += 1 << 2;
 
         if (user.isModerator()) {
+            // Non queue
             hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                 wait: false, content: "A moderator (**" + user.charName + "** - [**" + user.charId + "**]" + ") has " + ((type === 1) ? "joined" : "left") + " the room (" + this.smartFox.getActiveRoomFr().name + ")"
             }).catch(e => {console.log(e)});
@@ -76,6 +77,8 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
                     content: "A user being tracked - 1 - (**" + user.charName + "** - [**" + user.charId + "**]" + ") has " + ((type === 1) ? "joined" : "left") + " the room!"
                 })
             } else if (tracked === 2) {
+                
+                // Non queue
                 hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                     wait: false, content: "A user being tracked (**" + user.charName + "** - [**" + user.charId + "**]" + ") has " + ((type === 1) ? "joined" : "left") + " the room!"
                 }).catch(e => {console.log(e)});
