@@ -5,6 +5,7 @@ declare global {
             ED_EMAIL: string;
             ED_PASS: string;
 
+            BULK_EMAIL: string;
             BULK_PASS: string;
         }
     }
