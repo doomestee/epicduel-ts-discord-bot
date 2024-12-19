@@ -162,7 +162,12 @@ export function isAllCharsSame(str: string) {
     }; return true;
 }
 
-export const randomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+/**
+ * Minimum is inclusive, maximum is exclusive.
+ * @param min Inclusive
+ * @param max Exclusive
+ */
+export const randomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min)) + min; 
 
 export const epoch = {
     special0: 1108382400000

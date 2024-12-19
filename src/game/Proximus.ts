@@ -71,6 +71,14 @@ export interface ClientSettings {
      * If true, this will be used for whenever the bot gets called to scale, if there's no need then it may go to offline.
      */
     scalable: boolean;
+    /**
+     * If 0, it will be proxied if applicable.
+     * 
+     * If 1, it will only be proxied.
+     * 
+     * If -1, it will never be proxied.
+     */
+    proxy: -1|0|1;
 }
 
 export default class Client {
@@ -179,7 +187,8 @@ export default class Client {
             id: settings["id"],
             reconnectable: settings["reconnectable"] ?? false,
             startRoom: settings["startRoom"] ?? RoomManager.TRAIN_HUB_RIGHT + "_0",
-            scalable: false
+            scalable: settings["scalable"] ?? false,
+            proxy: settings["proxy"] ?? -1,
         };
 
         //#region legacy dump
@@ -484,7 +493,7 @@ export default class Client {
         if (this.connected) throw Error("The client's still connected!");
         if (Object.keys(this.modules).length) throw Error("The client hasn't been self destructed!");
 
-        const newUser = await this.swarm["login"](this.user.username, this.user.password);
+        const newUser = await this.swarm["login"](this.user.username, this.user.password, this.settings.proxy);
 
         return this.user.regenerate(newUser);
     }
@@ -607,6 +616,10 @@ export default class Client {
 
     getCharacterData(charId: number) {
         this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_CHARACTER, { charId }, 1, SmartFoxClient.XTMSG_TYPE_JSON);
+    }
+
+    getCharacterDataNew(charId: number) {
+        this.smartFox.sendXtMessage("main", Requests.REQUEST_GET_CHARACTER_NEW, { charId }, 1, SmartFoxClient.XTMSG_TYPE_JSON);
     }
 
     getCharacterList() {
@@ -765,7 +778,11 @@ export default class Client {
                     this.modules.Character.characterListAvailable(dataObj.chars);
                     // CHARACTERERERER!
                     break;
-                case Responses.RESPONSE_ADD_CHARACTER_OK: case Responses.RESPONSE_ADD_CHARACTER_FAIL:
+                case Responses.RESPONSE_ADD_CHARACTER_OK:
+                    this.getCharacterDataNew(dataObj.charId);
+                    break;
+                case Responses.RESPONSE_ADD_CHARACTER_FAIL:
+                    this.modules.Character.handleAddCharacterFail(dataObj);
                     break;
                 // case Responses.BATTLE_RESPONSE_START:
                 //     EpicBattle.handleBattleStart(dataObj, this);

@@ -1,4 +1,6 @@
 import Logger from "../../manager/logger.js";
+import { map, randomNumber } from "../../util/Misc.js";
+import { generatePhrase } from "../../util/Phrase.js";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
 import CharacterRecord from "../record/CharacterRecord.js";
@@ -69,6 +71,9 @@ export default class Character extends BaseModule {
             Logger.getLoggerP(this.client).debug("Playing as " + this._charItemList[0].charName);
             // this.client.debug("Character found, playing as " + this._charItemList[0].charName);
             this.client.getCharacterData(this._charItemList[0].charId);
+        } else {
+            // Create a character
+            setTimeout(() => { this.createCharacter(); }, 3000);
         }
     }
 
@@ -98,5 +103,31 @@ export default class Character extends BaseModule {
                 this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_DATA, {}, 1, "json");
             // }, 2000); else this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MY_DATA, {}, 1, "json");
         }
+    }
+
+    private createCharacter() {
+        if (this._charItemList.length) throw Error("No.")
+
+        const name = map(generatePhrase(2, 1).split(" "), word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") + " " + Math.floor(Math.random() * 100);
+
+        Logger.getLoggerP(this.client).debug("Creating a character: " + name);
+
+        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_ADD_CHARACTER, {
+            charName: name,
+            charGender: Math.random() >= 0.5 ? "M" : "F",
+            charClassId: randomNumber(1, 4),
+            charPri: randomNumber(0, 0xFFFFFF),
+            charSec: randomNumber(0, 0xFFFFFF),
+            charHair: [0x81551B, 0x222222, 0x3399CC][randomNumber(0, 4)],//CharacterCreatorModule.instance.ui.options_mc.hair_cp.getRGB(),
+            charSkin: [0xDCA46B, 0x825a46, 0xDCA46B][randomNumber(0, 4)],//CharacterCreatorModule.instance.ui.options_mc.skin_cp.getRGB(),
+            charAccnt: randomNumber(0, 0xFFFFFF),
+            charAccnt2: randomNumber(0, 0xFFFFFF),
+            charEye: randomNumber(0, 0xFFFFFF),
+            charHairS: randomNumber(1, 11),//CharacterCreatorModule.instance._charVars.charHairS,
+        }, 1, "json");
+    }
+
+    handleAddCharacterFail(data: any) {
+        Logger.getLoggerP(this.client).info("Unable to create character: " + data.msg);
     }
 }

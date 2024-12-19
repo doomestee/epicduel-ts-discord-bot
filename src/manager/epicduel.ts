@@ -1,4 +1,4 @@
-import { request } from "undici";
+import { fetch, request } from "undici";
 import Client from "../game/Proximus.js";
 import User from "../game/User.js";
 import { parseStringPromise } from "xml2js";
@@ -20,6 +20,7 @@ import { filter, find, findIndex, map } from "../util/Misc.js";
 import { WarObjective } from "../game/module/WarManager.js";
 import RoomManagerRecord from "../game/record/RoomManagerRecord.js";
 import { readFileSync } from "fs";
+import ProxyManager from "./proxy.js";
 
 export enum RestrictedMode {
     NONE = 0,
@@ -58,7 +59,7 @@ export default class Swarm {
     /**
      * This is a list
      */
-    static readonly appendages:string[] = appendages;
+    static readonly appendages:Array<string|[string, string]> = appendages;
 
     /**
      * This is a service that will cycle every interval when active, connecting new clients 
@@ -161,32 +162,50 @@ export default class Swarm {
     /**
      * This will return a new User object with session and stuff. This is expensive in that it can ratelimit, so use loginQueue!
      * If you're regenerating, you can just extract the servers, new user details stuff still.
+     * 
+     * @param proxy If 0, it will be proxied if applicable. If 1 or true, it will only be proxied. If -1 or undefined or false, it will never be proxied.
      */
-    protected static async login(email: string, password: string, proxy?: boolean) : Promise<User>;
+    protected static async login(email: string, password: string, proxy?: boolean | -1 | 0 | 1) : Promise<User>;
     protected static async login(account: { email: string, pass: string }) : Promise<User>;
     protected static async login(account: string | { email: string, pass: string }, password?: string, proxy=false) {
         const email = typeof account === "object" ? account["email"] : account;
         const pass = typeof account === "object" ? account["pass"] : password;//password ?? account["pass"];
 
-        if (pass === undefined) throw new SwarmError("LOGIN_FAILED", "There's no password.");
+        if (email === undefined || email.length === 0) throw new SwarmError("LOGIN_FAILED", "There's no email.");
+        if (pass === undefined || pass.length === 0) throw new SwarmError("LOGIN_FAILED", "There's no password.");
 
-        const { body, statusCode, headers } = await request("https://epicduelstage.artix.com/epiclogin.asp?ran=" + Math.random(), {
-            headers: {
-                "accept": "*/*",
-                "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-                "cache-control": "no-cache",
-                "content-type": "application/x-www-form-urlencoded",
-                "pragma": "no-cache",
-                "x-requested-with": "ShockwaveFlash/32.0.0.101",
-            },
-            "body": `strPassword=${encodeURIComponent(pass)}&publishMode=2&strUsername=${encodeURIComponent(email)}`,
-            "method": "POST",
-            "maxRedirections": 2
-        });
+        let xml;
 
-        if (statusCode === 429) throw new SwarmError("RATELIMITED", "Ratelimited.", headers);
-        
-        const xml = await body.text().then(parseStringPromise);
+        if (proxy) {
+            const res = await ProxyManager.login(email, pass);
+
+            if (res.success) {
+                xml = await parseStringPromise(res.value);
+            } else {
+                if (res.value === "Exhausted Requests" || res.value === "Ratelimited") throw new SwarmError("RATELIMITED", "Ratelimited.");
+
+                Logger.getLogger("SwarmProxy").error(res.value);
+                throw Error("unknown error not identified");
+            }
+        } else {
+            const { body, statusCode, headers } = await request("https://epicduelstage.artix.com/epiclogin.asp?ran=" + Math.random(), {
+                headers: {
+                    "accept": "*/*",
+                    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+                    "cache-control": "no-cache",
+                    "content-type": "application/x-www-form-urlencoded",
+                    "pragma": "no-cache",
+                    "x-requested-with": "ShockwaveFlash/32.0.0.101",
+                },
+                "body": `strPassword=${encodeURIComponent(pass)}&publishMode=2&strUsername=${encodeURIComponent(email)}`,
+                "method": "POST",
+                "maxRedirections": 2
+            });
+
+            if (statusCode === 429) throw new SwarmError("RATELIMITED", "Ratelimited.", headers);
+            
+            xml = await body.text().then(parseStringPromise);
+        }
 
         if (!xml.login || xml.login['$'].success === '0' || xml.login['$'].bSuccess === '0') throw new SwarmError("LOGIN_FAILED", "Unable to login", xml.login['$']);
 
@@ -626,16 +645,32 @@ export default class Swarm {
             account = { email: account, pass: password as string };
         }
 
+        let proxiable:0|1|-1 = lazy ? -1 : 0;
+
         if (typeof account === "undefined") {
-            const used:string[] = map(filter(map(this.clients, v => [v.user.username, v.user.password] as [string, string]).concat(map(this.purgatory, v => [v.user.username, v.user.password] as [string, string])), v => v[0].startsWith(Config.edPuppetEmailBase + "+") && v[1] === Config.edPuppetPass), v => v[0].slice(16, -10));
+            const used = map(this.clients.concat(this.purgatory), v => v.user.username);
+
+            let email = "", pass = "";
 
             for (let i = 0, len = this.appendages.length; i < len; i++) {
-                if (findIndex(used, v => v === this.appendages[i]) !== -1) continue;
+                const appendage = this.appendages[i];
+
+                if (typeof appendage === "string") {
+                    email = Config.edPuppetEmailBase + "+" + appendage + "@gmail.com";
+                    pass = Config.edPuppetPass;
+                } else {
+                    proxiable = 1;
+
+                    email = appendage[0];
+                    pass = appendage[1];
+                }
+
+                if (findIndex(used, v => v === email) !== -1) continue;
 
                 account = {
-                    email: Config.edPuppetEmailBase + "+" + this.appendages[i] + "@gmail.com",
-                    pass: Config.edPuppetPass
+                    email, pass
                 };
+
                 break;
             }
 
@@ -667,6 +702,10 @@ export default class Swarm {
             client.isFresh = false;
             client.settings.reconnectable = true;
         }
+
+        // if (!proxiable) {
+        client.settings.proxy = proxiable;
+        // }
 
         this.purgatory.push(client);
 
