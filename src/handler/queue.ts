@@ -12,7 +12,7 @@ export default class QueueHandler {
         for (let i = 0, len = files.length; i < len; i++) {
             const path = `${Config.queuesDirectory}/${files[i]}`;
 
-            if (files[i].includes("GenericQueue")) return;
+            if (files[i].includes("GenericQueue")) continue;
 
             let func = await import(path) as ImportResult<QueueFunc>;
 
