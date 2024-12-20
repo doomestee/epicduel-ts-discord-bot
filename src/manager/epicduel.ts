@@ -600,7 +600,7 @@ export default class Swarm {
         }
 
         const rooms = randomie ? [] : map(["TrainHubRight", "TrainHubBLeft"], c => map([0, 1, 2, 3, 4, 5, 6, 7, 8], n => c + "_" + n)).flat();//[]//[, RoomManager.getAllRoomRecordsForMerchant()]
-        rooms.splice(1); // always exclude the main station.
+        rooms.splice(0, 1); // always exclude the main station.
         const roomC = rooms.length;
 
         for (let i = 0; i < count; i++) {
