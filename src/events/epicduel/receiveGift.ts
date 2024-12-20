@@ -41,7 +41,7 @@ export default new EDEvent("onReceiveGift", function (hydra, gift) {
     }
 
     lastGifters.push(giftObj);
-    if (lastGifters.length > 4) lastGifters.splice(0, 1);
+    if (lastGifters.length > 99) lastGifters.splice(0, 1);
 
     //@ts-expect-error i cba
     if (typeof giftObj.char_id === "undefined") giftObj.char_id = SwarmResources.sfsUsers?.[giftObj.gift.sfsId]?.charId ?? null;

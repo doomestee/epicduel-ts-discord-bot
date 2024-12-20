@@ -17,6 +17,13 @@ export default class Chat extends BaseModule {
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_PM_CONFIRM, { targetId: tgtId }, 2, "json");
     }
 
+    /**
+     * @param str no validation so.
+     */
+    sendPublicChat(str: string) {
+        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_PUBLIC_CHAT, { msg: str }, 3, "json")
+    }
+
     selfDestruct() {
         for (let i = 0; i < this.list.length; i++) {
             delete this.list[i].module;

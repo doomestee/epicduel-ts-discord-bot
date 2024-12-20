@@ -30,6 +30,8 @@ export default class Queue<T> {
         this.threshold = threshold;
     }
 
+    ignore = false;
+
     /**
      * While meant to be private, this allows for earlier invocation.
      * 
@@ -59,6 +61,8 @@ export default class Queue<T> {
      * Expects to receive the item, which will get added to the list.
      */
     invoke(item: T) {
+        if (this.ignore) return;
+
         this.count++;
 
         clearTimeout(this.timer);
