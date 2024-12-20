@@ -55,10 +55,12 @@ process
             let promises: Promise<any>[] = [];
 
             if (bot.queues.gift) {// && cli && cli.modules.Advent.status >= 0) {
+                bot.queues.gift.ignore = true;
                 promises.push(bot.queues.gift._elapsed());
             }
 
             if (bot.queues.spy) {
+                bot.queues.spy.ignore = true;
                 promises.push(bot.queues.spy._elapsed());
             }
 
