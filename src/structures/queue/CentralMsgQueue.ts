@@ -5,7 +5,7 @@ import { QueueFuncParameters, QueueFuncResult } from "../../types/queue.js";
 import Queue from "./GenericQueue.js";
 
 export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
-    const queue = new Queue<string>(5000, 15);
+    const queue = new Queue<string>(5000, 12);
 
     queue.trigger = (list, isForced) => {
         let text = [""] as string[];
