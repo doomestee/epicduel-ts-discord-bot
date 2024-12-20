@@ -1397,7 +1397,7 @@ export default class Client {
                 case Responses.RESPONSE_ARCADE_GOLD_SPIN:
                     break;
                 case Responses.RESPONSE_GIFTER_ON_FIRE:
-                    console.log("gifter's onn fireee: " + dataObj[2] + ", tier: " + dataObj[3]);
+                    // console.log("gifter's onn fireee: " + dataObj[2] + ", tier: " + dataObj[3]);
 
                     // tier: 0 for none, 1 for 15, 2 for 30, 3 for 45, 4 for 70, 5 for 100, 6 for 150, 7 for 200
                     break;
