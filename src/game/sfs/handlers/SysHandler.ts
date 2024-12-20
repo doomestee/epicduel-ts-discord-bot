@@ -176,11 +176,11 @@ export default class SysHandler {
         // const joinedAt = new Date();
 
         const currRoom = this.client.getRoom(roomId);
-        const roomList = Array.from(this.client.roomList.values());
+        // const roomList = Array.from(this.client.roomList.values());
 
-        for (let i = 0; i < roomList.length; i++) {
-            roomList[i].clearUserList();
-        }
+        // for (let i = 0; i < roomList.length; i++) {
+        //     roomList[i].clearUserList();
+        // }
 
         this.client.playerId = playerId;
         currRoom?.setMyPlayerIndex(playerId);
