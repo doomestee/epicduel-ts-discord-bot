@@ -18,4 +18,4 @@ RUN npx pnpm prune --prod
 
 ENV NODE_ENV=production
 
-ENTRYPOINT [ "node", "dist/index.js" ]
+ENTRYPOINT [ "node", "--expose-gc", "dist/index.js" ]
