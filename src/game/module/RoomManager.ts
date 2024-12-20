@@ -1,3 +1,4 @@
+import SwarmResources from "../../util/game/SwarmResources.js";
 import Constants from "../Constants.js";
 import type User from "../User.js";
 import RoomManagerRecord from "../record/RoomManagerRecord.js";
@@ -1273,7 +1274,7 @@ export default class RoomManager {
         return this.getRoomRecord(rName);
     }
 
-    static getRandomRoomRecord(pred?: (room: RoomManagerRecord) => boolean) : RoomManagerRecord {
+    static getRandomRoomRecord(pred?: (room: RoomManagerRecord) => boolean, unique = false) : RoomManagerRecord {
         let rooms = this.roomVersions;
 
         if (pred !== undefined) {
@@ -1288,7 +1289,28 @@ export default class RoomManager {
             rooms = actualRooms;
         }
 
-       return rooms[Math.floor(Math.random() * rooms.length)];
+        if (unique) {
+            let breaker = rooms.length;
+
+            const playerRooms = Array.from(SwarmResources.rooms.values());
+
+            while (breaker-- > 0) {
+                if (rooms.length === 0) throw Error("No more available unique room records.");
+
+                const rand = Math.floor(Math.random() * breaker);
+                const randRoom = rooms.splice(rand, 1)[0];//rooms[rand];
+
+                for (let i = 0, len = playerRooms.length; i < len; i++) {
+                    if (randRoom.roomName.startsWith(playerRooms[i].name)) {
+                        continue;
+                    }
+                }
+
+                return randRoom;
+            }
+            
+            throw Error("No more available unique room records.");
+        } else return rooms[Math.floor(Math.random() * rooms.length)];
     }
 
     static getAllRoomRecordsForMerchant(merchantId: number) : RoomManagerRecord[] {
