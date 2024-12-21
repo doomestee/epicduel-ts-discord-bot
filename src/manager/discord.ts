@@ -558,9 +558,6 @@ export default class Hydra extends Client {
     }
 
     async statusUpdate() {
-        //@ts-ignore
-        if (global.absolutelysure === undefined) return console.log("wtf?");
-
         const clis = filter(Swarm.clients.concat(Swarm.purgatory), v => v.connected && v.lobbyInit);
 
         let serverCount = -1; let shouldCount = true;
