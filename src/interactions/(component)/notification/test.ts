@@ -128,10 +128,18 @@ export default new Command(CommandType.Component, { custom_id: "test_send_<notif
                     text: "This is manually triggered, no pings are triggered."
                 }
             }];
+
+            message = pingText;
         }
 
+        if (embeds.length) {
+            embeds.push({
+                description: "**NOTE**: this is a test run initiated by " + interaction.member.displayName
+            });
+        } else message += "\n\n\n**NOTE**: this is a test run initiated by " + interaction.member.displayName
+
         await client.rest.channels.createMessage(notify.channel_id, {
-            content: message + "\n\n\n**NOTE**: this is a test run initiated by " + interaction.member.displayName,
+            content: message,
             embeds, allowedMentions: { roles: false, everyone: false }
         }).catch((err) => {
             // rip then,
