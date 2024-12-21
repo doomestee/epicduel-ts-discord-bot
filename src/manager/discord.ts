@@ -416,6 +416,63 @@ export default class Hydra extends Client {
                         channelTypes: [ChannelTypes.GUILD_TEXT]
                     }]
                 }]
+            // }, {
+            //     name: "game", description: "General notifications from the game",
+            //     type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+            //     options: [{
+            //         type: ApplicationCommandOptionTypes.SUB_COMMAND,
+            //         description: "Creates a notification for this type",
+            //         name: "create", options: [{
+            //             type: ApplicationCommandOptionTypes.STRING,
+            //             name: "type", description: "The type of the notification", required: true,
+            //             choices: [
+            //                 {name: "Server Update", value: "server_update"},
+            //                 {name: "Restock", value: "server_restock"}
+            //             ]
+            //         }, {
+            //             type: ApplicationCommandOptionTypes.STRING,
+            //             name: "message", description: "Message to send when the event triggers.", required: true
+            //         }, {
+            //             type: ApplicationCommandOptionTypes.CHANNEL,
+            //             name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
+            //             channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
+            //         }]
+            //     }, {
+            //         type: ApplicationCommandOptionTypes.SUB_COMMAND,
+            //         description: "Removes a game notification",
+            //         name: "delete", options: [{
+            //             type: ApplicationCommandOptionTypes.INTEGER,
+            //             name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
+            //         }]
+            //     }]
+            }, {
+                name: "mission", description: "Mission Notifications",
+                type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+                options: [{
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                    description: "Creates a notification when daily missions are reset.",
+                    name: "create",
+                    options: [{
+                        type: ApplicationCommandOptionTypes.ROLE,
+                        name: "arcade-role", description: "If you have an arcade role you want to be pinged, specify this.",
+                        required: false
+                    }, {
+                        type: ApplicationCommandOptionTypes.ROLE,
+                        name: "bounty-role", description: "If you have a bounty role you want to be pinged, specify this.",
+                        required: false
+                    }, {
+                        type: ApplicationCommandOptionTypes.CHANNEL,
+                        name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
+                        channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
+                    }]
+                }, {
+                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                    description: "Removes a mission notification",
+                    name: "delete", options: [{
+                        type: ApplicationCommandOptionTypes.INTEGER,
+                        name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
+                    }]
+                }]
             }],
             contexts: [InteractionContextTypes.GUILD],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL],

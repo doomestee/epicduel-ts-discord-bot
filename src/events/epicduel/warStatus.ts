@@ -145,10 +145,10 @@ export default new EDEvent("onWarStatusChange", async function (hydra, obj) {
                         } else if (err.code === 50001) {
                             deletes.push(notifications[i]);
                             return hydra.rest.channels.createDM(notifications[i].creator_id)
-                                .then((chnl) => chnl.createMessage({ content: `WARNING!\n\nThe bot can't send rally notifications to the channel <#${notifications[i].channel_id}> due to **missing permissions**.\nPlease fix this, or delete the notification (the notification ID is ${notifications[i].id}) via /notification rally delete in the server.` }))
+                                .then((chnl) => chnl.createMessage({ content: `WARNING!\n\nThe bot can't send rally notifications to the channel <#${notifications[i].channel_id}> due to **missing permissions**.\nPlease fix this, the notification will be deleted.` }))
                                 .catch((err) => {
                                     console.log(err);
-                                    deletes.push(notifications[i]);
+                                    // deletes.push(notifications[i]);
                                 })
                         } else console.log(err);
                     }

@@ -5,16 +5,23 @@ import Logger from "../../manager/logger.js";
 import Config from "../../config/index.js";
 import { find, map } from "../../util/Misc.js";
 import { rewardify } from "../../interactions/mission/recent.js";
+import DatabaseManager from "../../manager/database.js";
+import Notification, { INotification } from "../../Models/Notification.js";
+
+export const roleTypes = {
+    "ARCADE": 0,
+    "BOUNTY": 1
+} as const;
 
 let last = {
     clientId: -1,
     day: -1,
 }
 
-const roles = {
-    ARCADE: "1277348948658491412",
-    BOUNTY: "1279301115329904693"
-}
+// export const missionRoles = {
+//     ARCADE: "1277348948658491412",
+//     BOUNTY: "1279301115329904693"
+// }
 
 /**
  * Tiers go as follow:
@@ -38,7 +45,7 @@ const tiers = ["F-", "F", "F+", "E", "D", "C", "B", "B+", "A", "A+", "S", "S+"];
  * 
  * Indexed with the tier.
  */
-const tierEmojis = ["<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:E_:1277405021323005983>", "<:D_:1277403871047712871>", "<:C_:1277403857865150555>", "<:B_:1277403841892974603>", "<:B_:1277403841892974603>", "<:A_:1277403812528787486>", "<:A_:1277403812528787486>", "<:S_:1277403803083079820>", "<:S_:1277403803083079820>"];
+export const tierEmojis = ["<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:F_:1277405162461204605>", "<:E_:1277405021323005983>", "<:D_:1277403871047712871>", "<:C_:1277403857865150555>", "<:B_:1277403841892974603>", "<:B_:1277403841892974603>", "<:A_:1277403812528787486>", "<:A_:1277403812528787486>", "<:S_:1277403803083079820>", "<:S_:1277403803083079820>"];
 
 export default new EDEvent("onDailyMissions", async function (hydra, { status, ping }) {
     // if (Config.isDocker === false) return;
@@ -65,53 +72,95 @@ export default new EDEvent("onDailyMissions", async function (hydra, { status, p
 
     let untiered = false;
 
-    let pingText = "";
-    const done = { "BOUNTY": false, "ARCADE": false } as Record<string, boolean>;
+    const notifications = await DatabaseManager.cli.query<INotification>("SELECT * from notification WHERE type = $1" + (Config.isDevelopment ? " AND channel_id = $2" : ""), Config.isDevelopment ? [Notification.TYPE_MISSION_DAILY, "988216659665903647"] : [Notification.TYPE_MISSION_DAILY]).then(v => v.rows);
 
-    for (let i = 0, len = withTiers.length; i < len; i++) {
-        const mis = withTiers[i];
+    const deletes:INotification[] = [];
 
-        const groupies = this.boxes.mission.getMissionsByGroupId(mis.groupId, missions);
-        const reward = rewardify(groupies, false);
+    // TODO: optimise as it currently loop through dailies for each notification.
+    for (let j = 0, jen = notifications.length; j < jen; j++) {
+        const notify = notifications[j];
 
-        // if (mis.tier) {
-            texts[i] = `${mis.ext !== null ? tierEmojis[mis.ext.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>${reward.xp ? ` ${reward.xp} <:xp:1143945516229591100>` : ""}`;
-        // }
+        const roles = notify.message?.split("-") ?? [];
 
-        if (mis.ext === null) untiered = true;
+        let pingText = "";
+        const done = { "BOUNTY": false, "ARCADE": false } as Record<string, boolean>;
+        const roleMentions = [];
+        let onceDone = false;
 
-        const notifs = mis.ext?.notif;
+        for (let i = 0, len = withTiers.length; i < len; i++) {
+            const mis = withTiers[i];
 
-        if (notifs) {
-            for (let n = 0, nen = notifs.length; n < nen; n++) {
-                if (done[notifs[n]]) continue;
+            const groupies = this.boxes.mission.getMissionsByGroupId(mis.groupId, missions);
+            const reward = rewardify(groupies, false);
 
-                pingText += `<@&${roles[notifs[n] as "BOUNTY"]}>`;
-                done[notifs[n]] = true;
+            // if (mis.tier) {
+                texts[i] = `${mis.ext !== null ? tierEmojis[mis.ext.tier] : "<:U_:1277408264904249385>"} **${mis.groupName}** - ${reward.creds} <:Credits:1095129742505689239>${reward.xp ? ` ${reward.xp} <:xp:1143945516229591100>` : ""}`;
+            // }
+
+            if (mis.ext === null) untiered = true;
+
+            const notifs = mis.ext?.notif;
+
+            if (notifs) {
+                for (let n = 0, nen = notifs.length; n < nen; n++) {
+                    if (done[notifs[n]]) continue;
+
+                    const role = roles[roleTypes[notifs[n] as "BOUNTY"]];
+
+                    if (role !== undefined && role !== "U") {
+                        pingText += `<@&${role}>`;
+                        roleMentions.push(role);
+                    }
+                    done[notifs[n]] = true;
+                    onceDone = true;
+                }
             }
         }
+
+        if (pingText.length === 0 && onceDone === false) pingText = "No ping since there aren't any good daily missions.";
+        else if (pingText.length === 0 && onceDone === true) pingText = "";
+
+        const embeds:Embed[] = [{
+            description: `Daily missions have just reset, and they will *usually* last up until the next reset.`,
+            fields: [{
+                name: "Missions",
+                value: texts.join("\n")
+            }],
+            footer: {
+                text: ping === false ? "This is manually triggered, no pings are triggered." : (untiered ? `Some of the missions may be untiered, they weren't active at the time of ranking.` : "")
+            }
+        }];
+
+        hydra.rest.channels.createMessage(notify.channel_id, {
+            embeds,
+            content: pingText,
+            allowedMentions: {
+                everyone: false,
+                repliedUser: false,
+                roles: ping === false ? false : roleMentions,
+            }
+        }).catch(err => {
+            if (err) {
+                Logger.getLogger("Notification").error(err);
+                // 10003 is unknown channel, meaning it no longer exists.
+                if (err.code === 10003) {
+                    deletes.push(notify);
+                // 50001 is missing access, meaning bot can't send there anymore
+                } else if (err.code === 50001) {
+                    deletes.push(notify);
+                    return hydra.rest.channels.createDM(notify.creator_id)
+                        .then((chnl) => chnl.createMessage({ content: `WARNING!\n\nThe bot can't send daily mission notifications (ID: ${notify.id}) to the channel <#${notify.channel_id}> due to **missing permissions**.\nPlease fix this, the notification will be deleted.` }))
+                        .catch((err) => {
+                            console.log(err);
+                            // deletes.push(notify);
+                        })
+                } else console.log(err);
+            }
+        });
     }
 
-    if (pingText.length === 0) pingText = "No ping since there aren't any good daily missions.";
-
-    const embeds:Embed[] = [{
-        description: `Daily missions have just reset, and they will *usually* last up until the next reset.`,
-        fields: [{
-            name: "Missions",
-            value: texts.join("\n")
-        }],
-        footer: {
-            text: ping === false ? "This is manually triggered, no pings are triggered." : (untiered ? `Some of the missions may be untiered, they weren't active at the time of ranking.` : "")
-        }
-    }];
-
-    hydra.rest.channels.createMessage("1091045429367558154", {
-        embeds,
-        content: pingText,
-        allowedMentions: {
-            everyone: false,
-            repliedUser: false,
-            roles: ping === false ? false : [roles["ARCADE"], roles["BOUNTY"]]
-        }
-    });
+    if (deletes.length) {
+        DatabaseManager.cli.query(`DELETE FROM notification WHERE id IN (${deletes.map((v, i) => "$" + (i + 1))})`, deletes.map(v => v.id))
+            .catch((err) => Logger.getLogger("Notification").error(err));
+    }
 });

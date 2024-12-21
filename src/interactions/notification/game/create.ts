@@ -3,16 +3,17 @@ import { spitOptions } from "../../../events/discord/interactionCreate.js";
 import DatabaseManager from "../../../manager/database.js";
 import Command, { CommandType } from "../../../util/Command.js";
 import { filter } from "../../../util/Misc.js";
+import Notification from "../../../Models/Notification.js";
 
 function process(str: string) {
     return str.replace(/\\n/g, "\n");
 }
 
-export default new Command(CommandType.Application, { cmd: ["notification", "rally", "create"], permissionsMember: ["MANAGE_GUILD"], exceptionPermissionsCheck: [[-1, ""]], description: "Creates a rally notification.", cooldown: 3000 })
+export default new Command(CommandType.Application, { cmd: ["notification", "game", "create"], permissionsMember: ["MANAGE_GUILD"], exceptionPermissionsCheck: [[-1, ""]], description: "Creates a game notification.", cooldown: 3000 })
     .attach('run', async ({ client, interaction }) => {
         if (!interaction.inCachedGuildChannel()) return interaction.reply({ content: `This command can only be used in guilds.`, flags: 64 });
 
-        const [type, message] = ["type", "message"].map(v => process(interaction.data.options.getString(v, true))) as ["warRallyExile"|"warRallyLegion", string];
+        const [type, message] = ["type", "message"].map(v => process(interaction.data.options.getString(v, true))) as ["server_restock"|"server_update", string];
         const chnlPerms = interaction.data.options.getChannel("channel")?.appPermissions ?? interaction.channel.permissionsOf(client.user.id);
         const chnlId = interaction.data.options.getChannel("channel")?.id ?? interaction.channelID;
 
@@ -23,15 +24,15 @@ export default new Command(CommandType.Application, { cmd: ["notification", "ral
 
         if (!interaction.acknowledged) await interaction.defer();
 
-        const notifs = filter(await DatabaseManager.helper.getNotification(interaction.guildID), v => v.type === 1 || v.type === 2);
+        const notifs = filter(await DatabaseManager.helper.getNotification(interaction.guildID), v => v.type === Notification.TYPE_GAME_UPDATE || v.type === Notification.TYPE_GAME_RESTOCK);
 
-        if (notifs.length > 5) return interaction.reply({ content: `You've reached the maximum amount of rally notifications the server can have.`, flags: 64 });
+        if (notifs.length > 5) return interaction.reply({ content: `You've reached the maximum amount of game notifications the server can have.`, flags: 64 });
 
-        if ((type === "warRallyExile" && filter(notifs, v => v.type === 1).length >= 3) || (type === "warRallyLegion" && filter(notifs, v => v.type === 2).length >= 3))
-            return interaction.reply({ flags: 64, content: "This server can only have 3 notifications for that one type of rally at any time." });
+        if ((type === "server_update" && filter(notifs, v => v.type === Notification.TYPE_GAME_UPDATE).length >= 3) || (type === "server_restock" && filter(notifs, v => v.type === Notification.TYPE_GAME_RESTOCK).length >= 3))
+            return interaction.reply({ flags: 64, content: "This server can only have 3 notifications for that one type at any time." });
 
         const insert = await DatabaseManager.insert("notification", {
-            type: type === "warRallyExile" ? 1 : 2,
+            type: type === "server_restock" ? Notification.TYPE_GAME_RESTOCK : Notification.TYPE_GAME_UPDATE,
             guild_id: interaction.guildID,
             channel_id: chnlId,
             thread_id: null, // i cba after finding out sending via thread id works
@@ -51,9 +52,10 @@ export default new Command(CommandType.Application, { cmd: ["notification", "ral
                     name: interaction.member.username,
                     iconURL: interaction.member.avatarURL()
                 },
-                description: `Successfully created a notification for ${type === "warRallyExile" ? "Exile" : "Legion"} rallies.\nID of notification: ${insert}\n\n**You must make sure that the bot can send a message there, use the test button if you want, all mentions are disabled so nobody will be pinged.**\n\n**Channel:** <#${chnlId}>\n**Message:**\n${message}`,
+                description: `Successfully created a notification for ${type === "server_update" ? "Game Updates" : "Restocks"}.\nID of notification: ${insert}\n\n**You must make sure that the bot can send a message there, use the test button if you want, all mentions are disabled so nobody will be pinged.**\n\n**Channel:** <#${chnlId}>\n**Message:**\n${message}`,
                 footer: {
-                    text: (/\%\w{1,}\%/g.test(message)) ? "You can have a maximum of 6 notifications, and 3 for each type." : "Did you know you can have variables? Check /help then click on notification to find out."
+                    text: //(/\%\w{1,}\%/g.test(message)) ? 
+                    "You can have a maximum of 6 game notifications, and 3 for each type."// : "Did you know you can have variables? Check /help then click on notification to find out."
                 }
             }],
             components: [{

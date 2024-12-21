@@ -14,6 +14,9 @@ export interface INotification {
 export default class Notification implements INotification {
     id: number;
 
+    /**
+     * 1 for Exile Rally, 2 for Legion Rally, 3 for Server Updates, 4 for Restock, 5 for New Daily Missions.
+     */
     type: number;
 
     guild_id: string;
@@ -35,4 +38,10 @@ export default class Notification implements INotification {
 
         this.message = data.message;
     }
+
+    static readonly TYPE_RALLY_EXILE = 1;
+    static readonly TYPE_RALLY_LEGION = 2;
+    static readonly TYPE_GAME_UPDATE = 3;
+    static readonly TYPE_GAME_RESTOCK = 4;
+    static readonly TYPE_MISSION_DAILY = 5;
 }
