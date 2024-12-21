@@ -51,10 +51,14 @@ export default class ProxyManager {
      */
     static available = false;
 
+    static vocal = false;
+
     static healthCheck() {
         return this.stat()
             .then(res => {
                 if (res === false) {
+                    if (this.vocal) Logger.getLogger("Proxy").debug("Healthcheck - server down.");
+
                     this.available = false;
 
                     return;
@@ -69,9 +73,12 @@ export default class ProxyManager {
                 if (res.proxy.available > 0) {
                     this.available = false;
                 }
+
+                if (this.vocal) Logger.getLogger("Proxy").debug("Health check - fine.");
             })
             .catch(err => {
                 if (!this.#warned) Logger.getLogger("Proxy").error(err);
+                if (this.vocal) Logger.getLogger("Proxy").debug("Health check - error.");
 
                 this.available = false;
             });

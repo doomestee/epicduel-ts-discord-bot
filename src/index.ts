@@ -79,9 +79,14 @@ process
                 ed.settings.reconnectable = false;
                 ed.smartFox?.disconnect?.();
             }
+            
+            for (let timer of Object.values(bot.timer)) {
+                timer.stop();
+            }
 
             bot.disconnect(false);
             DatabaseManager.cli.end();
+            ProxyManager.timer.stop();
         } catch (err) {
             Logger.getLogger("Process").error(err);
 

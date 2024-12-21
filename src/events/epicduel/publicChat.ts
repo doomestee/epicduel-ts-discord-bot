@@ -16,7 +16,7 @@ let lastChatter = {
 
 // 0.1s grace
 function checkTime(time: number, sfsId: number, msg: string, roomId: number) {
-    if ((lastChatter.time + 100) > time && roomId === lastChatter.roomId) return false;
+    if ((lastChatter.time + 250) > time && sfsId === lastChatter.sfsId && roomId === lastChatter.roomId && msg === lastChatter.msg) return false;
 
     lastChatter = {
         msg, sfsId, time, roomId

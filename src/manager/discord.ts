@@ -10,6 +10,11 @@ import CommandHandler from "../handler/command.js";
 import type Queue from "../structures/queue/GenericQueue.js";
 import type { GiftObject } from "../game/module/Advent.js";
 import QueueHandler from "../handler/queue.js";
+import Timer from "../game/Timer.js";
+import Swarm from "./epicduel.js";
+import { filter } from "../util/Misc.js";
+import { SwarmError } from "../util/errors/index.js";
+import SwarmResources from "../util/game/SwarmResources.js";
 
 interface UserProcessState {
     refreshLb: boolean;
@@ -61,6 +66,10 @@ export default class Hydra extends Client {
         gift: undefined as unknown as Queue<GiftObject>,
         spy: undefined as unknown as Queue<string>
     };
+
+    timer = {
+        status: new Timer(60000, this.statusUpdate.bind(this))
+    }
 
     processing = {} as { [discordId: string]: UserProcessState };
 
@@ -546,5 +555,59 @@ export default class Hydra extends Client {
                 result[emojis[y].name] = emojis[y].id;
             }
         }; return result;
+    }
+
+    async statusUpdate() {
+        const clis = filter(Swarm.clients.concat(Swarm.purgatory), v => v.connected && v.lobbyInit);
+
+        let serverCount = -1; let shouldCount = true;
+
+        try {
+            const { servers } = await Swarm["login"](Config.edPuppetEmailBase + "+" + Swarm.appendages[10] + "@gmail.com", Config.edPuppetPass, 1);
+
+            serverCount = servers.reduce((a, b) => a + b.userCount[0], 0);
+        } catch (err) {
+            if (err instanceof SwarmError) {
+                switch (err.type) {
+                    case "NO_SERVER":
+                        shouldCount = false;
+                    break;
+                }
+            } else Logger.getLogger("StatusTimer").error(err);
+        } finally {
+            if ((clis.length === 0 && serverCount === -1) || shouldCount === false) {
+                return this.editStatus("online", [{
+                    name: `Glazing at M4tr1x Simulator`, type: ActivityTypes.GAME
+                }]);
+            }
+
+            if (clis.length === 0) {
+                return this.editStatus("idle", [{
+                    name: `${serverCount} users in Epic server.`, type: ActivityTypes.WATCHING
+                }])
+            }
+
+            const dones:Record<number, boolean> = {};
+            let overallRoomCount = 0; let overallUserCount = 0;
+
+            for (let i = 0, len = clis.length; i < len; i++) {
+                const cli = clis[i];
+
+                if (dones[cli.smartFox.activeRoomId] === true) continue;
+                overallRoomCount++;
+
+                const room = SwarmResources.rooms.get(cli.smartFox.activeRoomId);
+
+                if (room) {
+                    overallUserCount += room.userList.size;
+                }
+
+                dones[cli.smartFox.activeRoomId] = true;
+            }
+
+            return this.editStatus("idle", [{
+                name: `${overallUserCount} users in ${overallRoomCount} rooms${serverCount === -1 ? "" : " (" + serverCount + " users in 1 server)"}`, type: ActivityTypes.WATCHING
+            }])
+        }
     }
 }

@@ -15,11 +15,9 @@ export default new ClientEvent("ready", function () {
 
     // this.editStatus("invisible", []);
 
-    this.editStatus("online", [{
-        name: "the screams, the terror and the agony", type: ActivityTypes.LISTENING
-    }]);
-
     if (!once) {
+        this.timer.status.start();
+
         once = true;
         this.loadMessage<MainMessageStorage>("937078109751083038", "1071155768201580635").then(v => this.messages[0] = v);
 
