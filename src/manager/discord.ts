@@ -68,7 +68,7 @@ export default class Hydra extends Client {
     };
 
     timer = {
-        status: new Timer(60000, this.statusUpdate.bind(this))
+        status: new Timer(60000, this.statusUpdate.bind(this), true, true)
     }
 
     processing = {} as { [discordId: string]: UserProcessState };
@@ -558,6 +558,9 @@ export default class Hydra extends Client {
     }
 
     async statusUpdate() {
+        //@ts-ignore
+        if (global.absolutelysure === undefined) return console.log("wtf?");
+
         const clis = filter(Swarm.clients.concat(Swarm.purgatory), v => v.connected && v.lobbyInit);
 
         let serverCount = -1; let shouldCount = true;

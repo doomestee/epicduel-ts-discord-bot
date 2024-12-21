@@ -31,8 +31,11 @@ export default class Timer<T> {
 
     args!: T;
 
-    turns: number;
+    turns?: number;
 
+    /**
+     * @param turns DO NOT PASS INFINITY IF YOU INTEND FOR THIS TO GO FOREVER
+     */
     constructor(public ms: number, public callback: TimerCallback<T>, isPromise?:boolean, waitForPromise?:boolean, args?: T, turns?:number) {
         let ignorePromise = false;
         if (typeof isPromise != "boolean") { ignorePromise = true; args = isPromise; };
@@ -42,7 +45,7 @@ export default class Timer<T> {
 
         //@ts-ignore
         this.args = args;
-        this.turns = turns ?? Infinity;
+        this.turns = turns;
     }
 
     
