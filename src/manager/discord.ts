@@ -606,7 +606,8 @@ export default class Hydra extends Client {
             }
 
             return this.editStatus("idle", [{
-                name: `${overallUserCount} users in ${overallRoomCount} rooms${serverCount === -1 ? "" : " (" + serverCount + " users in 1 server)"}`, type: ActivityTypes.WATCHING
+                name: overallUserCount + " user" + (overallUserCount > 1 ? "s" : "") + " in " + overallRoomCount + " room" + (overallRoomCount > 1 ? "s" : "") + (serverCount === -1 ? "" : ("(" + serverCount + " user" + (serverCount > 1 ? "s" : "") + " in 1 server)")),
+                type: ActivityTypes.WATCHING
             }])
         }
     }
