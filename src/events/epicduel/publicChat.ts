@@ -168,7 +168,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         if (roomRecord.merchants.length) {
             const uniqueMerc = filter(RoomManager.unique_merchants, v => roomRecord.merchants.includes(v));
 
-            if (uniqueMerc) {
+            if (uniqueMerc.length > 0 && roomRecord.roomName !== "TrainHubRight") {
                 for (let i = 0, len = uniqueMerc.length; i < len; i++) {
                     const npc = this.boxes.merchant.objMap.get(uniqueMerc[i]);
 
