@@ -1,3 +1,4 @@
+import { findIndex, map } from "../../util/Misc.js";
 import SwarmResources from "../../util/game/SwarmResources.js";
 import Constants from "../Constants.js";
 import type User from "../User.js";
@@ -1039,7 +1040,32 @@ export default class RoomManager {
         this.roomVersions.push(new RoomManagerRecord(this.WAR_INFERNAL_MINES_EXILE_VAULT_3_BROKEN,7,[450,470],[127],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],0,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(4596,758,407,true,1042))));
         this.roomVersions.push(new RoomManagerRecord(this.WAR_INFERNAL_MINES_EXILE_VAULT_4_BROKEN,8,[450,470],[129,130],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],21,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(2719,217,450,true,712),new MapItemRule(4594,616,419,true,1034))));
         this.roomVersions.push(new RoomManagerRecord(this.WAR_DELTA_VAULT_EXILE,7,[450,470],[],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],22,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(4130,325,455,true,971))));
+
+        // Custom
+        const merchants = map(this.roomVersions, rv => rv.merchants).flat(1);
+
+        let counts = new Map<number, number>();
+
+        // Lionhart soldiers
+        let banned_mercs = [242, 244, 245, 246, 247, 248, 249];
+
+        for (let m = 0, len = merchants.length; m < len; m++) {
+            if (findIndex(banned_mercs, v => v === merchants[m]) !== -1) continue;
+
+            const count = counts.get(merchants[m]);
+
+            if (count === undefined) counts.set(merchants[m], 1);
+            else counts.set(count, count + 1);
+        }
+
+        const keys = Array.from(counts.keys());
+
+        for (let k = 0; k < keys.length; k++) {
+            if (counts.get(k) === 1) this.unique_merchants.push(k);
+        }
     }
+
+    static unique_merchants:number[] = [];
 
     //#endregion
 

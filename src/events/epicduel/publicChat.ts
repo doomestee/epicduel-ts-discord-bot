@@ -3,34 +3,34 @@ import RoomManager from "../../game/module/RoomManager.js";
 import DatabaseManager from "../../manager/database.js";
 import ImageManager from "../../manager/image.js";
 import Logger from "../../manager/logger.js";
-import { countCommonStrings, findIndex } from "../../util/Misc.js";
+import { countCommonStrings, filter, findIndex } from "../../util/Misc.js";
 import EDEvent from "../../util/events/EDEvent.js";
+import SwarmResources from "../../util/game/SwarmResources.js";
 
-let lastChatter = {
-    sfsId: -1,
-    time: -1,
-    msg: "",
-
-    roomId: -1
+interface LastChatter {
+    sfsId: number;
+    time: number;
+    msg: string;
+    roomId: number;
 }
 
-// 0.1s grace
-function checkTime(time: number, sfsId: number, msg: string, roomId: number) {
-    if ((lastChatter.time + 250) > time && sfsId === lastChatter.sfsId && roomId === lastChatter.roomId && msg === lastChatter.msg) return false;
-
-    lastChatter = {
-        msg, sfsId, time, roomId
-    };
-
-    return true;
-}
+const lastChatters:LastChatter[] = [];
 
 export default new EDEvent("onPublicMessage", function (hydra, { message, user: author, roomId }) {
     if (Config.isDevelopment && this.smartFox.getActiveRoom()?.name === "TrainHubRight_0") return;
 
     const time = Date.now();
 
-    if (!checkTime(time, author.id, message, roomId)) return;
+    for (let i = 0, len = lastChatters.length; i < len; i++) {
+        const chatter = lastChatters[i];
+
+        if ((chatter.time + 250) > time && chatter.sfsId === author.id && chatter.msg === message && chatter.roomId === roomId) {
+            return;
+        }
+    }
+
+    lastChatters.push({ time, sfsId: author.id, msg: message, roomId });
+    if (lastChatters.length > 9) lastChatters.splice(0, 1);
 
     // let puppetNTxt = `Puppet ID: ${this.settings.id}`;
 
@@ -117,7 +117,6 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
     const edChat = hydra.cache.edChat[author.charId];
     if (edChat) {
-
         if (edChat.ignores.includes(content)) return;
         if (edChat.mutedUntil && edChat.mutedUntil > time) return;
 
@@ -167,30 +166,45 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         // The room record exists so we'll check for a merchant, and use it instead of default profile.
 
         if (roomRecord.merchants.length) {
-            for (let i = 0, len = roomRecord.merchants.length; i < len; i++) {
-                const merc = roomRecord.merchants[i];
+            const uniqueMerc = filter(RoomManager.unique_merchants, v => roomRecord.merchants.includes(v));
 
-                const npc = this.boxes.merchant.objMap.get(merc);
+            if (uniqueMerc) {
+                for (let i = 0, len = uniqueMerc.length; i < len; i++) {
+                    const npc = this.boxes.merchant.objMap.get(uniqueMerc[i]);
 
-                // if (len > 1 && npc && findIndex(["Lionhart Soldier"], v => v === npc.mercName) !== -1) continue;
-                if (len > 1 && npc && npc.mercName === "Lionhart Soldier") continue;
-
-                if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
-                    webGuy.username = npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
-                    webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
-
-                    if (npc.mercName === "VendBot") {
-                        if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) {
-                            const wId = this.smartFox.getActiveRoomFr().name.slice(-1);
-
-                            if (wId !== "0") webGuy.username = "VendBot (World " + wId + ")";//= "VendBot at " + this.smartFox.getActiveRoomFr().name.slice(-1);
-                            // else webGuy.username = "VendBot";
-                        }
-                        break;
+                    if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
+                        const wId = SwarmResources.rooms.get(roomId)?.name.slice(-1);
+    
+                        webGuy.username = wId ? npc.mercName + " (World " + wId + ")" : npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
+                        webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
                     }
+                }
+            } else {
+                for (let i = 0, len = roomRecord.merchants.length; i < len; i++) {
+                    const merc = roomRecord.merchants[i];
 
-                    // Let's stick with a bot!
-                    if (npc.mercName.toLowerCase().includes("bot")) break;
+                    const npc = this.boxes.merchant.objMap.get(merc);
+
+                    // Lionhart soldiers are goddamn everywhere
+                    if (len > 1 && npc && npc.mercName === "Lionhart Soldier") continue;
+
+                    if (npc && ImageManager.has("avatars", npc.mercLink + ".png")) {
+                        webGuy.username = npc.mercName + " at " + RoomManager.getRegionNameById(roomRecord.regionId);
+                        webGuy.avatarURL = "https://i.doomester.one/ed/avatars/" + npc.mercLink + ".png";
+
+                        if (npc.mercName === "VendBot") {
+                            if (roomRecord.regionId === RoomManager.REGION_CENTRAL_STATION_ID) {
+                                const wId = this.smartFox.getActiveRoomFr().name.slice(-1);
+
+                                if (wId !== "0") webGuy.username = "VendBot (World " + wId + ")";//= "VendBot at " + this.smartFox.getActiveRoomFr().name.slice(-1);
+                                // else webGuy.username = "VendBot";
+                            }
+                            break;
+                        }
+
+                        // Let's stick with a bot!
+                        if (npc.mercName.toLowerCase().includes("bot")) break;
+                    }
                 }
             }
         } else {
