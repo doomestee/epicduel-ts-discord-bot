@@ -16,7 +16,9 @@ export default new ClientEvent("ready", function () {
     // this.editStatus("invisible", []);
 
     if (!once) {
-        this.timer.status.start();
+        setTimeout(() => {
+            this.timer.status.start(true);
+        }, 10000);
 
         once = true;
         this.loadMessage<MainMessageStorage>("937078109751083038", "1071155768201580635").then(v => this.messages[0] = v);
