@@ -32,7 +32,9 @@ function actualNeedle(str: string | undefined) : string | undefined {
 
 export default new Command(CommandType.Autocomplete, { cmd: ["faction", "view"], value: "name" })
     .attach('run', async ({ client, interaction }) => {
-        const value = actualNeedle(interaction.data.options.getFocused()?.value as string) as string | undefined;
+        const preValue = interaction.data.options.getFocused()?.value as string | undefined;
+
+        const value = actualNeedle(preValue?.startsWith("$") === true ? preValue.slice(1) : preValue);
 
         let isNonce = value ? isNaN(parseInt(value)) : false;
 
@@ -58,7 +60,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["faction", "view"],
         // if (value) list = fuzzy.search(actualNeedle(value));
         // else list = items;
 
-        let list = await DatabaseManager.cli.query<IFaction & { similarity: number }>(value ? "select *, similarity(faction.name, $1) from faction where faction.name ilike $2 order by similarity desc limit 25" : "select * from faction limit 25", value ? [value, "%" + value + "%"] : []).then(v => v.rows);
+        let list = await DatabaseManager.cli.query<IFaction & { similarity: number }>(value ? "select *, similarity(faction.name, $1) from faction where faction.name ilike $2 order by similarity desc limit 25" : "select * from faction " +  (preValue?.startsWith("$") === true ? "order by id desc " : "") + "limit 25", value ? [value, "%" + value + "%"] : []).then(v => v.rows);
 
         for (let i = 0, len = list.length; i < len; i++) {
             looky[i] = {

@@ -33,7 +33,9 @@ function actualNeedle(str: string) : string {
 
 export default new Command(CommandType.Autocomplete, { cmd: ["npc", "search"], value: "id" })
     .attach('run', ({ client, interaction }) => {
-        const value = interaction.data.options.getFocused()?.value as string | undefined;
+        const preValue = interaction.data.options.getFocused()?.value as string | undefined;
+
+        const value = preValue?.startsWith("$") === true ? preValue.slice(1) : preValue;
 
         let isNonce = value ? isNaN(parseInt(value)) : false;
 
@@ -43,6 +45,8 @@ export default new Command(CommandType.Autocomplete, { cmd: ["npc", "search"], v
 
         const items = MerchantSBox.objMap.toArray();
         let list = [];
+
+        if (preValue?.startsWith("$") === true) items.reverse();
 
         // for (let i = prelist.length - 1, x = 0; i >= 0; i--, x++) {
         //     const item = prelist[i];

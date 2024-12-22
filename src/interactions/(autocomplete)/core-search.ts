@@ -34,7 +34,9 @@ function actualNeedle(str: string) : string {
 
 export default new Command(CommandType.Autocomplete, { cmd: ["core", "search"], value: "name" })
     .attach('run', ({ client, interaction }) => {
-        const value = interaction.data.options.getFocused()?.value as string | undefined;
+        const preValue = interaction.data.options.getFocused()?.value as string | undefined;
+
+        const value = preValue?.startsWith("$") === true ? preValue.slice(1) : preValue;
 
         let isNonce = value ? isNaN(parseInt(value)) : false;
 
@@ -64,6 +66,8 @@ export default new Command(CommandType.Autocomplete, { cmd: ["core", "search"], 
 
         //     list[x] = {...item, ...upd};
         // }
+
+        if (preValue?.startsWith("$") === true) items.reverse();
 
         const fuzzy = new FuzzySearch(items, ['skillName'], { caseSensitive: false });
 
