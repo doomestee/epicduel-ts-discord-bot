@@ -16,6 +16,8 @@ export class SharedBox<K extends string | number, T> {
      */
     postprocess?: (v: T) => boolean;
 
+    postpopulate?: () => void;
+
     #staticMap?: Collection<K, T>;
 
     //@ts-expect-error I have no fucking idea, but why can't typeof type please work sob... well... shush
@@ -56,6 +58,8 @@ export class SharedBox<K extends string | number, T> {
         }
 
         this.ready = true;
+
+        this.postpopulate?.();
     }
 }
 
