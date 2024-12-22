@@ -70,9 +70,9 @@ export default class ProxyManager {
                     this.#warned = true;
                 }
 
-                if (res.proxy.available > 0) {
-                    this.available = false;
-                }
+                if (res.proxy.available === 0 || res.proxy.unblocked < 3) {
+                    this.available = true;
+                } //else this.available = true;
 
                 if (this.vocal) Logger.getLogger("Proxy").debug("Health check - fine.");
             })
