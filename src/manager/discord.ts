@@ -575,9 +575,15 @@ export default class Hydra extends Client {
             }
 
             if (clis.length === 0) {
-                return this.editStatus("idle", [{
-                    name: `${serverCount} users in Epic server.`, type: ActivityTypes.WATCHING
-                }])
+                if (serverCount > 0) {
+                    return this.editStatus("idle", [{
+                        name: `${serverCount} users in Epic server.`, type: ActivityTypes.WATCHING
+                    }])
+                } else if (serverCount === 0) {
+                    return this.editStatus("dnd", [{
+                        name: "for the server to be active.", type: ActivityTypes.WATCHING
+                    }])
+                }
             }
 
             const dones:Record<number, boolean> = {};
@@ -599,7 +605,7 @@ export default class Hydra extends Client {
             }
 
             return this.editStatus("idle", [{
-                name: overallUserCount + " user" + (overallUserCount > 1 ? "s" : "") + " in " + overallRoomCount + " room" + (overallRoomCount > 1 ? "s" : "") + (serverCount === -1 ? "" : ("(" + serverCount + " user" + (serverCount > 1 ? "s" : "") + " in 1 server)")),
+                name: overallUserCount + " user" + (overallUserCount > 1 ? "s" : "") + " in " + overallRoomCount + " room" + (overallRoomCount > 1 ? "s" : "") + (serverCount === -1 ? "" : (" (" + serverCount + " user" + (serverCount > 1 ? "s" : "") + " in 1 server)")),
                 type: ActivityTypes.WATCHING
             }])
         }
