@@ -1,8 +1,11 @@
-import DatabaseManager from "../../../manager/database.js";
-import Command, { CommandType } from "../../../util/Command.js";
-import { filter, find } from "../../../util/Misc.js";
+import DatabaseManager from "../../manager/database.js";
+import Notification from "../../Models/Notification.js";
+import Command, { CommandType } from "../../util/Command.js";
+import { filter, find } from "../../util/Misc.js";
 
-export default new Command(CommandType.Application, { cmd: ["notification", "rally", "delete"], permissionsMember: ["MANAGE_GUILD"], exceptionPermissionsCheck: [[-1, ""]], description: "Deletes a rally notification.", cooldown: 3000 })
+const ntfTypeToVal = ["N/A", "Exile Rally", "Legion Rally", "Game Update", "Server Restock", "Daily Mission"];
+
+export default new Command(CommandType.Application, { cmd: ["notification", "delete"], permissionsMember: ["MANAGE_GUILD"], exceptionPermissionsCheck: [[-1, ""]], description: "Deletes a notification.", cooldown: 3000 })
     .attach('run', async ({ client, interaction }) => {
         if (!interaction.inCachedGuildChannel()) return interaction.reply({ content: `This command can only be used in guilds.`, flags: 64 });
 
@@ -16,7 +19,7 @@ export default new Command(CommandType.Application, { cmd: ["notification", "ral
 
         if (!interaction.acknowledged) await interaction.defer();
 
-        const notifs = filter(await DatabaseManager.helper.getNotification(interaction.guildID), v => v.type === 1 || v.type === 2);
+        const notifs = await DatabaseManager.helper.getNotification(interaction.guildID);
 
         if (notifs.length === 0) return interaction.reply({ content: "This server has no notification for you to delete!", flags: 64 });
 
@@ -30,13 +33,19 @@ export default new Command(CommandType.Application, { cmd: ["notification", "ral
         if (deletion === -1 || deletion === null) return interaction.reply({ content: `Error, a problem has occurred when trying to delete the notification record off the database.`, flags: 64});
         if (deletion === 0) return interaction.reply({ content: `The notification with the ID ${id} does not exist (or is not for this server.)`, flags: 64});
 
+        // For type 5 (daily mission);
+        const roles = notification.message?.split("-") ?? [];
+
         return interaction.reply({
             embeds: [{
                 title: "Notification Deleted",
-                description: "Raw message: ```\n" + notification.message + "```",
+                description:
+                    notification.type === Notification.TYPE_MISSION_DAILY
+                        ? `Arcade Role: <@&${roles[0] === "U" ? "N/A" : roles[0]}>.\nBounty Role: <@&${roles[1] === "U" ? "N/A" : roles[1]}.`
+                        : "Raw message: ```\n" + notification.message + "```",
                 fields: [{
                     name: "Type",
-                    value: notification.type === 1 ? "Exile" : "Legion",
+                    value: ntfTypeToVal[notification.type],
                     inline: true
                 }, {
                     name: "Channel",

@@ -405,13 +405,6 @@ export default class Hydra extends Client {
                         name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
                         channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
                     }]
-                }, {
-                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    description: "Removes a rally notification",
-                    name: "delete", options: [{
-                        type: ApplicationCommandOptionTypes.INTEGER,
-                        name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
-                    }]
                 }]
             }, {
                 name: "note", description: "Note notifications",
@@ -474,13 +467,13 @@ export default class Hydra extends Client {
                         name: "channel", description: "Channel to send the message to. If not set, it'll be sent to the channel the command was used in.", required: false,
                         channelTypes: [ChannelTypes.GUILD_TEXT, ChannelTypes.PUBLIC_THREAD, ChannelTypes.PRIVATE_THREAD]
                     }]
-                }, {
-                    type: ApplicationCommandOptionTypes.SUB_COMMAND,
-                    description: "Removes a mission notification",
-                    name: "delete", options: [{
-                        type: ApplicationCommandOptionTypes.INTEGER,
-                        name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
-                    }]
+                }]
+            }, {
+                type: ApplicationCommandOptionTypes.SUB_COMMAND,
+                description: "Deletes a notification",
+                name: "delete", options: [{
+                    type: ApplicationCommandOptionTypes.INTEGER,
+                    name: "id", description: "The ID of the notification to delete.", required: true, autocomplete: true
                 }]
             }],
             contexts: [InteractionContextTypes.GUILD],

@@ -2,7 +2,7 @@ import { AutocompleteChoice, GuildAutocompleteInteraction } from "oceanic.js";
 import Command, { CommandType } from "../../util/Command.js";
 import DatabaseManager from "../../manager/database.js";
 import FuzzySearch from "fuzzy-search";
-import { INotification } from "../../Models/Notification.js";
+import Notification, { INotification } from "../../Models/Notification.js";
 
 function truncateResults(values: AutocompleteChoice[], max=25) : AutocompleteChoice[] {
     if (values.length === 0) return [{name: `0 Result`, value: "102030405"}];
@@ -24,10 +24,21 @@ function nameId(int: GuildAutocompleteInteraction, id: string) {
 }
 
 function nameNotify(int: GuildAutocompleteInteraction, g: INotification) {
-    return "ID: " + g.id + ", " + (((g.type === 1) ? "Exile, " : "Legion, ")) + nameId(int, g.channel_id);
+    switch (g.type) {
+        case Notification.TYPE_RALLY_EXILE: case Notification.TYPE_RALLY_LEGION:
+            return "ID: " + g.id + ", " + (((g.type === 1) ? "Exile Rally, " : "Legion Rally, ")) + nameId(int, g.channel_id);
+        case Notification.TYPE_GAME_UPDATE:
+            return "ID: " + g.id + ", Game Update, " + nameId(int, g.channel_id);
+        case Notification.TYPE_GAME_RESTOCK:
+            return "ID: " + g.id + ", Server Restock, " + nameId(int, g.channel_id);
+        case Notification.TYPE_MISSION_DAILY:
+            return "ID: " + g.id + ", Daily Missions, " + nameId(int, g.channel_id);
+    }
+
+    throw Error("out of range");
 };
 
-export default new Command(CommandType.Autocomplete, { cmd: ["notification", "rally", "delete"], value: "id" })
+export default new Command(CommandType.Autocomplete, { cmd: ["notification", "delete"], value: "id" })
     .attach('run', async ({ client, interaction }) => {
         if (!interaction.inCachedGuildChannel()) return;
 
