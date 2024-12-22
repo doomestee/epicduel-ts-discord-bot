@@ -1055,16 +1055,19 @@ export default class RoomManager {
             const count = counts.get(merchants[m]);
 
             if (count === undefined) counts.set(merchants[m], 1);
-            else counts.set(count, count + 1);
+            else counts.set(merchants[m], count + 1);
         }
 
         const keys = Array.from(counts.keys());
 
         for (let k = 0; k < keys.length; k++) {
-            if (counts.get(k) === 1) this.unique_merchants.push(k);
+            if (counts.get(k) === 1 && k !== 0) this.unique_merchants.push(k);
         }
+
+        // Doesn't end here, it waits until npcbox is initiated.
     }
 
+    static unique_processed = false;
     static unique_merchants:number[] = [];
 
     //#endregion
