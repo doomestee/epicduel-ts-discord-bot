@@ -20,6 +20,12 @@ export default class MerchantSBox extends SharedBox<number, MerchantRecord> {
             const grouped = Object.groupBy(mercs, v => v[1]);
 
             const values = Object.values(grouped);
+            
+            //@ts-ignore
+            global.okgro = grouped;
+
+            //@ts-ignore
+            global.okidk = values;
 
             for (let i = 0, len = values.length; i < len; i++) {
                 const val = values[i];
