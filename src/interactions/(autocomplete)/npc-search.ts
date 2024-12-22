@@ -37,7 +37,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["npc", "search"], v
 
         const value = preValue?.startsWith("$") === true ? preValue.slice(1) : preValue;
 
-        let isNonce = value ? isNaN(parseInt(value)) : false;
+        let isNonce = value ? isNaN(Number(value)) : false;
 
         if (MerchantSBox.objMap.size === 0) return interaction.result([{ name: "The bot hasn't connected in game yet.", value: "1" }]);
 

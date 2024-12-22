@@ -36,7 +36,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["faction", "view"],
 
         const value = actualNeedle(preValue?.startsWith("$") === true ? preValue.slice(1) : preValue);
 
-        let isNonce = value ? isNaN(parseInt(value)) : false;
+        let isNonce = value ? isNaN(Number(value)) : false;
 
         // if (DatabaseManager.cli.) return interaction.result([{ name: "The bot hasn't connected in game yet.", value: "1" }]);
 

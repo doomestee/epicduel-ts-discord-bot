@@ -35,7 +35,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["mission", "search"
     .attach('run', ({ client, interaction }) => {
         const value = interaction.data.options.getFocused()?.value as string | undefined;
 
-        let isNonce = value ? isNaN(parseInt(value)) : false;
+        let isNonce = value ? isNaN(Number(value)) : false;
 
         if (MissionSBox.objMap.group.size === 0) return interaction.result([{ name: "The bot hasn't connected in game yet.", value: "1" }]);
 
