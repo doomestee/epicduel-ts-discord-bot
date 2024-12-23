@@ -171,8 +171,6 @@ export class Item {
                 }
             }
         } else {
-            // for now, only swords are currently supported
-
             if (item.itemName === "Arcade Token") {
                 embeds[0].thumbnail = { url: "https://cdn.discordapp.com/attachments/813045270572302336/1109234163283931266/afaf.png" };
                 embeds[0].color = 0xF3E956;
@@ -181,7 +179,7 @@ export class Item {
                 const { result } = ImageManager.has(assetTag, item.itemLinkage, false);
 
                 if (result !== "") {
-                    files.push({ name: assetTag + "-" + result, contents: await readFile(`${Config.dataDir}/assets/swords/${result}`) });
+                    files.push({ name: assetTag + "-" + result, contents: await readFile(`${Config.dataDir}/assets/${assetTag}/${result}`) });
 
                     embeds[0].thumbnail = { url: "attachment://" + assetTag + "-" + result };
                 }
