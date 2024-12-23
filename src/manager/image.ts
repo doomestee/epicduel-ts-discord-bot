@@ -2,7 +2,7 @@ import { readdir } from "fs/promises";
 import SvgGen from "../util/SvgGen.js";
 import Config from "../config/index.js";
 
-type ImageItem = "avatars" | "cores" | "swords" | "guns" | "auxiliary";// | "cheevo"
+type ImageItem = "avatars" | "cores" | "swords" | "guns" | "auxiliary" | "mission" | "achieve";// | "cheevo"
 
 function toList<T extends string = string>(...keys: T[]) {//<T = Array<string>>(keys: T) {
     const obj = {} as Record<T, [string, string][]>;
@@ -23,7 +23,7 @@ export default class ImageManager {
     static readonly SVG = new SvgGen();
 
     static list:{ [x in ImageItem]: [string, string][] }
-        = toList("avatars", "cores", "swords", "guns", "auxiliary");
+        = toList("avatars", "cores", "swords", "guns", "auxiliary", "mission", "achieve");
 
     static ready = {
         avatars: false,
