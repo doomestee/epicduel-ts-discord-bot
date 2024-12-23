@@ -133,12 +133,12 @@ export class Item {
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
                 break;
-            case ItemSBox.ITEM_CATEGORY_MISSION_ID:
-                embeds[0].fields?.push({
-                    name: "Misc Item - Description",
-                    value: SwarmResources.languages[item.itemDesc] ?? item.itemDesc
-                });
-                break;
+            // case ItemSBox.ITEM_CATEGORY_MISSION_ID:
+            //     embeds[0].fields?.push({
+            //         name: "Misc Item - Description",
+            //         value: SwarmResources.languages[item.itemDesc] ?? item.itemDesc
+            //     });
+            //     break;
         }
 
         const files:File[] = [];
@@ -176,17 +176,14 @@ export class Item {
             if (item.itemName === "Arcade Token") {
                 embeds[0].thumbnail = { url: "https://cdn.discordapp.com/attachments/813045270572302336/1109234163283931266/afaf.png" };
                 embeds[0].color = 0xF3E956;
-            }
+            } else {
+                const assetTag = item.getAssetTag();
+                const { result } = ImageManager.has(assetTag, item.itemLinkage, false);
 
-            if (item.itemCat === ItemSBox.ITEM_CATEGORY_SWORD_ID) {
-                if (ImageManager.has("swords", item.itemLinkage + ".gif")) {
-                    // if (item.itemName.includes("Star Saber") && item.itemId < 5944 && item.itemId >= 5824) {
-                        
-                    // }
+                if (result !== "") {
+                    files.push({ name: assetTag + "-" + result, contents: await readFile(`${Config.dataDir}/assets/swords/${result}`) });
 
-                    files.push({ name: "sword-" + item.itemId + ".gif", contents: await readFile(Config.dataDir + "/assets/swords/" + item.itemLinkage + ".gif") });
-
-                    embeds[0].thumbnail = { url: "attachment://sword-" + item.itemId + ".gif" };
+                    embeds[0].thumbnail = { url: "attachment://" + assetTag + "-" + result };
                 }
             }
         }

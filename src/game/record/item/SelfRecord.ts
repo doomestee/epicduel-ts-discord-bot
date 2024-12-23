@@ -1,6 +1,7 @@
 //["itemId","itemName","itemCredits","itemVarium","itemLinkage","itemRareId","itemSrcId","itemBuyPerm","itemSellPerm","itemCat"]
 
 import type ArmorItemRecord from "./ArmorRecord.js";
+import BikeItemRecord from "./BikeRecord.js";
 import type BotItemRecord from "./BotRecord.js";
 import type CoreItemRecord from "./CoreRecord.js";
 import type MissionItemRecord from "./MissionRecord.js";
@@ -111,6 +112,31 @@ export default class ItemRecord<T extends number> {
         return "null2";
     }
 
+    /**
+     * NOTE if this is a mutate, it will only return blades
+     */
+    // getAssetTag(this: ArmorItemRecord) : "armors";
+    // getAssetTag(this: BotItemRecord) : "robots";
+    // getAssetTag(this: CoreItemRecord) : "cores";
+    // getAssetTag(this: MissionItemRecord) : "mission";
+    // getAssetTag(this: WeaponRecord) : "swords" | "staffs" | "blades" | "guns" | "auxiliary";
+    // getAssetTag(this: BikeItemRecord) : "crafts";
+    getAssetTag(this: ArmorItemRecord|BotItemRecord|CoreItemRecord|MissionItemRecord|WeaponRecord|BikeItemRecord) {
+        switch (this.itemCat) {
+            case 2: return "armors";
+            case 3: case 4: return "swords";
+            case 5: return "staffs";
+            case 6: return "guns";
+            case 7: case 20: return "blades";
+            case 8: return "auxiliary";
+            case 9: return "cores";
+            case 10: return "crafts";
+            case 11: return "robots";
+            case 12: return "mission";
+            default: throw Error("Unknown item cat");
+        }
+    }
+
     getItemCategoryName(classId=1, itemCat?: number) : string {
         itemCat = itemCat || this.itemCat;
         switch(itemCat) {
@@ -133,7 +159,7 @@ export default class ItemRecord<T extends number> {
         }
     }
 
-    isBotItemId() : this is BotItemRecord {
+    isBotItemRecord() : this is BotItemRecord {
         return this.itemCat === 11;
     }
 
@@ -155,6 +181,10 @@ export default class ItemRecord<T extends number> {
 
     isCoreItemRecord() : this is CoreItemRecord {
         return this.itemCat === 9;
+    }
+
+    isBikeItemRecord() : this is CoreItemRecord {
+        return this.itemCat === 10;
     }
 }
 

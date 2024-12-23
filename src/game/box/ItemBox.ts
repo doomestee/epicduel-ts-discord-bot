@@ -264,7 +264,7 @@ export default class ItemSBox {
                     craft(new BotItemRecord(this.buildRecord(record, this.getItemDetails(itemId, this.items.bot))));
                     break;
                 case ItemSBox.ITEM_CATEGORY_VEHICLE_ID:
-                    craft(new ItemRecord(record));//this.buildRecord(record, this.getItemDetails(itemId, this.items.veh)));
+                    craft(new BikeItemRecord(record));//this.buildRecord(record, this.getItemDetails(itemId, this.items.veh)));
                     break;
                 case ItemSBox.ITEM_CATEGORY_MISSION_ID:
                     craft(new MissionItemRecord(this.buildRecord(record, this.getItemDetails(itemId, this.items.mission))));

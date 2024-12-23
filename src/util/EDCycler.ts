@@ -112,7 +112,7 @@ export default class EDCycler {
                 const purg = purgs[i];
                 const isProxied = purg.settings.proxy !== -1;
 
-                if ((!isProxied && count > 0) || (isProxied && countProxy < 1 && ProxyManager.available)) continue;
+                if ((!isProxied && count > 0) || ((isProxied && countProxy < 1) || !ProxyManager.available)) continue;
                 if (!purg.settings.reconnectable) continue;
                 if (purg["isFresh"]) continue;
 
