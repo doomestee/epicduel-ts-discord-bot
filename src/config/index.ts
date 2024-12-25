@@ -56,7 +56,7 @@ export default class Config {
     }
 
     static get svgDir() {
-        return this.isDocker ? "/svgs" : `${this.baseDir}/data/svgs`;
+        return this.isDocker ? "/data/svg" : `${this.baseDir}/data/svg`;
     }
 
     static get dataDir() {

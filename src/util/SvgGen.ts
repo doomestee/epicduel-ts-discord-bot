@@ -470,7 +470,7 @@ class Generator {
                 })
                 .catch(err => {
                     Logger.getLogger("SVG").error(err);
-                    return readFile(Config.svgDir + "/misc/skull.png");
+                    return readFile(Config.dataDir + "/misc/skull.png");
                 });
 
         } catch (err) {
@@ -481,7 +481,7 @@ class Generator {
                     Logger.getLogger("SVG").error(err);
                 }
             }
-            return readFile(Config.svgDir + "/misc/skull.png");
+            return readFile(Config.dataDir + "/misc/skull.png");
         }
     }
 
@@ -599,7 +599,7 @@ class Generator {
                 })
                 .catch(err => {
                     Logger.getLogger("SVG").error(err);
-                    return readFile(Config.svgDir + "/misc/skull.png");
+                    return readFile(Config.dataDir + "/misc/skull.png");
                 });
         } catch (err) {
             if (err instanceof Error) {
@@ -609,7 +609,7 @@ class Generator {
                     Logger.getLogger("SVG").error(err);
                 }
             }
-            return readFile(Config.svgDir + "/misc/skull.png");
+            return readFile(Config.dataDir + "/misc/skull.png");
         }
     }
 
@@ -625,7 +625,7 @@ class Generator {
             const thing = obj[x];
 
             if (thing === undefined || !thing["misc"]) {
-                images[x] = (readFile(Config.svgDir + "/misc/skull.png"));
+                images[x] = (readFile(Config.dataDir + "/misc/skull.png"));
                 continue;
             }
 
@@ -634,7 +634,7 @@ class Generator {
                 const style = StyleBox.getStyleRecord(thing.misc.classId, thing.misc.hairS, thing.misc.gender as "M" | "F");//.objMap.find(v => v.styleIndex === char.misc.hairS && v.styleClassId === adj);
 
                 if (armor == null || !armor.isArmorItemRecord() || !style) {
-                    images[x] = (readFile(Config.svgDir + "/misc/skull.png"));
+                    images[x] = (readFile(Config.dataDir + "/misc/skull.png"));
                     continue;
                 }
 
@@ -856,7 +856,7 @@ class Generator {
                     if (cache.value.type === 2) misc = cache.value.char;
                     else images[i] = getCharPageToImage(this, cache.value.char, users, i);
                 } else images[i] = getCharPageToImage(this, thing.name, users, i);
-                // images[i] = (readFile(Config.svgDir + "/misc/skull.png"));
+                // images[i] = (readFile(Config.dataDir + "/misc/skull.png"));
                 // continue;
                 // continue;
 
@@ -867,7 +867,7 @@ class Generator {
             const style = StyleBox.getStyleRecord(misc.classId, misc.hairS, misc.gender as "M" | "F");//.objMap.find(v => v.styleIndex === char.misc.hairS && v.styleClassId === adj);
 
             if (armor == null || !armor.isArmorItemRecord() || !style) {
-                images[i] = (readFile(Config.svgDir + "/misc/skull.png"));
+                images[i] = (readFile(Config.dataDir + "/misc/skull.png"));
                 continue;
             }
 
@@ -1046,7 +1046,7 @@ async function getCharPageToImage(gen: Generator, name: string | CharPage, user:
     if (typeof charPg === "string") {
         let res = await getCharPage(charPg);
 
-        if (!res.success) return readFile(Config.svgDir + "/misc/skull.png");
+        if (!res.success) return readFile(Config.dataDir + "/misc/skull.png");
 
         charPg = res.result;
     }
