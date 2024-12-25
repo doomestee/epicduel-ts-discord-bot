@@ -20,7 +20,7 @@ import DatabaseManager, { quickDollars } from "../manager/database.js";
 import { ICharacter } from "../Models/Character.js";
 import CacheManager from "../manager/cache.js";
 
-type SvgItem = "armors" | "hairs" | "heads" | "bicepsR" | "symbols";
+type SvgItem = "body" | "hairs" | "heads" | "bicepsR" | "symbols";
 
 function quickLvl(v: { lvl?: number, exp?: number, misc?: CacheTypings.PlayerLeaderMiscWithExp | CacheTypings.PlayerLeaderMiscWithoutExp }) : number | string {
     if (v.lvl || v.misc?.lvl) return v.lvl as number ?? v.misc?.lvl;
@@ -40,7 +40,7 @@ const align = ["", "exile", "legion"];
 
 export default class SvgGen {
     list:{ [x in SvgItem]: string[] } = {
-        "armors": [],
+        "body": [],
         "hairs": [],
         "heads": [],
         "bicepsR": [],
@@ -389,7 +389,7 @@ class Generator {
 
             //if (obj.defaultLimbs == 1) paths.body = "/body/NC_Body_" + obj.charArm + ".svg";
 
-            if (paths.body && !this.svg.list.armors.includes(paths.body.slice("/body/".length))) paths.body = "/body/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_1.svg";
+            if (paths.body && !this.svg.list.body.includes(paths.body.slice("/body/".length))) paths.body = "/body/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_1.svg";
             if (paths.bicep && (obj.defaultLimbs || !this.svg.list.bicepsR.includes(paths.bicep.slice("/bicepsR/".length)))) paths.bicep = "/bicepsR/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Bicep_R_1.svg";
 
             if (this.debug) console.log(paths);
