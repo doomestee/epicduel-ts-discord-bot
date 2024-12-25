@@ -379,6 +379,12 @@ export default class Hydra extends Client {
                     type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the current top 10 gifting leaders.",
                     name: "fetch"
                 }],
+            }, {
+                type: ApplicationCommandOptionTypes.SUB_COMMAND, description: "Fetches the user's achievements to summarise their gifting record.",
+                name: "stat", options: [{
+                    name: "user_name", description: "The name of the character.",
+                    type: ApplicationCommandOptionTypes.STRING, required: true, minLength: 1, maxLength: 20
+                }]
             }],
             contexts: [InteractionContextTypes.BOT_DM, InteractionContextTypes.GUILD, InteractionContextTypes.PRIVATE_CHANNEL],
             integrationTypes: [ApplicationIntegrationTypes.GUILD_INSTALL, ApplicationIntegrationTypes.USER_INSTALL],

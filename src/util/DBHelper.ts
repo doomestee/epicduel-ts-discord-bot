@@ -111,6 +111,14 @@ export default class DBHelper {
     }
 
     /**
+     * @param name Requires you to be exact, the char name will be parsed into lowercase.
+     */
+    getCharIdByName(name: string) : Promise<ICharacter | undefined> {
+        return this.#cli.query<ICharacter>("SELECT * FROM character WHERE id IN (select id from character_name WHERE lower(name) = $1)", [name.toLowerCase()])
+            .then(v => v.rows?.[0]);
+    }
+
+    /**
      * Returns based on EXACT values.
      * @param id If string, it will return the list of all blacklist records for the user with that ID, not the source/mod.
      * @returns Note that for the first index; -1 means the user has never been blacklisted before, 0 and 1 means either were blacklisted before, but 1 means currenttly blacklisted.

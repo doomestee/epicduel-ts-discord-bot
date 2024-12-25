@@ -239,7 +239,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         const style = this.boxes.style.getStyleRecord(author.charClassId, author.charHairS, author.charGender as "M" | "F");//.objMap.find(v => v.styleIndex === char.misc.hairS && v.styleClassId === adj);
         
         if (armor && armor.isArmorItemRecord() && style) {
-            const obj:Omit<CharToGen, "bypass"> = {
+            const obj:Omit<CharToGen, "bypass"> & Record<"flip", string> = {
                 charAccnt: author.charAccnt,
                 charAccnt2: author.charAccnt2,
                 charArm: author.charArm,
@@ -262,6 +262,8 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 armGender: armor.itemSexReq as "M" | "F",
                 armMutate: armor.itemLinkage === "Mutate" ? "1" : "0",
                 defaultLimbs: armor.defaultLimbs ? "1" : "0",
+
+                flip: "0",
             }
 
             //@ts-expect-error

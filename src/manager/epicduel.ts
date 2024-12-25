@@ -267,18 +267,26 @@ export default class Swarm {
     /**
      * This will pick the first client that meets the requirement as indicated by the given predicate function.
      */
-    static getClient(pred: (cli: Client) => boolean, fromPurgatoryToo=true) {
+    static getClient(pred: (cli: Client) => boolean, fromPurgatoryToo=true, randomise=true) {
+        const clis:Client[] = [];
+
         for (let i = 0, len = this.clients.length; i < len; i++) {
-            if (pred(this.clients[i])) return this.clients[i];
+            if (pred(this.clients[i])) {
+                if (!randomise) return this.clients[i];
+                clis.push(this.clients[i]);
+            }
         }
 
         if (fromPurgatoryToo) {
             for (let i = 0, len = this.purgatory.length; i < len; i++) {
-                if (pred(this.purgatory[i])) return this.purgatory[i];
+                if (pred(this.purgatory[i])) {
+                    if (!randomise) return this.purgatory[i];
+                    clis.push(this.purgatory[i]);
+                }
             }
         }
 
-        return undefined;
+        return clis.length > 0 ? clis[Math.floor(Math.random() * clis.length)] : undefined;
     }
 
     static settings = {
