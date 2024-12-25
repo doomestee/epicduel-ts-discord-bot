@@ -448,7 +448,12 @@ class Generator {
                 .then((v) => Jimp.create(v))
                 .then((i) => {
                     // idek if they mutate to the same object lmao
-                    let j = i.crop(Math.round((width / 2) - (xmls[0]?.bound.left || 0) - 17 - 75), Math.round(500 - (xmls[0]?.bound.top || 100) - 85 - 75), 200, 200).flip(true, false)
+
+                    let j = i.crop(
+                        Math.max(0, Math.round((width / 2) - ((xmls[1] === null ? -10 : xmls[0]?.bound.left) || xmls[1]?.bound.left || 0) - 17 - 75)),
+                        Math.max(0, Math.round(500 - ((xmls[1] === null ? 0 : xmls[0]?.bound.top) || 100) - 85 - 45)),
+                        200, 200
+                    ).flip(true, false)
 
                     const cl = j.clone();
 
