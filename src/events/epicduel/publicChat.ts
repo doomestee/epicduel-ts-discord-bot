@@ -254,8 +254,8 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 customHeadLink: armor.customHeadLink,
                 noHead: armor.noHead,
                 // bypass: {
-                //     body: armor.getAssetPool(author.charClassId, { g: author.charGender }).body.slice("assets/armors/".length),
-                //     bicepR: armor.defaultLimbs ? null : armor.getAssetPool(author.charClassId, { g: author.charGender }).bicepR.slice("assets/armors/".length)
+                //     body: armor.getAssetPool(author.charClassId, { g: author.charGender }).body.slice("assets/body/".length),
+                //     bicepR: armor.defaultLimbs ? null : armor.getAssetPool(author.charClassId, { g: author.charGender }).bicepR.slice("assets/body/".length)
                 // },
                 styleHasAbove: style ? style.styleHasAbove : false,
                 armClass: armor.itemClass as 0 | 1 | 2 | 3,
@@ -266,7 +266,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
 
             return hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                 wait: true, content: message,
-                username: author.charName + " (ID: " + author.charId + ")",
+                username: author.charName + " (ID: " + author.charId + ", " + webGuy.username + ")",
                 avatarURL: "https://ei.doomester.one/char?" + encode(obj)
             }).catch(err => Logger.getLogger("SpyChat").error(err));
         }

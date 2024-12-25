@@ -373,13 +373,13 @@ class Generator {
             }
 
             if (obj.charArm) {
-                paths.body = "/armors/" + (obj.defaultLimbs ? "NC" : prefix + genderPrefix) + "_Body_" + obj.charArm + ".svg";//ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_" + obj.charArm + ".svg";
+                paths.body = "/body/" + (obj.defaultLimbs ? "NC" : prefix + genderPrefix) + "_Body_" + obj.charArm + ".svg";//ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_" + obj.charArm + ".svg";
                 paths.bicep = "/bicepsR/" + prefix + genderPrefix + "_Bicep_R_" + obj.charArm + ".svg";//ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Bicep_R_" + obj.charArm + ".svg";
             }
 
             // cos i cba for leaderboard
             if (obj.bypass) {
-                if (obj.bypass.body) paths.body = "/armors/" + obj.bypass.body + ".svg";
+                if (obj.bypass.body) paths.body = "/body/" + obj.bypass.body + ".svg";
                 if (obj.bypass.bicepR) paths.bicep = "/bicepsR/" + obj.bypass.bicepR + ".svg";
                 // else if (obj.bypass.bicepR === null) paths.bicep = "/bicepsR/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Bicep_R_1.svg";
             }
@@ -387,9 +387,9 @@ class Generator {
             // final check to see if in list
             // TODO: solve head/hair issue
 
-            //if (obj.defaultLimbs == 1) paths.body = "/armors/NC_Body_" + obj.charArm + ".svg";
+            //if (obj.defaultLimbs == 1) paths.body = "/body/NC_Body_" + obj.charArm + ".svg";
 
-            if (paths.body && !this.svg.list.armors.includes(paths.body.slice("/armors/".length))) paths.body = "/armors/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_1.svg";
+            if (paths.body && !this.svg.list.armors.includes(paths.body.slice("/body/".length))) paths.body = "/body/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Body_1.svg";
             if (paths.bicep && (obj.defaultLimbs || !this.svg.list.bicepsR.includes(paths.bicep.slice("/bicepsR/".length)))) paths.bicep = "/bicepsR/Basic_" + ClassBox.getClassPrefixById(adjustedClassId) + "_" + obj.charGender + "_Bicep_R_1.svg";
 
             if (this.debug) console.log(paths);
