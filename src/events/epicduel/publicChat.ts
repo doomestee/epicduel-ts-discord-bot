@@ -252,7 +252,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 charSec: author.charSec,
                 charSkin: author.charSkin,
                 customHeadLink: armor.customHeadLink,
-                noHead: armor.noHead,
+                noHead: armor.noHead ? "1" : "0",
                 // bypass: {
                 //     body: armor.getAssetPool(author.charClassId, { g: author.charGender }).body.slice("assets/body/".length),
                 //     bicepR: armor.defaultLimbs ? null : armor.getAssetPool(author.charClassId, { g: author.charGender }).bicepR.slice("assets/body/".length)
@@ -260,9 +260,12 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 styleHasAbove: style ? style.styleHasAbove : false,
                 armClass: armor.itemClass as 0 | 1 | 2 | 3,
                 armGender: armor.itemSexReq as "M" | "F",
-                armMutate: armor.itemLinkage === "Mutate",
-                defaultLimbs: armor.defaultLimbs,
+                armMutate: armor.itemLinkage === "Mutate" ? "1" : "0",
+                defaultLimbs: armor.defaultLimbs ? "1" : "0",
             }
+
+            //@ts-expect-error
+            if (global.oklogtime) console.log("https://ei.doomester.one/char?" + encode(obj));
 
             return hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
                 wait: true, content: message,
