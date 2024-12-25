@@ -1819,7 +1819,10 @@ export default class Client {
     }
 
     joinRoom(roomName: string) {
+        if (this.smartFox.getActiveRoom()?.getName() === RoomManager.getRoomBaseName(roomName)) return false;
+
         this.smartFox.sendXtMessage("main", Requests.REQUEST_JOIN_ROOM, {rN: roomName}, 3, "json");
+        return true;
     }
 
     /**
