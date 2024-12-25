@@ -282,7 +282,8 @@ export default class Swarm {
     }
 
     static settings = {
-        giftLog: false
+        giftLog: false,
+        test1: false
     }
 
     // TODO: move this somewhere

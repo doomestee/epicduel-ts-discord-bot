@@ -269,6 +269,8 @@ export default class SvgGen {
     generator = new Generator(this)
 }
 
+export type CharGenKeys = keyof CharToGen;
+
 export type CharToGen = {
     charPri: string,
     charSec: string,

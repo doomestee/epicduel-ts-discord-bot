@@ -1,9 +1,11 @@
+import { encode } from "querystring";
 import Config from "../../config/index.js";
 import RoomManager from "../../game/module/RoomManager.js";
 import DatabaseManager from "../../manager/database.js";
 import ImageManager from "../../manager/image.js";
 import Logger from "../../manager/logger.js";
 import { countCommonStrings, filter, findIndex } from "../../util/Misc.js";
+import { CharToGen } from "../../util/SvgGen.js";
 import EDEvent from "../../util/events/EDEvent.js";
 import SwarmResources from "../../util/game/SwarmResources.js";
 
@@ -144,7 +146,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
                 cc += ' has been automatically muted by the bot for spamming, their messages won\'t show up in that period. The mute will expire/have expired ' + "<t:" + Math.round(punishTime/1000) + ":R>" + '. Offence(s) committed: ' + ++edChat.repeats;
             } else {
                 edChat.ignores.push(content);
-                cc += "'s one of the message will be filtered (content: `" + content + "`) from now on during the bot's run."
+                cc += "'s message will be filtered (content: `" + content + "`) from now on during the bot's run."
             }
 
             // Non queue
@@ -229,6 +231,44 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         if (webGuy.username === undefined && webGuy.avatarURL === undefined) {
             webGuy.avatarURL = "https://i.doomester.one/ed/cores/RegionOverlordFacility.png";
             webGuy.username = "At Unknown Area";
+        }
+    }
+
+    if (this.swarm.settings.test1) {
+        const armor = this.boxes.item.getItemById(author.charArm, true);
+        const style = this.boxes.style.getStyleRecord(author.charClassId, author.charHairS, author.charGender as "M" | "F");//.objMap.find(v => v.styleIndex === char.misc.hairS && v.styleClassId === adj);
+        
+        if (armor && armor.isArmorItemRecord() && style) {
+            const obj:Omit<CharToGen, "bypass"> = {
+                charAccnt: author.charAccnt,
+                charAccnt2: author.charAccnt2,
+                charArm: author.charArm,
+                charClassId: author.charClassId,
+                charEye: author.charEye,
+                charGender: author.charGender as "M" | "F",
+                charHair: author.charHair,
+                charHairS: author.charHairS,
+                charPri: author.charPri,
+                charSec: author.charSec,
+                charSkin: author.charSkin,
+                customHeadLink: armor.customHeadLink,
+                noHead: armor.noHead,
+                // bypass: {
+                //     body: armor.getAssetPool(author.charClassId, { g: author.charGender }).body.slice("assets/armors/".length),
+                //     bicepR: armor.defaultLimbs ? null : armor.getAssetPool(author.charClassId, { g: author.charGender }).bicepR.slice("assets/armors/".length)
+                // },
+                styleHasAbove: style ? style.styleHasAbove : false,
+                armClass: armor.itemClass as 0 | 1 | 2 | 3,
+                armGender: armor.itemSexReq as "M" | "F",
+                armMutate: armor.itemLinkage === "Mutate",
+                defaultLimbs: armor.defaultLimbs,
+            }
+
+            return hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {
+                wait: true, content: message,
+                username: author.charName + " (ID: " + author.charId + ")",
+                avatarURL: "https://ei.doomester.one/char?" + encode(obj)
+            }).catch(err => Logger.getLogger("SpyChat").error(err));
         }
     }
     
