@@ -384,7 +384,7 @@ export default class Swarm {
     }
 
     // executor:{ [x in keyof MainEDEvents]: () => any } = {}
-    static executor:{ [x in keyof MainEDEvents]: (() => any) | undefined } = {
+    static executor:{ [x in keyof MainEDEvents]: EDEvent<x> | undefined } = {//(() => any) | undefined } = {
         onAdminMessage: undefined, // done
         onComparisonUpdate: undefined, // done
         onFactionEncounter: undefined, // done
@@ -395,8 +395,8 @@ export default class Swarm {
         onPublicMessage: undefined, // done
         onUserListUpdate: undefined,
         onWarStatusChange: undefined, // done
-        onDailyMissions: undefined, //done
-        onReceiveGift: undefined
+        onDailyMissions: undefined, // done
+        onReceiveGift: undefined // done
     };
 
     private static async loadEvents() {
@@ -422,8 +422,12 @@ export default class Swarm {
             }
 
             // I hate myself for this yes, but ill be using apply.
+
             //@ts-ignore
-            this.executor[ev.name] = ev.listener;//.bind(this.clients[0]);
+            this.executor[ev.name] = ev;
+
+            //@ts-ignore
+            // this.executor[ev.name] = ev.listener;//.bind(this.clients[0]);
 
             //this.on(ev.name, ev.listener.bind(this));
             suc++;
@@ -443,8 +447,9 @@ export default class Swarm {
             exec[i + 1] = args[i];
         }
 
-        //@ts-expect-error
-        this.executor[type]?.call(cli, this.discord, ...args);//, [this.discord, ...exec]);// as unknown as [hydra: Hydra, ...MainEDEvents[K]]);
+        this.executor[type]?.listener.call(cli, this.discord, ...args);
+
+        // this.executor[type]?.call(cli, this.discord, ...args);//, [this.discord, ...exec]);// as unknown as [hydra: Hydra, ...MainEDEvents[K]]);
         // this.executor[type]?.call(cli, this.discord, ...args)//.apply(cli, [this.discord, ...args]);
     }
 
