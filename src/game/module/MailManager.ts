@@ -65,7 +65,7 @@ export default class MailManager extends BaseModule {
     }
 
     getHighestMailId() {
-        let highestMailId = 0;
+        // let highestMailId = 0;
 
         return Array.from(this.mailList.keys()).at(-1);
         // return Array.from(this.mailList.values()).at(-1)?.mailId;
@@ -75,8 +75,8 @@ export default class MailManager extends BaseModule {
         // } return highestMailId;
     }
 
-    getNewMail() {
-        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MAIL, { minMailId: this.getHighestMailId() }, 2, "json");
+    getNewMail(minMailId?: number) {
+        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MAIL, { minMailId: minMailId === undefined ? this.getHighestMailId() : minMailId }, 2, "json");
     }
 
     handleGetMail(data: string[]) {

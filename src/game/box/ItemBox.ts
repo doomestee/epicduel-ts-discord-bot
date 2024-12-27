@@ -325,7 +325,9 @@ export default class ItemSBox {
         }
     }
     
-    getItemById(itemId: number, passByRef=false) : AnyItemRecordsExceptSelf | null {
+    getItemById(itemId: number, passByRef: false) : { [K in keyof typeof ItemRecord]: typeof ItemRecord[K] } | null;
+    getItemById(itemId: number, passByRef?: true) : AnyItemRecordsExceptSelf | null;
+    getItemById(itemId: number, passByRef=true) {
         let item;
 
         if ((item = this.objMap.get(itemId)) === undefined) return null;

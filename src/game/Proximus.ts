@@ -864,19 +864,19 @@ export default class Client {
                     else {
                         this.currency.credits += Number(dataObj.prizes.credits);
 
-                        // this.cache['prizes'] = dataObj.prizes;
-
-                        for (let itemX of dataObj.prizes.items) {
-                            let item = this.boxes.item.getItemById(itemX[1]);
+                        for (let i = 0, len = dataObj.prizes.items.length; i < len; i++) {
+                            const itemX = dataObj.prizes.items[i] as [number, number];
+                            const item = this.boxes.item.getItemById(itemX[1]);
 
                             if (!item) continue;
 
-                            if (item.isMissionItemRecord() || item.isCoreItemRecord()) {//.itemCat == ItemSBox.ITEM_CATEGORY_MISSION_ID || item.itemCat == ItemSBox.ITEM_CATEGORY_CORE_ID) {
-                                this.modules.Inventory.addItemsFromServer(Number(itemX[0]), item.itemId, 1, 0, 0, 2000);
-                            } else this.modules.Inventory.addItemFromServer(Number(itemX[0]), item.itemId, true, 2000, 0, 0, "corePassiveItemId" in item ? item.corePassiveItemId : 0, "coreActiveItemId" in item ? item.coreActiveItemId : 0, 0);
+                            if (item.isMissionItemRecord() || item.isCoreItemRecord()) {
+                                this.modules.Inventory.addItemsFromServer(itemX[0], itemX[1], 1, 0, 0, 2000);
+                            } else this.modules.Inventory.addItemFromServer(itemX[0], itemX[1], true, 2000, 0, 0, "corePassiveItemId" in item ? item.corePassiveItemId : 0, "coreActiveItemId" in item ? item.coreActiveItemId : 0, 0);
                         }
 
                         console.log("Opened " + dataObj.opened + " Gifts!\nReceived " + dataObj.prizes.credits + " Credits.\nReceived " + dataObj.prizes.items.length + " Items & " + dataObj.prizes.houseitems + " House Items");
+                        // this.modules.MailManager.getNewMail();
                     }
                     break;
                 case Requests.REQUEST_ADD_MSG_TO_BOARD:
