@@ -228,7 +228,7 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
 
                     if (cli.connected) count.connected++;
                     if (cli.lobbyInit) count.lobby++;
-                    if (cli.modules?.MailManager.lastFetched.gift_size) count.gifts += cli.modules.MailManager.lastFetched.gift_size;
+                    if (cli.modules?.MailManager?.lastFetched.gift_size) count.gifts += cli.modules.MailManager.lastFetched.gift_size;
                 }
 
                 //@ts-expect-error
