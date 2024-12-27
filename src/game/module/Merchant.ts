@@ -1,5 +1,7 @@
 import CacheManager from "../../manager/cache.js";
-import { getLegendRankByExp } from "../../util/Misc.js";
+import DatabaseManager from "../../manager/database.js";
+import Logger from "../../manager/logger.js";
+import { getLegendRankByExp, map } from "../../util/Misc.js";
 import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import { Requests } from "../Constants.js";
 import type Client from "../Proximus.js";
@@ -55,7 +57,7 @@ export default class Merchant extends BaseModule {
      * @param {boolean} checkIfCanShop
      * @returns {Promise<{itemId: number, qtyLeft: number}[]>}
      */
-    async requestMercInv(mercId: number, checkIfCanShop=true) : Promise<WaitForResult<Shop>> {
+    async requestMercInv(mercId: number, checkIfCanShop=true, pushToDb=true) : Promise<WaitForResult<Shop>> {
         let eligible = this.canShopMerc(mercId);
         if (checkIfCanShop && !eligible.okay) return { success: false, reason: "Req not met" };
 
@@ -67,7 +69,18 @@ export default class Merchant extends BaseModule {
 
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MERCHANT_INVENTORY, { merchId: mercId }, 2, "json");
 
-        return wait;
+        return wait.then(res => {
+            if (res.success) {
+                DatabaseManager.upsert("merchant", {
+                    id: mercId,
+                    name: this.client.boxes.merchant.objMap.get(mercId)?.mercName || "N/A",
+                    lastChecked: new Date(),
+                    items: map(res.value, v => [v.itemId, v.qtyLeft]) as [number, number][]
+                }, ["id"]).catch(err => Logger.error("Merchant").error(err));
+            }
+
+            return res;
+        });
     }
 
     merchantInventoryAvailable(data: any) {
