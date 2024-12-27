@@ -178,6 +178,8 @@ export default class Client {
         comparison: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     }
 
+    pingTime:number = 0;
+
     //#endregion
 
     constructor(public user: User, settings: Partial<ClientSettings> & { id: number } | number, public swarm: typeof Swarm) {
@@ -501,13 +503,18 @@ export default class Client {
     //#region Timers
 
     pingServer() {
-        if (this.connectedSince && ((this.connectedSince + (86400000)) < Date.now())) {
+        const time = Date.now();
+
+        if (this.connectedSince && ((this.connectedSince + (86400000)) < time)) {
             // After 24 hours, the bot will have to disconnect because I don't trust the server.
 
             this.smartFox.disconnect();
             // this.manager.destroy(true, true);
         }
-        else this.smartFox.sendXtMessage("main", Requests.REQUEST_PING, {}, 3, SmartFoxClient.XTMSG_TYPE_JSON);
+        else {
+            this.pingTime = time;
+            this.smartFox.sendXtMessage("main", Requests.REQUEST_PING, {}, 3, SmartFoxClient.XTMSG_TYPE_JSON);
+        }
     }
 
     // stopAFK_Timers(shutThemUp=false) {
@@ -1335,8 +1342,8 @@ export default class Client {
                 case Requests.REQUEST_CHANGE_CLASS: case Requests.REQUEST_CHANGE_NAME: case Responses.RESPONSE_PM_TARGET_OFFLINE:
                     break;
                 case Requests.REQUEST_PING:
-                    //this._ping
-                    break; // yk that ping ms thing in a battle? yeah no
+                    this.pingTime = Math.abs(this.pingTime - Date.now());
+                    break;
                 case Requests.REQUEST_POINTS_API:
                     break;
                 case Requests.REQUEST_GET_HOME_ITEMS:
