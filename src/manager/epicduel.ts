@@ -185,7 +185,7 @@ export default class Swarm {
             } else {
                 if (res.value === "Exhausted Requests" || res.value === "Ratelimited") throw new SwarmError("RATELIMITED", "Ratelimited.");
 
-                Logger.getLogger("SwarmProxy").error(res.value);
+                Logger.getLogger("SwarmProxy").error(res);
                 throw Error("unknown error not identified");
             }
         } else {
