@@ -3,9 +3,10 @@ import Command, { CommandType } from "../../../util/Command.js";
 import { findIndex, getTime } from "../../../util/Misc.js";
 import Swarm from "../../../manager/epicduel.js";
 import DesignNoteManager from "../../../manager/designnote.js";
+import ProxyManager from "../../../manager/proxy.js";
 
 export default new Command(CommandType.Component, { custom_id: "help_<type>_<userId>" })
-    .attach('run', ({ client, interaction, variables: { userId, type } }) => {
+    .attach('run', async ({ client, interaction, variables: { userId, type } }) => {
         let bypass = false;
 
         // "help_1_" + char.flags
@@ -16,7 +17,8 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
 
         if (!bypass) return interaction.reply({content: "You are not the original person who have used the command!", flags: 64});
 
-        const ed = Swarm.getClient(v => v.connected, true);
+        const ed = Swarm.centralClient;//.getClient(v => v.connecte, true);
+        const proxyStat = await ProxyManager.stat();
 
         if (type !== "0") {
             console.log([type, userId]);
@@ -95,7 +97,13 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
             bts: [{
                 title: "Logistics",
                 fields: [{
-                    name: "Uptime", value: `${getTime(process.uptime()*1000, false, '', true)} (Process)\n${getTime(client.uptime, false, '', true)} (Discord)\n${getTime(ed?.connectedSince ?? 0, false, '', true)} (Epicduel API)`, inline: true
+                    name: "Uptime",
+                    value:
+                        getTime(process.uptime()*1000, false, '', true) + " (Process)\n"
+                        + getTime(client.uptime, false, '', true) + " (Discord)\n"
+                        + getTime(Date.now() - (ed?.connectedSince ?? 0), false, '', true) + " (ED Central Client)\n"
+                        + (proxyStat === false ? "Proxy Offline" : getTime(proxyStat.process.time, false, '', true) + " (Proxy Server)"),//getTime(Date.now() - proxyStat),
+                    inline: true
                 }, {
                     name: "Scraper", value: (DesignNoteManager.isRunning) ? 'Currently running.' : 'has stopped.', inline: true
                 }, {
@@ -104,7 +112,7 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
                     name: "Headless API",
 
                     // TODO: clean this bloody mess
-                    value: `Connected (Main): ${ed?.connected ?? false}, (API): ${(ed && ed.smartFox && ed.smartFox.connected) ?? false}\nInitialised: redundant\nReconnectable: ${ed?.settings.reconnectable ?? "N/A"}` + ((ed?.connected && extraInfo) ? `\nPlayers at Room: ${ed.smartFox?.getActiveRoom() ? (((ed.smartFox.getActiveRoom()?.userList.size ?? 1) - 1)) +  ' (' + ed.smartFox.getActiveRoom()?.name + ')' : 'N/A (Not connected)'}\n` : '')
+                    value: "{execFunc02}"//value: `Connected (Main): ${ed?.connected ?? false}, (API): ${(ed && ed.smartFox && ed.smartFox.connected) ?? false}\nInitialised: redundant\nReconnectable: ${ed?.settings.reconnectable ?? "N/A"}` + ((ed?.connected && extraInfo) ? `\nPlayers at Room: ${ed.smartFox?.getActiveRoom() ? (((ed.smartFox.getActiveRoom()?.userList.size ?? 1) - 1)) +  ' (' + ed.smartFox.getActiveRoom()?.name + ')' : 'N/A (Not connected)'}\n` : '')
                 }]
             }]
         };
@@ -191,6 +199,7 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
             }
 
             let exec01 = findIndex(embeds['bts'][0]['fields'] ?? [], v => v.value === "{execFunc01}");
+            let exec02 = findIndex(embeds['bts'][0]['fields'] ?? [], v => v.value === "{execFunc02}");
 
             // RAM Usage
             if (exec01 !== -1) {
@@ -201,6 +210,30 @@ export default new Command(CommandType.Component, { custom_id: "help_<type>_<use
 
                 //@ts-expect-error
                 embeds['bts'][0]['fields'][exec01].value = parsed.join("\n");
+            }
+
+            if (exec02 !== -1) {
+                const clis = Swarm.clients.concat(Swarm.purgatory);
+
+                const count = {
+                    total: clis.length,
+                    connected: 0,
+                    lobby: 0,
+
+                    gifts: 0
+                };
+
+                for (let i = 0, len = clis.length; i < len; i++) {
+                    const cli = clis[i];
+
+                    if (cli.connected) count.connected++;
+                    if (cli.lobbyInit) count.lobby++;
+                    if (cli.modules?.MailManager.lastFetched.gift_size) count.gifts += cli.modules.MailManager.lastFetched.gift_size;
+                }
+
+                //@ts-expect-error
+                embeds['bts'][0]['fields'][exec02].value
+                    = `Of ${count.total} clients:\n- ${count.connected} were connected.\n- ${count.lobby} passed the lobby.\n\nTotal gifts: ${count.gifts}.`;
             }
 
             /*if (interaction.member.user.id !== "339050872736579589") {

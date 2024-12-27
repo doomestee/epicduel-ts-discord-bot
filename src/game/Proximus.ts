@@ -707,6 +707,8 @@ export default class Client {
         const [type, dataObj] = [evt.type, evt.dataObj];
         const [cmd] = [dataObj._cmd as Responses | Requests];
 
+        const time = Date.now();
+
         // if (this.storeRawData) {
         //     console.log("RawData Count: " + this.rawdata.push(dataObj));
         // }
@@ -865,8 +867,6 @@ export default class Client {
                     this.modules.BattlePass.handleServerResponse(dataObj);
                     break;
                 case Requests.REQUEST_OPEN_ALL_GIFTS:
-                    //@ts-expect-error
-                    global.okgifts = dataObj;
                     if (!dataObj.success) console.log("Failed to open gifts.");
                     else {
                         this.currency.credits += Number(dataObj.prizes.credits);
@@ -1018,7 +1018,7 @@ export default class Client {
                     this.user.userid = obj.userId;
                     break;
                 case Responses.RESPONSE_SERVER_TIME:
-                    this._serverTime = Number(dataObj[2]) - (Date.now() - this.runningSince);
+                    this._serverTime = Number(dataObj[2]) - (time - this.runningSince);
                     this._serverClientTimeDiff = (240 - new Date().getTimezoneOffset()) * 60000;
                     break;
                 case Requests.REQUEST_MOVE:
@@ -1342,7 +1342,7 @@ export default class Client {
                 case Requests.REQUEST_CHANGE_CLASS: case Requests.REQUEST_CHANGE_NAME: case Responses.RESPONSE_PM_TARGET_OFFLINE:
                     break;
                 case Requests.REQUEST_PING:
-                    this.pingTime = Math.abs(this.pingTime - Date.now());
+                    this.pingTime = Math.abs(this.pingTime - time);
                     break;
                 case Requests.REQUEST_POINTS_API:
                     break;
@@ -1380,8 +1380,10 @@ export default class Client {
                     this.modules.MailManager.handleGetMail(dataObj);
                     break;
                 case Responses.RESPONSE_NEW_MAIL:
-                    // console.log("A new mail?!?!!!!? idk");
-                    this.modules.MailManager.getNewMail();
+                    if (this.modules.MailManager.duringGifting === false || this.modules.MailManager.duringGifting && (this.modules.MailManager.lastFetched.time + 3600000) < time) {
+                        // console.log("A new mail?!?!!!!? idk");
+                        this.modules.MailManager.getNewMail();
+                    }
                     break;
                 case Requests.REQUEST_SEND_PLAYER_MAIL:
                     if (dataObj[2] == 1) {
