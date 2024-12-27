@@ -228,6 +228,8 @@ export default class RoomManager {
     
     private static readonly BG_AFTERLIFE_AZRAELBOSS = "Afterlife_AzraelBoss_1";
     
+    private static readonly BG_AFTERLIFE_AZRAELGUARDIANBOSS = "Afterlife_AzraelGuardianBoss_1";
+
     private static readonly BG_AFTERLIFE_ACATRIELBOSS = "Afterlife_AcatrielBoss_3";
     
     private static readonly BG_WASTELAND_HUSK = "Wasteland_Husk_1";
@@ -307,6 +309,8 @@ export default class RoomManager {
     public static readonly TIME_FORTRESS_RIGHT_2 = "TimeFortressRight2";
     
     public static readonly TIME_FORTRESS_RIGHT_2_UP = "TimeFortressRight2Up";
+    
+    public static readonly TIME_FORTRESS_RIGHT_2_UP_RIGHT = "TimeFortressRight2UpRight";
     
     public static readonly TIME_FORTRESS_RIGHT_3 = "TimeFortressRight3";
     
@@ -797,6 +801,7 @@ export default class RoomManager {
     public static MSRS_AFTERLIFE_PORTAL:MapStateRuleSet = new MapStateRuleSet(new MapObjectGroup("state_",new MSR_MissionNotComplete(1,910),new MSR_MissionComplete(2,910)));
 
     protected static init() {
+        //#region Room Versions, latest: '1.8.889' - 27/12/2024 18:31 UTC+0
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_1,1,[450,450],[268,271],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,this.BG_SET_AFTERLIFE,null,new MapItemRuleSet(new MapItemRule(3646,500,400,true,899))));
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_2,3,[450,450],[272],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,this.BG_SET_AFTERLIFE,null,new MapItemRuleSet(new MapItemRule(3036,425,460,true,742))));
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_3,2,[450,450],[269,273,274],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,this.BG_SET_AFTERLIFE,null,new MapItemRuleSet(new MapItemRule(2402,600,400,true,576))));
@@ -809,11 +814,12 @@ export default class RoomManager {
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_TMM,1,[450,500],[270],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_AFTERLIFE_TMMBOSS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_ALLEY,2,[450,500],[328],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,this.BG_SET_AFTERLIFE,null,null));
         this.roomVersions.push(new RoomManagerRecord(this.AFTERLIFE_ADJUDICATOR,1,[450,500],[332,330],RoomManager.REGION_AFTERLIFE_ID,[0,0,1,1],0,[RoomManager.BG_AFTERLIFE_ADJUDICATORBOSS],RoomManager.MSRS_AFTERLIFE_ADJUDICATOR,null));
-        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_AZRAEL,3,[450,500],[335],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_AFTERLIFE_AZRAELBOSS],null,null));
+        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_AZRAEL,4,[450,500],[335],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_AFTERLIFE_AZRAELBOSS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_MAIN,1,[450,500],[],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_1,1,[450,500],[],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
-        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_2,2,[450,500],[],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
-        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_2_UP,4,[450,500],[351],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
+        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_2,3,[450,500],[],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
+        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_2_UP,5,[450,500],[351],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
+        this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_2_UP_RIGHT,1,[450,500],[352],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_AFTERLIFE_AZRAELGUARDIANBOSS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_3,1,[450,500],[],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_4,2,[450,500],[336,340],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_AFTERLIFE_ACATRIELBOSS],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TIME_FORTRESS_RIGHT_5,1,[450,500],[343],RoomManager.REGION_AFTERLIFE_ID,[0,0,0,0],0,[RoomManager.BG_TIME_FORTRESS],null,null));
@@ -927,7 +933,7 @@ export default class RoomManager {
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_RIGHT_3,6,[450,450],[309],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,new MapItemRuleSet(new MapItemRule(4628,187,394,true,1066))));
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_RIGHT_4,3,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_RIGHT_5,1,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
-        this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_UP_LEFT,1,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
+        this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_UP_LEFT,2,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_LEFT,2,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_LEFT_2,2,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
         this.roomVersions.push(new RoomManagerRecord(this.TITAN_PEAK_LEFT_3,1,[450,450],[],RoomManager.REGION_FRYSTELAND_ID,[0,0,0,0],0,[RoomManager.BG_FRYSTELAND_TITANS_PEAK],null,null));
@@ -1040,6 +1046,7 @@ export default class RoomManager {
         this.roomVersions.push(new RoomManagerRecord(this.WAR_INFERNAL_MINES_EXILE_VAULT_3_BROKEN,7,[450,470],[127],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],0,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(4596,758,407,true,1042))));
         this.roomVersions.push(new RoomManagerRecord(this.WAR_INFERNAL_MINES_EXILE_VAULT_4_BROKEN,8,[450,470],[129,130],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],21,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(2719,217,450,true,712),new MapItemRule(4594,616,419,true,1034))));
         this.roomVersions.push(new RoomManagerRecord(this.WAR_DELTA_VAULT_EXILE,7,[450,470],[],RoomManager.REGION_INFERNAL_MINES_ID,[0,0,0,0],22,this.BG_SET_INFERNAL_MINES,null,new MapItemRuleSet(new MapItemRule(4130,325,455,true,971))));
+        //#endregion
 
         // Custom
         const merchants = map(this.roomVersions, rv => rv.merchants).flat(1);
