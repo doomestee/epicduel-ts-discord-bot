@@ -1,6 +1,8 @@
+import { inspect } from "node:util";
+
 export default class UserRecord {
     userId: number;
-    userDate: number;
+    userDate: Date;
     userActive: number;
     userPriv: number;
     userLoginCount: number;
@@ -8,12 +10,21 @@ export default class UserRecord {
     userFailedLogins: number;
 
     constructor(obj: any) {
-        this["userId"] = obj["userId"];
-        this["userDate"] = obj["userDate"];
-        this["userActive"] = obj["userActive"];
-        this["userPriv"] = obj["userPriv"];
-        this["userLoginCount"] = obj["userLoginCount"];
-        this["userActionDate"] = obj["userActionDate"];
-        this["userFailedLogins"] = obj["userFailedLogins"];
+        this["userId"] = Number(obj["userId"]);
+        this["userDate"] = new Date(obj["userDate"]);
+        this["userActive"] = Number(obj["userActive"]);
+        this["userPriv"] = Number(obj["userPriv"]);
+        this["userLoginCount"] = Number(obj["userLoginCount"]);
+        this["userActionDate"] = new Date(obj["userActionDate"]);
+        this["userFailedLogins"] = Number(obj["userFailedLogins"]);
+    }
+
+    [inspect.custom]() {
+        return {
+            id: this.userId,
+            priv: this.userPriv,
+            active: this.userActive,
+            loginCount: this.userLoginCount
+        }
     }
 }

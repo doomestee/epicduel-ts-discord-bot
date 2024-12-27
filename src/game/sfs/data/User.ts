@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import type Client from "../../Proximus.js";
 import type { AnyItemRecordsExceptSelf } from "../../box/ItemBox.js";
 // import type ArmorItemRecord from "../../record/item/ArmorRecord.js";
@@ -628,5 +629,34 @@ export default class User {
             }
         }
         return 0;*/
+    }
+
+    [inspect.custom]() {
+        return {
+            id: this.id,
+            name: this.name,
+
+            isMod: this.isMod,
+
+            charName: this.charName,
+            gender: this.charGender,
+            classId: this.charClassId,
+
+            userId: this.userId,
+            charId: this.charId,
+
+            rating: this.rating,
+            influence: this.charTotalInfluence,
+
+            fact: {
+                id: this.fctId,
+                name: this.fctName,
+                perm: this.fctPerm,
+
+                title: this.charTitle
+            },
+
+            warAlign: this.charWarAlign,
+        }
     }
 }

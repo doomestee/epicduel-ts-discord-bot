@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import Server from "./Server.js";
 import CharacterRecord from "./record/CharacterRecord.js";
 
@@ -297,5 +298,26 @@ export default class User {
         this._initCharWarAlign = -1;
 
         return true;
+    }
+
+    [inspect.custom]() {
+        return {
+            session: this.session,
+            userid: this.userid,
+            username: this.username, password: "*".repeat(this.password.length),
+
+            priv: this.userPriv, age: this.userAge,
+
+            connectedAt: this.connectedAt,
+
+            limits: {
+                inv: this._myInvLimit,
+                bank: this._myBankLimit,
+                buddy: this._buddyListSize,
+            },
+
+            record: this.userRecord,
+            servers: this.servers,
+        }
     }
 }

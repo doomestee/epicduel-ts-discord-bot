@@ -876,7 +876,7 @@ export default class Client {
                         }
 
                         console.log("Opened " + dataObj.opened + " Gifts!\nReceived " + dataObj.prizes.credits + " Credits.\nReceived " + dataObj.prizes.items.length + " Items & " + dataObj.prizes.houseitems + " House Items");
-                        // this.modules.MailManager.getNewMail();
+                        this.modules.MailManager.getNewMail(0);
                     }
                     break;
                 case Requests.REQUEST_ADD_MSG_TO_BOARD:
