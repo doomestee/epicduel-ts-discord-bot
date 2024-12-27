@@ -9,7 +9,7 @@ export default class MailManager extends BaseModule {
     static MAX_RECIPIENTS = 20;
     static RECIPIENTS_PER_ROW = 5;
 
-    mailList:MailMessageRecord[] = [];
+    mailList = new Map<number, MailMessageRecord>();
     recipients = [];
 
     constructor(public client: Client) {
@@ -45,26 +45,34 @@ export default class MailManager extends BaseModule {
     deleteMail(mailId: number) {
         if (mailId === -1) return { type: -1 };
 
-        let mail = this.mailList.find(v => v.mailId === mailId);
+        let mail = this.mailList.get(mailId);//.find(v => v.mailId === mailId);
 
         if (!mail) return { type: -2, v: "No mail found." };
 
-        for (let m = 0; m < this.mailList.length; m++) {
-            if (this.mailList[m].mailId === mailId) {
-                let mail = this.mailList.splice(m, 1)[0];
+        this.mailList.delete(mailId);
 
-                this.client.smartFox.sendXtMessage("main", Requests.REQUEST_DELETE_MAIL, { mailId }, 2, "json");
-                break;
-            }
-        } return { type: -2, v: "No mail found." };
+        this.client.smartFox.sendXtMessage("main", Requests.REQUEST_DELETE_MAIL, { mailId }, 2, "json");
+        return { type: 0, v: "Mail found and requested to delete." };
+
+        // for (let m = 0; m < this.mailList.size; m++) {
+        //     if (this.mailList[m].mailId === mailId) {
+        //         let mail = this.mailList.splice(m, 1)[0];
+
+        //         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_DELETE_MAIL, { mailId }, 2, "json");
+        //         break;
+        //     }
+        // } return { type: -2, v: "No mail found." };
     }
 
     getHighestMailId() {
         let highestMailId = 0;
 
-        for (let mailRecord of this.mailList) {
-            if (mailRecord.mailId > highestMailId) highestMailId = mailRecord.mailId;
-        } return highestMailId;
+        return Array.from(this.mailList.keys()).at(-1);
+        // return Array.from(this.mailList.values()).at(-1)?.mailId;
+
+        // for (let mailRecord of this.mailList) {
+        //     if (mailRecord.mailId > highestMailId) highestMailId = mailRecord.mailId;
+        // } return highestMailId;
     }
 
     getNewMail() {
@@ -82,10 +90,13 @@ export default class MailManager extends BaseModule {
                 record[MailMessageRecord.template[h]] = fullData[h + r * fieldCount];
             }
 
-            this.mailList.push(new MailMessageRecord(record));
+            const msgRec = new MailMessageRecord(record);
+
+            this.mailList.set(msgRec.mailId, msgRec);
+            // this.mailList.push(new MailMessageRecord(record));
         }
 
-        this.mailList.sort(this.sortMail);
+        // this.mailList.sort(this.sortMail);
     }
 
     markAsRead(mailId: number) {

@@ -858,6 +858,8 @@ export default class Client {
                     this.modules.BattlePass.handleServerResponse(dataObj);
                     break;
                 case Requests.REQUEST_OPEN_ALL_GIFTS:
+                    //@ts-expect-error
+                    global.okgifts = dataObj;
                     if (!dataObj.success) console.log("Failed to open gifts.");
                     else {
                         this.currency.credits += Number(dataObj.prizes.credits);
