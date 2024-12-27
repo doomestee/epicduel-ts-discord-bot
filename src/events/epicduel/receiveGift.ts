@@ -51,4 +51,6 @@ export default new EDEvent("onReceiveGift", function (hydra, gift) {
     if (!SwarmResources.tracker.gift.active) return;
 
     SwarmResources.tracker.gift.list.push(giftObj);
+}, {
+    lastGifters
 });

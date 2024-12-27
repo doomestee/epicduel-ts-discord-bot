@@ -283,4 +283,7 @@ export default new EDEvent("onPublicMessage", function (hydra, { message, user: 
         username: webGuy.username,
         avatarURL: webGuy.avatarURL,
     }).catch(e => {console.log(e)});
+}, {
+    lastChatters
 })
+// default.lastChatters = lastChatters;
