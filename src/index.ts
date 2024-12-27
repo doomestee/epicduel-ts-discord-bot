@@ -100,7 +100,10 @@ process
             .then(() => process.kill(process.pid, "SIGTERM"), () => process.kill(process.pid, "SIGTERM"));
 
         // process.kill(process.pid, "SIGTERM");
-    });
+    })
+    .on("exit", (code) => {
+        console.error(code);
+    })
 
 await DatabaseManager.initialise();
 
