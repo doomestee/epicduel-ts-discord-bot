@@ -9,8 +9,19 @@ export default class MailManager extends BaseModule {
     static MAX_RECIPIENTS = 20;
     static RECIPIENTS_PER_ROW = 5;
 
-    mailList = new Map<number, MailMessageRecord>();
+    list = new Map<number, MailMessageRecord>();
     recipients = [];
+
+    // CUSTOM
+
+    // 2025-01-14
+    duringGifting = Date.now() < 1736812800000;
+
+    lastFetched = {
+        time: 0,
+        size: 0,
+        gift_size: 0
+    }
 
     constructor(public client: Client) {
         super();
@@ -45,18 +56,18 @@ export default class MailManager extends BaseModule {
     deleteMail(mailId: number) {
         if (mailId === -1) return { type: -1 };
 
-        let mail = this.mailList.get(mailId);//.find(v => v.mailId === mailId);
+        let mail = this.list.get(mailId);//.find(v => v.mailId === mailId);
 
         if (!mail) return { type: -2, v: "No mail found." };
 
-        this.mailList.delete(mailId);
+        this.list.delete(mailId);
 
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_DELETE_MAIL, { mailId }, 2, "json");
         return { type: 0, v: "Mail found and requested to delete." };
 
-        // for (let m = 0; m < this.mailList.size; m++) {
-        //     if (this.mailList[m].mailId === mailId) {
-        //         let mail = this.mailList.splice(m, 1)[0];
+        // for (let m = 0; m < this.list.size; m++) {
+        //     if (this.list[m].mailId === mailId) {
+        //         let mail = this.list.splice(m, 1)[0];
 
         //         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_DELETE_MAIL, { mailId }, 2, "json");
         //         break;
@@ -67,21 +78,23 @@ export default class MailManager extends BaseModule {
     getHighestMailId() {
         // let highestMailId = 0;
 
-        return Array.from(this.mailList.keys()).at(-1);
-        // return Array.from(this.mailList.values()).at(-1)?.mailId;
+        return Array.from(this.list.keys()).at(-1);
+        // return Array.from(this.list.values()).at(-1)?.mailId;
 
-        // for (let mailRecord of this.mailList) {
+        // for (let mailRecord of this.list) {
         //     if (mailRecord.mailId > highestMailId) highestMailId = mailRecord.mailId;
         // } return highestMailId;
     }
 
     getNewMail(minMailId?: number) {
-        if (minMailId === 0) this.mailList.clear();
+        if (minMailId === 0) this.list.clear();
 
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MAIL, { minMailId: minMailId === undefined ? this.getHighestMailId() : minMailId }, 2, "json");
     }
 
     handleGetMail(data: string[]) {
+        this.lastFetched.time = Date.now();
+
         let fullData = data.slice(2);
         let fieldCount = MailMessageRecord.template.length;
         let recordCount = fullData.length / fieldCount;
@@ -94,11 +107,17 @@ export default class MailManager extends BaseModule {
 
             const msgRec = new MailMessageRecord(record);
 
-            this.mailList.set(msgRec.mailId, msgRec);
-            // this.mailList.push(new MailMessageRecord(record));
+            this.lastFetched.size++;
+
+            if (msgRec.templateMessage === "SQL_mail_txt_gotGift" || msgRec.templateId === 21) {
+                this.lastFetched.gift_size++;
+
+                if (!this.duringGifting) this.list.set(msgRec.mailId, msgRec);
+            } else this.list.set(msgRec.mailId, msgRec);
+            // this.list.push(new MailMessageRecord(record));
         }
 
-        // this.mailList.sort(this.sortMail);
+        // this.list.sort(this.sortMail);
     }
 
     markAsRead(mailId: number) {
