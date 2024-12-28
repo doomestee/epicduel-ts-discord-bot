@@ -459,7 +459,7 @@ export async function getCharPage(charName: string) : Promise<CharPageResult> {
         // inventoryHtml.match();
         // TODO: use more simpler, faster method rather than using an iterator
 
-        const invterators = inventoryHtml.matchAll(/<a href=\'http\:[^ ]*\' target='_blank' >([\w'\-\=\(\)\. ]*)<\/a>/g);
+        const invterators = inventoryHtml.matchAll(/<a href=\'https\:[^ ]*\' target='_blank' >([\w'\-\=\(\)\. ]*)<\/a>/g);
         const items:string[] = [];
 
         const dupes:Record<string, number> = {};
