@@ -2777,6 +2777,8 @@ export default class Client {
      * @param {boolean} fallbackToDb only if isName is provided
      */
     async fameCharacter(id: number | string, isName=false, fallbackToDb=true) : Promise<WaitForResult<{ success: number, name: string }>> {
+        if (this.getMyUserFr().charLvl < 10) return { success: false, reason: "Not enough level" };
+
         let charId = id;
 
         // if (this.manager.standalone) fallbackToDb = false;
