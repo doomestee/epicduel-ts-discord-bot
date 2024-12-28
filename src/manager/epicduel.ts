@@ -641,10 +641,12 @@ export default class Swarm {
 
             queued.settings.reconnectable = true;
             queued.settings.scalable = true;
-            queued.settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0 && !v.isHomeOrHQ(), true).roomName + "_0";
+            queued.settings.startRoom = roomC > i ? rooms[i] : RoomManager.getRandomRoomRecord(v => v.merchants.length > 0 && !v.isHomeOrHQ(), true, map(availClis, v => v.settings.startRoom)).roomName + "_0";
             queued.settings.proxy = 0;
             queued["isFresh"] = false;
             queued.selfDestruct();
+
+            availClis.push(queued); // For randomiser thing up here ^
         }
     }
 
