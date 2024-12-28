@@ -51,7 +51,7 @@ export interface CustomSFSClientEvents {
     merch_item: [result: Shop, id: number];
     leader_war: [result: WarSide, type: "overall" | "daily"],
     leader_war_gfx: [result: WarSideGFX],
-    advent_gift: [result: { status: -1 } | { status: 0 } | { status: 1, prize: number, value: number, credits: number }],
+    advent_gift: [result: { status: -1 } | { status: 0 } | { status: 1, prize: number, value: number, credits: number, varium: number }],
     leader_gift: [result: CacheTypings.GiftingLeader];
 
     tourney_leader: [result: TournamentLeader[]];

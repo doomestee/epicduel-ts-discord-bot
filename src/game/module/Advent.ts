@@ -109,8 +109,18 @@ export default class Advent extends BaseModule {
         this.client.smartFox.emit("leader_gift", { complete: data, daily, season });
     }
 
-    receiveClaimPresentResponse(data: unknown) {
+    receiveClaimPresentResponse(data: string[]) {
         console.log(data);
+        
+        if (data[2] === "1" && data.length > 3) {
+            this.client.smartFox.emit("advent_gift", { status: 1, prize: parseInt(data[3]), value: parseInt(data[4]), credits: parseInt(data[5]), varium: parseInt(data[6]) });
+            return console.log("Successfully claimed daily advent present; prize %i, value %i, %i credits, %i varium", data[3], data[4], data[5], data[6]);
+        } else {
+            this.client.smartFox.emit("advent_gift", { status: parseInt(data[2]) as -1 | 0 });
+
+            return console.log(data[2] === "-1" ? "The gifting has ended, can't claim advent present." : "Not able to claim daily advent present, you may have to wait tomorrow.");
+        }
+
     }
 
     async getGiftLeaders() : Promise<WaitForResult<CacheTypings.GiftingLeader>> {

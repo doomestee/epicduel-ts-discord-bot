@@ -990,17 +990,7 @@ export default class Client {
                     if (dataObj[2] === "0") this.modules.Advent.claimPresent();
                     return console.log(dataObj);
                 case Requests.REQUEST_CLAIM_ADVENT_PRESENT:
-                    console.log(dataObj);
-
-                    if (dataObj[2] === "1" && dataObj.length > 3) {
-                        this.smartFox.emit("advent_gift", { status: 1, prize: parseInt(dataObj[3]), value: parseInt(dataObj[4]), credits: parseInt(dataObj[5]) });
-                        return console.log("Successfully claimed daily advent present; prize %i, value %i, %i credits", dataObj[3], dataObj[4], dataObj[5]);
-                    } else {
-                        this.smartFox.emit("advent_gift", { status: parseInt(dataObj[2]) as -1 | 0 });
-
-                        return console.log(dataObj[2] === -1 ? "The gifting has ended, can't claim advent present." : "Not able to claim daily advent present, you may have to wait tomorrow.");
-                    }
-
+                    this.modules.Advent.receiveClaimPresentResponse(dataObj);
                     // this.smartFox.emit("advent_gift", dataObj[2] !== "1" ? { status: parseInt(dataObj[2]) } : { status: parseInt(dataObj[2]), prize: parseInt(dataObj[3]), value: parseInt(dataObj[4]), credits: parseInt(dataObj[5]) });
 
                     break;
