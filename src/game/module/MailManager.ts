@@ -87,7 +87,13 @@ export default class MailManager extends BaseModule {
     }
 
     getNewMail(minMailId?: number) {
-        if (minMailId === 0) this.list.clear();
+        if (minMailId === 0) {
+            this.list.clear();
+
+            this.lastFetched.size = 0;
+            this.lastFetched.gift_size = 0;
+            this.lastFetched.time = 0;
+        }
 
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MAIL, { minMailId: minMailId === undefined ? this.getHighestMailId() : minMailId }, 2, "json");
     }
