@@ -1,6 +1,7 @@
 import { inspect } from "util";
 import type Client from "../../Proximus.js";
 import type { AnyItemRecordsExceptSelf } from "../../box/ItemBox.js";
+import Swarm from "../../../manager/epicduel.js";
 // import type ArmorItemRecord from "../../record/item/ArmorRecord.js";
 // import type WeaponRecord from "../../record/item/WeaponRecord.js";
 
@@ -15,13 +16,17 @@ export default class User {
     private isMod: boolean;
     private pId: number = 0;
 
-    constructor(id: number, name: string) {
+    isBot: boolean;
+
+    constructor(id: number, name: string, isBot: boolean) {
         this.id = id;
         this.name = name;
         this.variables = {};
         this.isSpec = false;
         this.isMod = false;
         this.pId = 0;
+
+        this.isBot = isBot ?? false;
     }
     
     // /**
@@ -633,6 +638,8 @@ export default class User {
 
     [inspect.custom]() {
         return {
+            bot: this.isBot,
+
             id: this.id,
             name: this.name,
 
@@ -657,6 +664,16 @@ export default class User {
             },
 
             warAlign: this.charWarAlign,
+        }
+    }
+
+    getClient() : Client | undefined {
+        if (this.isBot) {
+            const clis = Swarm.clients.concat(Swarm.purgatory);
+
+            for (let i = 0, len = clis.length; i < len; i++) {
+                if (clis[i].smartFox.myUserId === this.id) return clis[i];
+            }
         }
     }
 }

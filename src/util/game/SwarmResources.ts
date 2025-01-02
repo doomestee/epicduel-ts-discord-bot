@@ -124,6 +124,11 @@ export default class SwarmResources {
     }
 
     static rooms = new Map<number, Room>();
+
+    /**
+     * By sfs ID
+     */
+    static botIds = new Map<number, boolean>();
 }
 
 function lazyMakeTracker<T>(name: string) {

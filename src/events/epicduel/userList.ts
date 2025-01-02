@@ -7,8 +7,49 @@ import Logger from "../../manager/logger.js";
 import EDEvent from "../../util/events/EDEvent.js";
 import SwarmResources from "../../util/game/SwarmResources.js";
 
-export default new EDEvent("onUserListUpdate", async function (hydra, { list, type, user }) {
+interface PartialUser {
+    /**
+     * sfsid
+     */
+    id: number;
+    char_id: number;
+    char_name: string;
+    is_bot: boolean;
+    type: 1|2;
+    puppet_id: number;
+    time: number;
+}
+
+/**
+ * I don't trust ED server speed so this will be a list. This doesn't matter if it's already joined or left, it will be ignored.
+ */
+const lastUsers = [] as Array<PartialUser>;
+export default new EDEvent("onUserListUpdate", async function (hydra, { list, type, user, room }) {
     const time = Date.now();
+
+    const partialObj:PartialUser = {
+        char_id: user.charId,
+        id: user.id, char_name: user.charName,
+        is_bot: user.isBot, type,
+        puppet_id: this.settings.id,
+        time: time + 3600000
+    };
+
+    for (let i = 0, len = lastUsers.length; i < len; i++) {
+        const lastUser = lastUsers[i];
+
+        if (lastUser === undefined) continue;
+
+        if (lastUser.id === user.id && lastUser.char_name === user.charName && lastUser.char_id === user.charId) {
+            if (!lastUser.is_bot && lastUser.time > time) return;
+            
+            lastUsers.splice(i--, 1); len--;
+        }
+    }
+
+    lastUsers.push(partialObj);
+    // To prevent overflows in the meantime.
+    if (lastUsers.length > 499) lastUsers.splice(0, 1);
 
     if (user.charId !== undefined && user.userId !== undefined) {
         //@ts-expect-error
@@ -230,4 +271,4 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
     });
 
     // return (user.charId) ? sleep(1000*randomNumber(10, 31)).then(() => { linkCharCheck() }) : null;
-})
+}, { lastUsers })

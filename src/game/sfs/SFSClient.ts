@@ -10,6 +10,7 @@ import { deserialize, encodeEntities, serialize } from "../../util/XML.js";
 import ExtHandler from "./handlers/ExtHandler.js";
 import Logger from "../../manager/logger.js";
 import SwarmResources from "../../util/game/SwarmResources.js";
+import Swarm from "../../manager/epicduel.js";
 
 type SendHeader = { t: HandlerType };
 type HandlerType = "sys" | "xt";
@@ -114,6 +115,17 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     socket?: Socket;
 
     buffer: ByteArray;
+
+    bufferHiatus = false;
+
+    changeBufferHiatus(val: boolean) {
+        if (!Swarm.settings.hiatuses) return false;
+
+        this.bufferHiatus = val;
+        this.buffer.clear();
+        this.queue.killAndDrain();
+        return true;
+    }
 
     constructor() {
         super();
@@ -368,6 +380,8 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
     }
 
     handleSocketData(evt: Buffer) {
+        if (this.bufferHiatus) return;
+
         this.queue.push(evt);
 
         return;
@@ -517,7 +531,7 @@ export default class SmartFoxClient<E extends BothSFSClientEvents = BothSFSClien
         return success;
     }
 
-    getActiveRoom() {
+    getActiveRoom() : Room | null {
         if (!this.checkRoomList() || !this.checkJoin()) return null;
 
         return SwarmResources.rooms.get(this.activeRoomId) ?? null;

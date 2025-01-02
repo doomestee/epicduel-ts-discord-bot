@@ -73,7 +73,7 @@ export interface MainEDEvents {
     onPrivateMessage: [event: { userId: number, userName: string, message: string, isFromMe: boolean }];
     onPublicMessage: [event: { roomId: number, user: User, message: string }];
 
-    onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User }];// | { type: 2, list: User[], user: User  }];
+    onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User, room: Room }];// | { type: 2, list: User[], user: User  }];
 
     onFactionEncounter: [event: { fact: IFaction }];
     onFactionMemberEncounter: [event: { alignment?: 1|2, faction_id: number, chars: { name: string, id: number }[] }];//{ faction_id: number, char_id: number } | { faction_id: number, char_id: number }[]];

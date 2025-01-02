@@ -105,10 +105,10 @@ export default class Character extends BaseModule {
         }
     }
 
-    private createCharacter() {
+    private createCharacter(name?: string) {
         if (this._charItemList.length) throw Error("No.")
 
-        const name = map(generatePhrase(2, 1).split(" "), word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") + " " + Math.floor(Math.random() * 100);
+        if (!name) name = map(generatePhrase(2, 1).split(" "), word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") + " " + Math.floor(Math.random() * 100);
 
         Logger.getLoggerP(this.client).debug("Creating a character: " + name);
 

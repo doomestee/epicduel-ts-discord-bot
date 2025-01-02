@@ -672,6 +672,7 @@ export default class Client {
 
     onConnectionLostHandler(evt: SFSClientEvents["onConnectionLost"][0]) {
         console.log("Connection Lost!");
+        SwarmResources.botIds.delete(this.smartFox.myUserId);
 
         // if (evt.discParams != null) {
 
@@ -1527,7 +1528,7 @@ export default class Client {
         const users = room.getUserList();
 
         for (let i = 0, len = users.length; i < len; i++) {
-            this.swarm.execute("onUserListUpdate", this, { type: 1, list: users, user: users[i] });
+            this.swarm.execute("onUserListUpdate", this, { type: 1, list: users, user: users[i], room });
         }
 
         this.swarm.execute("onJoinRoom", this, { room: room });
@@ -1568,6 +1569,7 @@ export default class Client {
         if (roomName == RoomManager.LOBBY) {
             this.timer.ping.start();
             this.lobbyInit = true;
+            SwarmResources.botIds.set(this.smartFox.myUserId, true);
             Logger.getLoggerP(this).debug(`Joined the lobby, sending init.`);
             setTimeout(() => {
                 this.smartFox.sendXtMessage("main", Requests.REQUEST_LOBBY_INIT, {}, 1, SmartFoxClient.XTMSG_TYPE_JSON);
@@ -1770,7 +1772,7 @@ export default class Client {
         const room = this.smartFox.getRoom(roomId);
 
         if (room && room.getName() != RoomManager.LOBBY) {
-            this.swarm.execute("onUserListUpdate", this, { type: 1, list: room.getUserList(), user });
+            this.swarm.execute("onUserListUpdate", this, { type: 1, list: room.getUserList(), user, room });
             // if (room.isBattle) {
             //     // ++this.battle.epbattle._playerCount;
             //     // this.battleLog("Player has joined - " + user.charName);
@@ -1783,7 +1785,7 @@ export default class Client {
         const room = this.smartFox.getRoom(roomId);
 
         if (user && room && room.getName() != RoomManager.LOBBY) {
-            this.swarm.execute("onUserListUpdate", this, { type: 2, list: room.getUserList(), user });
+            this.swarm.execute("onUserListUpdate", this, { type: 2, list: room.getUserList(), user, room });
         }
 
         // if (room && room.getName() != RoomManager.LOBBY) {
@@ -2121,14 +2123,20 @@ export default class Client {
 
         // idk just a precaution cos memory leak goes brrrr when too many restarts weeee
         if (this.smartFox) {
+            if (this.smartFox.socket) {
+                this.smartFox.socket?.removeAllListeners("close");
+                this.smartFox.socket?.destroy();
+            }
             delete this.smartFox.socket;
+            this.smartFox.changeBufferHiatus(false);
+            this.smartFox.buffer.clear();
+            SwarmResources.botIds.delete(this.smartFox.myUserId);
         }
         
         // delete this.smartFox.client;
-        //@ts-ignore
-        delete this.smartFox;
 
         this.initialised = false;
+        this.lobbyInit = false;
 
         return successes;
     }

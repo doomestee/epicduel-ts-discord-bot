@@ -1,3 +1,6 @@
+import Swarm from "../../../manager/epicduel.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
+import { find } from "../../../util/Misc.js";
 import User from "./User.js";
 
 type Variables = Record<string, string | number | boolean>;
@@ -44,6 +47,8 @@ export default class Room {
         if (this.userList.delete(sfsId)) {
             this.userCount--;
         }
+
+        if (SwarmResources.botIds.get(sfsId) === true && Swarm.settings.hiatuses) this.leadingClientCharId;
     }
 
     getUserList() {
@@ -179,5 +184,114 @@ export default class Room {
     get isProbablyGiftingRoom()
     {
         return this.userCount >= 60;
+    }
+
+    prevLeaderId = -1;
+    currLeaderId = -1;
+
+    /**
+     * This will be the first bot in the room. It will be their Client/Proximus instance.
+     */
+    get leadingClient() {
+        const sfsId = this.leadingClientId;
+
+        return sfsId ? find(Swarm.clis, v => v.smartFox.myUserId === sfsId) : undefined;
+    }
+
+    /**
+     * This will be the first bot in the room. It will be their SFS id.
+     */
+    get leadingClientId() {
+        const users = this.getUserList();
+        const clis = [];
+        let firstHit = false;
+
+        for (let i = 0, len = users.length; i < len; i++) {
+            if (users[i].isBot && SwarmResources.botIds.get(users[i].id) === true) {
+                if (!firstHit) {
+                    firstHit = true;
+
+                    if (this.currLeaderId !== users[i].id) {
+                        this.prevLeaderId = this.currLeaderId;
+                    }
+
+                    this.currLeaderId = users[i].id;
+                }
+
+                if (!Swarm.settings.hiatuses) return users[i].id;
+
+                clis.push(users[i]);
+            }
+        }
+
+        if (clis.length === 0) return;
+
+        for (let i = 0, len = clis.length; i < len; i++) {
+            const cli = clis[i].getClient()?.smartFox;
+
+            if (cli) {
+                if (i === 0) {
+                    // if it's already false, it would be devastating as it could clear buffer.
+                    if (cli.bufferHiatus) cli.changeBufferHiatus(false);
+                } else cli.changeBufferHiatus(true);
+            }
+        }
+
+        return clis[0]?.id;
+    }
+
+    /**
+     * This will be the first bot in the room. It will be their char ID.
+     */
+    get leadingClientCharId() {
+        const users = this.getUserList();
+        const clis = [];
+
+        let firstHit = false;
+
+        for (let i = 0, len = users.length; i < len; i++) {
+            if (users[i].isBot && SwarmResources.botIds.get(users[i].id) === true) {
+                if (!firstHit) {
+                    firstHit = true;
+
+                    if (this.currLeaderId !== users[i].id) {
+                        this.prevLeaderId = this.currLeaderId;
+                    }
+
+                    this.currLeaderId = users[i].id;
+                }
+
+                if (!Swarm.settings.hiatuses) return users[i].charId;
+
+                clis.push(users[i]);
+            }
+        }
+
+        if (clis.length === 0) return;
+
+        for (let i = 0, len = clis.length; i < len; i++) {
+            const cli = clis[i].getClient()?.smartFox;
+
+            if (cli) {
+                if (i === 0) {
+                    // if it's already false, it would be devastating as it could clear buffer.
+                    if (cli.bufferHiatus) cli.changeBufferHiatus(false);
+                } else cli.changeBufferHiatus(true);
+            }
+        }
+
+        return clis[0]?.charId;
+    }
+
+    getAllMods() {
+        const users = this.getUserList();
+
+        const mods:User[] = [];
+
+        for (let i = 0, len = users.length; i < len; i++) {
+            if (users[i].isModerator()) mods.push(users[i]);
+        }
+
+        return users;
     }
 }

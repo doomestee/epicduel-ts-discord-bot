@@ -15,8 +15,10 @@ export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom
 
     const joinRoomListText = ":\n" + ((currRoom.userList.size - 1) ? map(filter(currRoom.getUserList(), v => v.id !== this.smartFox.myUserId && ![768687, 4191948, 9317271].some(a => a === v.charId)), v => v.charName + ' (' + v.charId + ')').join(', ') : 'nobody.');
 
+    const isLeader = currRoom.leadingClientId === this.smartFox.myUserId;
+
     let res = await hydra.rest.webhooks.execute(Config.webhooks.entryTracker.id, Config.webhooks.entryTracker.token, {
-        wait: true, content: (!isLobby) ? "Puppet ID: " + this.settings.id + " has joined the room (**" + currRoom.name + "**), there are" + (joinRoomListText.length >= 1900 ? ` ${currRoom.userList.size} characters in the room. (The full list is too big to send.)` : joinRoomListText) + '\n----------------------------' : "Bot has joined the lobby." + '\n----------------------------', //'**' + user.charName + '** (**' + user.charId +  "**) has " + ((type === 1) ? "joined" : 'left') + ' the room (Total: ' + (userList.length - 1 - ((type === 2) ? 1 : 0))  + ')' //content: "**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
+        wait: true, content: (!isLobby) ? (isLeader ? "Leader " : "") + "Puppet ID: " + this.settings.id + " has joined the room (**" + currRoom.name + "**, ID: " + currRoom.id + "), there are" + (joinRoomListText.length >= 1900 ? ` ${currRoom.userList.size} characters in the room. (The full list is too big to send.)` : joinRoomListText) + '\n----------------------------' : "Bot has joined the lobby." + '\n----------------------------', //'**' + user.charName + '** (**' + user.charId +  "**) has " + ((type === 1) ? "joined" : 'left') + ' the room (Total: ' + (userList.length - 1 - ((type === 2) ? 1 : 0))  + ')' //content: "**" + ((author.name) ? author.name + "**" + ' (**' + author.id + '**)' : author.id + "**") + ': ' + message,
         files: joinRoomListText.length >= 1900 ? [{
             contents: Buffer.from(JSON.stringify(map(filter(currRoom.getUserList(), v => v.id !== this.smartFox.myUserId && ![768687, 4191948, 9317271].some(a => a === v.charId)), v => ({ name: v.charName, id: v.charId, sfsUserId: v.id, isMod: v.isModerator() })), undefined, 2)),//JSON.stringify(currRoom.userList.filter(v => v.id !== epicduel.client.smartFox.myUserId && ![768687, 4191948, 9317271].some(a => a === v.charId)).map(v => ({ name: v.charName, id: v.charId, sfsUserId: v.id, isMod: v.isMod })), undefined, 2),
             name: "chars.json"
@@ -25,8 +27,8 @@ export default new EDEvent("onJoinRoom", async function (hydra, { room: currRoom
 
     hydra.queues.spy.invoke(
         (res !== null)
-            ? `${puppetNTxt}[Joined room](${jumpLink("565155762335383581", res)}) at <t:${Math.floor((time/1000))}:f>`
-            : `${puppetNTxt + (puppetNTxt !== "" ? "j" : "J")}oined room at <t:${Math.floor(time/1000)}:f>`
+            ? `${puppetNTxt}[Joined room](${jumpLink("565155762335383581", res)}) (ID: ${currRoom.id}) at <t:${Math.floor((time/1000))}:f>${isLeader ? ", is designated leader." : ""}`
+            : `${puppetNTxt + (puppetNTxt !== "" ? "j" : "J")}oined room (ID: ${currRoom.id}) at <t:${Math.floor(time/1000)}:f>`
     );
 
     // hydra.rest.webhooks.execute(Config.webhooks.spyChat.id, Config.webhooks.spyChat.token, {

@@ -1,6 +1,6 @@
 import { decodeEntities, reserialize } from "../../../util/XML.js";
+import SwarmResources from "../../../util/game/SwarmResources.js";
 import type SmartFoxClient from "../SFSClient.js";
-import SFSEvent from "../SFSEvent.js";
 import Room from "../data/Room.js";
 import User from "../data/User.js";
 
@@ -172,6 +172,13 @@ export default class SysHandler {
     handleJoinOk(o: any) {
         const [roomId, roomVarsXml, playerId] = [Number(o.body['@r']), o.body, Number(o.body.pid['@id'])];
         let [userListXml] = [o.body.uLs.u];
+
+        const prevRoom = this.client.getRoom(this.client.activeRoomId);
+
+        if (prevRoom) {
+            prevRoom.removeUser(this.client.myUserId);
+        }
+
         this.client.activeRoomId = roomId;
         // const joinedAt = new Date();
 
@@ -200,7 +207,7 @@ export default class SysHandler {
             const usr = userListXml[usra];
 
             const [name, id, isMod, isSpec, pId] = [usr.n, Number(usr['@i']), usr['@m'] == "1", usr['@s'] == "1", usr['@p'] == null ? -1 : Number(usr['@p'])];
-            const user = new User(id, name ?? ""); // shit ass ed server not sending name sometimes
+            const user = new User(id, name ?? "", SwarmResources.botIds.get(id) === true); // shit ass ed server not sending name sometimes
 
             user.setModerator(isMod);//.setModerator(isMod);
             user.setIsSpectator(isSpec);
@@ -243,7 +250,7 @@ export default class SysHandler {
         const [roomId, usrId, usrName, isMod, isSpec, pid] = [Number(o.body['@r']), Number(o.body.u['@i']), o.body.u.n, o.body.u['@m'] == "1", o.body.u['@s'] == "1", o.body.u['@p'] == null ? -1 : Number(o.body.u['@p'])];
 
         const currRoom = this.client.getRoom(roomId);
-        const newUser = new User(usrId, usrName);
+        const newUser = new User(usrId, usrName, SwarmResources.botIds.get(usrId) === true);
         newUser.setModerator(isMod);
         newUser.setIsSpectator(isSpec);
         newUser.setPlayerId(pid);

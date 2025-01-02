@@ -4,21 +4,21 @@ import User from "../game/User.js";
 import { parseStringPromise } from "xml2js";
 import { SwarmError } from "../util/errors/index.js";
 import Server from "../game/Server.js";
-import { MainEDEvents, SFSClientEvents } from "../types/events.js";
+import type { MainEDEvents, SFSClientEvents } from "../types/events.js";
 import { Requests } from "../game/Constants.js";
 import Logger from "./logger.js";
 import EDCycler from "../util/EDCycler.js";
-import { IWar } from "../Models/War.js";
+import type { IWar } from "../Models/War.js";
 import DatabaseManager from "./database.js";
 import { readdir } from "fs/promises";
 import Config from "../config/index.js";
-import { ImportResult } from "../util/types.js";
+import type { ImportResult } from "../util/types.js";
 import EDEvent from "../util/events/EDEvent.js";
 import type Hydra from "./discord.js";
 import RoomManager from "../game/module/RoomManager.js";
 import { filter, find, findIndex, map } from "../util/Misc.js";
-import { WarObjective } from "../game/module/WarManager.js";
-import RoomManagerRecord from "../game/record/RoomManagerRecord.js";
+import type { WarObjective } from "../game/module/WarManager.js";
+import type RoomManagerRecord from "../game/record/RoomManagerRecord.js";
 import { readFileSync } from "fs";
 import ProxyManager from "./proxy.js";
 
@@ -54,6 +54,13 @@ export default class Swarm {
     static readonly clients:Client[] = [];
 
     static readonly purgatory:Client[] = [];
+
+    /**
+     * Concatenation of both clients and clients in purgatory (that are connected and passed the lobby).
+     */
+    static get clis() {
+        return filter(this.clients.concat(this.purgatory), v => v.connected && v.lobbyInit);
+    }
 
 
     /**
@@ -291,7 +298,8 @@ export default class Swarm {
 
     static settings = {
         giftLog: false,
-        test1: false
+        test1: false,
+        hiatuses: false
     }
 
     // TODO: move this somewhere
