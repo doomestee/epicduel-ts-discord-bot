@@ -52,6 +52,8 @@ export default class MultQueue<T> {
             const obj = this.map.get(id);
 
             if (!obj) throw Error("The given ID does not exist.");
+
+            objs.push(obj);
         }
 
         const proms = [];
