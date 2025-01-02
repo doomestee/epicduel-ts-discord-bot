@@ -1,5 +1,5 @@
 import { Client, Member, User, ActivityTypes, Permissions, ApplicationCommandTypes, ApplicationCommandOptionTypes, InteractionContextTypes, ApplicationIntegrationTypes, ChannelTypes } from "oceanic.js";
-import type { AnyCommandInteraction, AnyComponentInteraction, CreateApplicationCommandOptions } from "oceanic.js";
+import type { AnyCommandInteraction, AnyComponentInteraction, CreateApplicationCommandOptions, Webhook } from "oceanic.js";
 import MessageStorage from "../structures/storage/MessageStorage.js";
 import Config from "../config/index.js";
 import { readdir } from "fs/promises";
@@ -15,6 +15,7 @@ import Swarm from "./epicduel.js";
 import { filter } from "../util/Misc.js";
 import { SwarmError } from "../util/errors/index.js";
 import SwarmResources from "../util/game/SwarmResources.js";
+import type MultQueue from "../structures/queue/SubGenericQueue.js";
 
 interface UserProcessState {
     refreshLb: boolean;
@@ -63,7 +64,7 @@ export default class Hydra extends Client {
     };
 
     queues = {
-        gift: undefined as unknown as Queue<GiftObject>,
+        gift: undefined as unknown as MultQueue<GiftObject>,
         spy: undefined as unknown as Queue<string>
     };
 
@@ -617,5 +618,20 @@ export default class Hydra extends Client {
                 type: ActivityTypes.WATCHING
             }])
         }
+    }
+
+    #webhooks = new Map<string, Webhook[]>();
+
+    async getWebhooks(chnlId: string) : Promise<Webhook[]> {
+        const webbies = this.#webhooks.get(chnlId);
+
+        if (webbies) return webbies;
+
+        return this.rest.webhooks.getForChannel(chnlId)
+            .then(res => {
+                this.#webhooks.set(chnlId, res);
+
+                return res;
+            })
     }
 }

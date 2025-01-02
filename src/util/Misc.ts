@@ -581,11 +581,11 @@ export function countCommonStrings(strList: { c: string, t: number}[], count=5) 
     return false;
 }
 
-export function discordDate(date: Date | number) {
+export function discordDate(date: Date | number, format = "F") {
     // if (!(date instanceof Date)) date = new Date(date);
     if (date instanceof Date) date = date.getTime();
 
-    return "<t:" + Math.round(date/1000) + ":F>";
+    return "<t:" + Math.round(date/1000) + ":" + format + ">";
 }
 
 /**

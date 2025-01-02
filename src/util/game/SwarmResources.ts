@@ -129,6 +129,19 @@ export default class SwarmResources {
      * By sfs ID
      */
     static botIds = new Map<number, boolean>();
+
+    static findUserBySfsId(sfsId: number) {
+        const rooms = Array.from(this.rooms.values());
+
+        for (let i = 0, len = rooms.length; i < len; i++) {
+            const room = rooms[i];
+            const user = room.getUser(sfsId);
+
+            if (user !== null) return user;
+        }
+
+        return undefined;
+    }
 }
 
 function lazyMakeTracker<T>(name: string) {
