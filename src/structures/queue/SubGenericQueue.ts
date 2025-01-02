@@ -19,6 +19,11 @@ export default class MultQueue<T> {
      * The threshold of the invoke function before it calls the function.
      */
     threshold: number;
+
+    /**
+     * This is a temporary measure, it can cause the list to go over the threshold but the invoke will still happen.
+     */
+    preventTrigger = false;
     
     private count: number = 0;
 
@@ -44,6 +49,8 @@ export default class MultQueue<T> {
     _elapsed(id: number) : Promise<any>
     _elapsed(forced: true) : Promise<any>;
     _elapsed(id: number | true = true) {
+        if (id !== true && this.preventTrigger) return;
+
         const objs:MultQueueItem<T>[] = [];
 
         if (id === true) {
