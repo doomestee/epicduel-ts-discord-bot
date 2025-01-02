@@ -188,6 +188,9 @@ export function getTime(milli: number | Date, hide=false, replace=', ', shorten=
     let result = [];
 
     let time = milli instanceof Date ? milli : new Date(milli);
+
+    if (time.getTime() < 1000) return "";
+
     //let months = time.getUTCMonth();
     let days = (Math.floor(time.getTime()/(1000*60*60*24)));
     let hours = time.getUTCHours().toString().padStart(2, '0');

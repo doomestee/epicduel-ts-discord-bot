@@ -101,8 +101,8 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
 
                 return hydra.rest.webhooks.execute(webbie.id, webbie.token, {
                     wait: true, embeds: [{
-                        title: list[0].gift.name,
-                        description: `has given away ${stat.count.total} from ${discordDate(stat.firstGift, "T")} to ${discordDate(stat.lastGift, "T")} (in ${getTime(stat.lastGift - stat.firstGift, true)}).\n\nCombo streak: ${stat.streak}.\nGained gift score: ${stat.count.score}.\nGave away ${stat.count.global} global gifts.`
+                        title: "Individual Stat",
+                        description: `has given away ${stat.count.total} from ${discordDate(stat.firstGift, "T")} to ${discordDate(stat.lastGift, "T")} (in ${getTime((stat.lastGift - stat.firstGift) + 1, true) || "0 second"}).\n\nCombo streak: ${stat.streak}.\nGained gift score: ${stat.count.score}.\nGave away ${stat.count.global} global gifts (${Math.round((stat.count.global / stat.count.total)*10000)/100}%).\n\nGift Per Second: ${stat.count.total/((stat.lastGift-stat.firstGift)/1000)} gift(s).\nGift Per Minute: ${stat.count.total/((stat.lastGift-stat.firstGift)/1000/60)} gift(s).`
                     }],
                     username: user.charName + " (ID: " + user.charId + ")",
                     avatarURL: "https://ei.doomester.one/char?" + encode(obj)
@@ -112,8 +112,8 @@ export default function ({ hydra }: QueueFuncParameters) : QueueFuncResult {
 
         return hydra.rest.webhooks.execute(webbie.id, webbie.token, {
             wait: true, embeds: [{
-                title: list[0].gift.name,
-                description: `has given away ${stat.count.total} from ${discordDate(stat.firstGift, "T")} to ${discordDate(stat.lastGift, "T")} (in ${getTime(stat.lastGift - stat.firstGift, true)}).\n\nCombo streak: ${stat.streak}.\nGained gift score: ${stat.count.score}.\nGave away ${stat.count.global} global gifts.`
+                title: "Individual Stat",
+                description: `has given away ${stat.count.total} from ${discordDate(stat.firstGift, "T")} to ${discordDate(stat.lastGift, "T")} (in ${getTime((stat.lastGift - stat.firstGift) + 1, true) || "0 second"}).\n\nCombo streak: ${stat.streak}.\nGained gift score: ${stat.count.score}.\nGave away ${stat.count.global} global gifts (${Math.round((stat.count.global / stat.count.total)*10000)/100}%).\n\nGift Per Second: ${stat.count.total/((stat.lastGift-stat.firstGift)/1000)} gift(s).\nGift Per Minute: ${stat.count.total/((stat.lastGift-stat.firstGift)/1000/60)} gift(s).`
             }],
             username: list[0].gift.name,
             avatarURL: "https://ei.doomester.one/char?" + encode({ charName: list[0].gift.name, flip: "0" })
