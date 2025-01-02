@@ -218,7 +218,7 @@ export default class Room {
                     this.currLeaderId = users[i].id;
                 }
 
-                if (!Swarm.settings.hiatuses) return users[i].id;
+                if (Swarm.settings.hiatuses === false) return users[i].id;
 
                 clis.push(users[i]);
             }
@@ -261,7 +261,7 @@ export default class Room {
                     this.currLeaderId = users[i].id;
                 }
 
-                if (!Swarm.settings.hiatuses) return users[i].charId;
+                if (Swarm.settings.hiatuses === false) return users[i].charId;
 
                 clis.push(users[i]);
             }
