@@ -20,12 +20,18 @@ interface PartialUser {
     time: number;
 }
 
+const roomies = {
+
+} as { [roomId: number]: { curr: number } };
+
 /**
  * I don't trust ED server speed so this will be a list. This doesn't matter if it's already joined or left, it will be ignored.
  */
 const lastUsers = [] as Array<PartialUser>;
 export default new EDEvent("onUserListUpdate", async function (hydra, { list, type, user, room }) {
     const time = Date.now();
+
+    const roomLeader = room.leadingClient;
 
     const partialObj:PartialUser = {
         char_id: user.charId,
@@ -50,6 +56,23 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
     lastUsers.push(partialObj);
     // To prevent overflows in the meantime.
     if (lastUsers.length > 499) lastUsers.splice(0, 1);
+
+    if (partialObj.is_bot && roomLeader) {
+        if (roomies[room.id] === undefined) roomies[room.id] = { curr: -1 };
+
+        if (roomies[room.id].curr !== roomLeader.smartFox.myUserId) {
+            const prevLeader = roomies[room.id]["curr"];
+
+            roomies[room.id]["curr"] = roomLeader.smartFox.myUserId;
+
+            // imma kms for the amount of indentations and horror
+            if (prevLeader !== -1) {
+                hydra.queues.spy.invoke(
+                    `Puppet ${roomLeader.settings.id} promoted to the leader of puppets in Room ID ${room.id}.`
+                );
+            }
+        }
+    }
 
     if (user.charId !== undefined && user.userId !== undefined) {
         //@ts-expect-error
