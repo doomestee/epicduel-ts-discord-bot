@@ -74,7 +74,7 @@ export default class MultQueue<T> {
 
             if (!this.trigger) return Logger.getLogger("Queue").warn("No function for invocation!");
     
-            if (list.length === 0) return Logger.getLogger("Queue").warn("No items in the queue..?");
+            // if (list.length === 0) return Logger.getLogger("Queue").warn("No items in the queue..?");
 
             proms.push(Promise.resolve(this.trigger(list, id === true)));
         }
