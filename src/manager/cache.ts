@@ -87,7 +87,7 @@ export default class CacheManager {
     public static settings:CacheSettingsInternal = {
         leaders: { time: 1000*30 },
         // Off gifting time, so for 24 hours anyways.
-        gifts: { time: 1000*60*60*24 },
+        gifts: { time: 1000*60 },
         achievement: { time: 1000*60*10 },
         faction: { time: 1000*60*30 },
         merchant: { time: 1000*60*60*24 },
@@ -118,7 +118,7 @@ export default class CacheManager {
 
             //// @ts-expect-error
             col.val = key;
-            col._lastGot = 0;
+            col._lastGot = Date.now();
 
             return;
         }
@@ -154,7 +154,7 @@ export default class CacheManager {
         const timeCheck = (lastGot: number) => {
             const settings = this.settings[type];
 
-            return ("args" in settings ? !settings.cb.bind(settings)() : true) && settings.time > (Date.now() - lastGot);
+            return ("args" in settings ? !settings.cb.bind(settings)() : true) && settings.time < (Date.now() - lastGot);
         }
 
         if (!(col instanceof Collection)) {
