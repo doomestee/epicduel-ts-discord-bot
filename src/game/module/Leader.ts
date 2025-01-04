@@ -122,6 +122,10 @@ export default class Leader extends BaseModule {
         const smalls = leaderData.slice(splitIndex + 1);
         let name = '';
 
+        if (this.debug === true) {
+            console.log(leaderData);
+        }
+
         switch(version) {
             case 1: case 2: case 16:
                 // ["charName","charWins1","charBat1","charExp","charLvl","charGender","charClassId","charPri","charSec","charHair","charSkin","charAccnt","charAccnt2","charEye","charArm","charHairS"]
