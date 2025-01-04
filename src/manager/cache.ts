@@ -154,7 +154,9 @@ export default class CacheManager {
         const timeCheck = (lastGot: number) => {
             const settings = this.settings[type];
 
-            return ("args" in settings ? !settings.cb.bind(settings)() : true) && settings.time < (Date.now() - lastGot);
+            return ("args" in settings ? !settings.cb.bind(settings)() : true) && (settings.time > (Date.now() - lastGot));
+
+            // return ("args" in settings ? !settings.cb.bind(settings)() : true) && settings.time < (Date.now() - lastGot);
         }
 
         if (!(col instanceof Collection)) {
