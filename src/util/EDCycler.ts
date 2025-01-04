@@ -108,6 +108,8 @@ export default class EDCycler {
 
             // if (countProxy === 0 && findIndex(purgs, v => v.settings.proxy === 1) !== -1) Logger.getLogger("Cycler").warn("There are proxied clients waiting to be connected, but")
 
+            let dangerCount = 3;
+
             for (let i = 0, len = purgs.length; i < len; i++) {
                 const purg = purgs[i];
                 const isProxied = purg.settings.proxy !== -1;
@@ -137,9 +139,15 @@ export default class EDCycler {
                                 if (!isProxied) this.delayUntil = Date.now() + 1000*60*60;
                                 return false;
                             }
-                            if (err.type === "NO_SERVER") {
+                            else if (err.type === "NO_SERVER") {
                                 Logger.getLogger("Swarm").error("No servers available.");
                                 this.#swarm.probing = true;
+                                purg.selfDestruct(true);
+                                return false;
+                            } else if (err.type === "LOGIN_FAILED") {
+                                purg.settings.reconnectable = false;
+                                //@ts-expect-error
+                                purg.settings.errored = err.message;
                                 purg.selfDestruct(true);
                                 return false;
                             }
@@ -150,7 +158,7 @@ export default class EDCycler {
 
                 // Logger.getLogger("Cycler").debug(bool);
                 
-                if (!bool) return this.reassignTimer();
+                if (!bool && dangerCount-- === 0) return this.reassignTimer();
 
                 if (purg.user.servers[0]?.online === true) {
                     purg["connect"]();
