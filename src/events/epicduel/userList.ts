@@ -15,6 +15,7 @@ interface PartialUser {
     char_id: number;
     char_name: string;
     is_bot: boolean;
+    is_mod: boolean;
     type: 1|2;
     puppet_id: number;
     time: number;
@@ -36,7 +37,7 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
     const partialObj:PartialUser = {
         char_id: user.charId,
         id: user.id, char_name: user.charName,
-        is_bot: user.isBot, type,
+        is_bot: user.isBot, is_mod: user.isModerator(), type,
         puppet_id: this.settings.id,
         time: time + 3600000
     };
@@ -47,7 +48,7 @@ export default new EDEvent("onUserListUpdate", async function (hydra, { list, ty
         if (lastUser === undefined) continue;
 
         if (lastUser.id === user.id && lastUser.char_name === user.charName && lastUser.char_id === user.charId) {
-            if (!lastUser.is_bot && lastUser.time > time) return;
+            if (!lastUser.is_bot && !lastUser.is_mod && lastUser.time > time) return;
             
             lastUsers.splice(i--, 1); len--;
         }
