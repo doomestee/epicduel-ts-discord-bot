@@ -61,6 +61,11 @@ export default new Command(CommandType.Application, { cmd: ["character", "link"]
         }
     }
 
+    if (client.debug) console.log({
+        clis: clis.length, count, uniques: uniques.length,
+        junker, vendbot
+    });
+
     if (clis.length === 0 || (count.junker === 0 && count.vendbot === 0 && uniques.length === 0)) return interaction.reply({ content: "Sorry, there are no available eligible clients that can respond to your query yet.", flags: 64 });
 
     await interaction.defer(64);
