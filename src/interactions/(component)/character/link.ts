@@ -83,7 +83,7 @@ export default new Command(CommandType.Component, { custom_id: "character_link" 
                     for (let i = 0, len = 10; i < len; i++) {
                         const v = vendbot[i];
     
-                        if (v !== -1 || v === undefined) {
+                        if (v !== -1 && v !== undefined) {
                             if (!cont) world += v.toString();
                             cont = true;
                         } else {
@@ -93,6 +93,8 @@ export default new Command(CommandType.Component, { custom_id: "character_link" 
                             }
                         }
                     }
+
+                    world = world.slice(0, -2) + ".";
                 }
             }
     
@@ -109,7 +111,7 @@ export default new Command(CommandType.Component, { custom_id: "character_link" 
                     for (let i = 0, len = 10; i < len; i++) {
                         const v = junker[i];
     
-                        if (v !== -1 || v === undefined) {
+                        if (v !== -1 && v !== undefined) {
                             if (!cont) world += v.toString();
                             cont = true;
                         } else {
@@ -119,11 +121,11 @@ export default new Command(CommandType.Component, { custom_id: "character_link" 
                             }
                         }
                     }
+
+                    world = world.slice(0, -2) + ".";
                 }
             }
-    
-            world = world.slice(0, -2) + ".";
-    
+        
             avatar = count.vendbot ? "VendBot.png" : "Junker.png";
         }
     
