@@ -33,12 +33,12 @@ export default new Command(CommandType.Component, { custom_id: "character_link" 
             if (world === 69 || !room) continue;
     
             if (room.name.startsWith("TrainHubRight")) {
-                if (!vendbot[world]) count["vendbot"]++;
+                if (vendbot[world] === -1) count["vendbot"]++;
     
                 vendbot[world] = world;
                 continue;
             } else if (room.name.startsWith("TrainHubBLeft")) {
-                if (!junker[world]) count["junker"]++;
+                if (junker[world] === -1) count["junker"]++;
     
                 junker[world] = world;
                 continue;
