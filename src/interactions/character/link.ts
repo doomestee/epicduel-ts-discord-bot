@@ -95,6 +95,8 @@ export default new Command(CommandType.Application, { cmd: ["character", "link"]
                     if (v !== -1 && v !== undefined) {
                         if (!cont) world += v.toString();
                         cont = true;
+
+                        if (i === 8) { world += "aa"; break; }
                     } else {
                         if (cont) {
                             cont = false;
@@ -123,6 +125,8 @@ export default new Command(CommandType.Application, { cmd: ["character", "link"]
                     if (v !== -1 && v !== undefined) {
                         if (!cont) world += v.toString();
                         cont = true;
+
+                        if (i === 8) { world += "aa"; break; }
                     } else {
                         if (cont) {
                             cont = false;
