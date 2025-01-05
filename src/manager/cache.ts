@@ -101,7 +101,7 @@ export default class CacheManager {
     /**
      * If you need to delete a key, use this but with empty value
      */
-    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [value: ExtractValueType<CacheInternal[T]>["val"]] : [id: ExtractKeyType<CacheInternal[T], number>, value: ExtractValueType<CacheInternal[T]>["val"]]) {
+    static update<T extends CacheType>(type:T, ...args: CacheInternal[T] extends SingularCache<any> ? [value?: ExtractValueType<CacheInternal[T]>["val"]] : [id: ExtractKeyType<CacheInternal[T], number>, value?: ExtractValueType<CacheInternal[T]>["val"]]) {
         // let obj = this.cols[type].get(key);
 
         let [key, value] = args;
@@ -116,7 +116,6 @@ export default class CacheManager {
                 return true;
             }
 
-            //// @ts-expect-error
             col.val = key;
             col._lastGot = Date.now();
 
@@ -160,7 +159,7 @@ export default class CacheManager {
         }
 
         if (!(col instanceof Collection)) {
-            if (col._lastGot < 1 || timeCheck(col._lastGot)) return { valid: false };
+            if (col._lastGot < 1 || !timeCheck(col._lastGot)) return { valid: false };
 
             return { valid: true, value: col.val };
         }
