@@ -17,8 +17,12 @@ export default new Command(CommandType.Application, { cmd: ["character", "search
         const charName = interaction.data.options.getString("name", false) ?? "";//focused.options.find(v => v.name === "name")?.value;
 
         if (!/^([A-Za-z0-9]| |\.)+$/.test(charName) || charName.length > 50) {
+            let errorText = charName.length > 50 ? "The username is too big." : "Username must consist of letters, numbers including underscores or dots."
+
+            if (charName.includes("…")) errorText += "\nYour name has three dots symbol \"…\", this can happen if you're using a mobile device which automatically converts ... to …";
+
             return interaction.createFollowup({
-                content: charName.length > 50 ? "The username is too big." : "Username must consist of letters, numbers or underscores.",
+                content: errorText,
                 flags: 64
             });
         }
