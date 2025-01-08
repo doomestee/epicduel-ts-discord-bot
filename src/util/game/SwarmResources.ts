@@ -107,18 +107,27 @@ export default class SwarmResources {
                 9130082: { lastJugg: [-1, -1], time: -1 },
                 8958672: { lastJugg: [-1, -1], time: -1 },
                 9069893: { lastJugg: [-1, -1], time: -1 },
+                8541642: { lastJugg: [-1, -1], time: -1 },
+                9295211: { lastJugg: [-1, -1], time: -1 },
+                1342611: { lastJugg: [-1, -1], time: -1 },
             } as Record<number | string, { lastJugg: [number, number], time: number }>,
 
             idToChar: {
                 9130082: "Despair",
                 8958672: "CactusChan",
                 9069893: "Vendetta",
+                8541642: "Mandatory",
+                9295211: "Sr. Bang",
+                1342611: "Adriano",
             } as Record<number | string, string>,
 
             charToId: {
                 "Despair": 9130082,
                 "CactusChan": 8958672,
                 "Vendetta": 9069893,
+                "Mandatory": 8541642,
+                "Sr. Bang": 9295211,
+                "Adriano": 1342611.
             }
         }
     }
