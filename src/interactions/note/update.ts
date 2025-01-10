@@ -122,7 +122,7 @@ export default new Command(CommandType.Application, { cmd: ["unavailable2"], ali
                             Logger.getLogger("DNote").error(err);
                             if (webbie) {
                                 return webbie.execute({
-                                    content: "ERROR, unable to send a design note at the final stage.\n(Note was successfully extracted and processed, but can't sent to discord).\nURL to the note: " + note.post.link,
+                                    content: "ERROR, unable to send a design note at the final stage.\n(Note was successfully extracted and processed, but can't be sent to discord).\nURL to the note: " + note.post.link,
                                     wait: true
                                 }).then(v => v.crosspost()).catch(() => {});
                             }
