@@ -51,10 +51,10 @@ export function replaceHTMLbits(text: string, images?: [string, string][], h2: s
 
         // Images
 
-        .replace(/<img src=\"(.{1,})\">(<\/img>)?/gi, (match, src) => {
+        .replace(/<img src=\"(.{1,})\" \/>(<\/img>)?/gi, (match, src) => {
             if (images === undefined) return match;
 
-            const link = replaceArtixLinkTag((linkIdentifier === "Epicduel" ? '' : "https://artix.com") + src);
+            const link = replaceArtixLinkTag((linkIdentifier === "Epicduel" || src.startsWith("http") ? '' : "https://artix.com") + src);
 
             if (images.some(v => v[0] === (h2 ?? "empty") && v[1] === link )) return "";
 
@@ -284,20 +284,18 @@ export default class DesignNoteManager {
                         if (replaceHTMLbits(child.innerHTML, result.post.billboard, h2, linkIdentifier).length != 0)
                             result.fields[result.fields.findIndex(a => a[0] == ((h2) ? h2 : "empty"))][1] += `${replaceHTMLbits(child.innerHTML, result.post.billboard, h2, linkIdentifier)}\n`; // This is assuming it would never... error... right? please.
                         else {
-                            if (child.lastElementChild != null) {
-                                if (child.lastElementChild.tagName == "IMG") {
-                                    if (child.lastElementChild.getAttribute("src")?.startsWith("http")) {
-                                        /*// Checks if the image already exists for that heading, if so, it will create a heading separate to the previous.
-                                        if (result.post.billboard.some(a => a[0] === h2)) {
-                                            h2continuation++;
+                            while ((child = child.lastElementChild as Element) !== null) {
+                                if (child.tagName === "IMG" && child.getAttribute("src")?.startsWith("http")) {
+                                    /*// Checks if the image already exists for that heading, if so, it will create a heading separate to the previous.
+                                    if (result.post.billboard.some(a => a[0] === h2)) {
+                                        h2continuation++;
 
-                                            h2 = (h2continuation > 1) ? `${h2.slice(0, -2)} ${h2continuation}` : h2 + ' ' + h2continuation;
+                                        h2 = (h2continuation > 1) ? `${h2.slice(0, -2)} ${h2continuation}` : h2 + ' ' + h2continuation;
 
-                                            result.fields.push([h2, ""]);
-                                        }*/
+                                        result.fields.push([h2, ""]);
+                                    }*/
 
-                                        result.post.billboard.push([((h2) ? h2 : "empty"), replaceArtixLinkTag(((linkIdentifier === "Epicduel") ? '' : 'https://artix.com' ) + child.lastElementChild.getAttribute("src"))]);
-                                    }
+                                    result.post.billboard.push([h2 ?? "empty", replaceArtixLinkTag(((linkIdentifier === "Epicduel" || child.getAttribute("src")?.startsWith("http")) ? '' : 'https://artix.com' ) + child.getAttribute("src"))]);
                                 }
                             }
                         }
@@ -309,7 +307,7 @@ export default class DesignNoteManager {
                         result.fields[result.fields.findIndex(a => a[0] == ((h2) ? h2 : "empty"))][1] += `${wong}\n`;
                         break;
                     case "IMG":
-                        result.post.billboard.push([((h2) ? h2 : "empty"),  replaceArtixLinkTag(((linkIdentifier === "Epicduel") ? '' : 'https://artix.com' ) + child.getAttribute("src"))]); //result.post.billboard.push(child.getAttribute("src"));//result.post.billboard.push([((h2) ? h2 : "empty"), child.getAttribute("src")]);
+                        result.post.billboard.push([h2 ?? "empty",  replaceArtixLinkTag(((linkIdentifier === "Epicduel" || child.getAttribute("src")?.startsWith("http")) ? '' : 'https://artix.com' ) + child.getAttribute("src"))]); //result.post.billboard.push(child.getAttribute("src"));//result.post.billboard.push([((h2) ? h2 : "empty"), child.getAttribute("src")]);
                         break;
                 }
             }
@@ -317,6 +315,11 @@ export default class DesignNoteManager {
             // This will filter out duplicates in tags list.
 
             result.tags = [...new Set(result.tags)];
+
+            if (this.debug) {
+                //@ts-expect-error
+                this["lastNote"] = result;
+            }
 
             return { success: true, result };
 
