@@ -286,18 +286,6 @@ export default class DNExecutor {
 
         for (let index = 0, len = fieldsFiltered.length; index < len; index++) {
             const field = fieldsFiltered[index];
-
-            if (index === 0) {
-                slombs.push([
-                    embeds.push({
-                        fields: [{
-                            name: (field[0] != "") ? trimString(field[0], 256) : "Unknown Name",
-                            value: trimString(field[1], 1024),
-                            inline: (field[1].length < 500 && index % 2) as boolean
-                        }]
-                    }) - 1, length.push(trimString(field[0], 256).length + trimString(field[1], 1024).length)-1, true
-                ] as [number, number, boolean])
-            }
     
             let count = field[0].length + field[1].length;
             //console.log(count, length);
