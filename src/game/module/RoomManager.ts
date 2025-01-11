@@ -1339,7 +1339,8 @@ export default class RoomManager {
                 const randRoom = rooms.splice(rand, 1)[0];//rooms[rand];
 
                 for (let i = 0, len = playerRooms.length; i < len; i++) {
-                    if (randRoom.roomName.startsWith(playerRooms[i])) {
+                    // "Abc" . "Abc_5"
+                    if (playerRooms[i].startsWith(randRoom.roomName)) {
                         continue;
                     }
                 }
