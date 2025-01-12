@@ -1342,10 +1342,8 @@ export default class RoomManager {
                     // "Abc" . "Abc_5"
                     if (playerRooms[i].startsWith(randRoom.roomName)) {
                         continue;
-                    }
+                    } return randRoom;
                 }
-
-                return randRoom;
             }
             
             throw Error("No more available unique room records.");
