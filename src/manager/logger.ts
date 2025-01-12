@@ -67,6 +67,8 @@ export default class Logger {
                     message = String(stack).split("\n")[0].split(":")[1].trim() === message ? String(stack) : `${String(message)}\n${String(stack)}`;
                 }
 
+                else if (typeof message === "object") message = JSON.stringify(message);
+
                 return (colors ? this._colors[level] ?? noop : noop)?.(`${this._getTimestamp()} [${level.toUpperCase()}]${Array.isArray(name) ? name.map(val => `[${String(val)}]`).join(",") : ""} ${String(message)}`);
             })
         );
