@@ -85,7 +85,7 @@ export default class DNExecutor {
         function regurgitate(data: string) : [string, string][] {
             // If anyone has a better idea, just gimme lmao.
 
-            if (data.length >= 4096) {
+            if (data.length >= 1024) {
                 return [["Unknown heading", data]];
             }
     
