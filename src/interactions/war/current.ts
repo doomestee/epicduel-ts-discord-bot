@@ -15,7 +15,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "current"], d
         const time = process.hrtime.bigint();
         const timeM = Date.now();
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient());
 

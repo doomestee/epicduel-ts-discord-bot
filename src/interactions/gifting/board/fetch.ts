@@ -22,7 +22,7 @@ export default new Command(CommandType.Application, { cmd: ["gifting", "board", 
 
         //const type = focused.options.find(v => v.name === "type") ? focused.options.find(v => v.name === "type").value : 1;
 
-        const cli = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const cli = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!cli) return interaction.reply({ content: `this message should not be possible to receive, contact developer.` });
 

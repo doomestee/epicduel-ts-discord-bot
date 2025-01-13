@@ -180,6 +180,10 @@ export default class Client {
 
     pingTime:number = 0;
 
+    get receiving() {
+        return !this.smartFox.bufferHiatus;
+    }
+
     //#endregion
 
     constructor(public user: User, settings: Partial<ClientSettings> & { id: number } | number, public swarm: typeof Swarm) {

@@ -23,7 +23,7 @@ export default new Command(CommandType.Component, { custom_id: "war_select_<user
 
         if (!bypass) return interaction.createMessage(DiscordError.noBypass());
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         // ik there's !ed twice for the same thing, but screw ts fr
         if (!ed && interaction.data.values.raw[0] === "basic_info") return interaction.reply(SwarmError.noClient());

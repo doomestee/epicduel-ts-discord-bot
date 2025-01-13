@@ -11,7 +11,7 @@ export default new Command(CommandType.Application, { cmd: ["war", "leader"], de
 
         const time = process.hrtime.bigint();
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.createMessage(SwarmError.noClient());
 

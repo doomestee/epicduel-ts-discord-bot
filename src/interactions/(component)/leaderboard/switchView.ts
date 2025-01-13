@@ -21,7 +21,7 @@ export default new Command(CommandType.Component, { custom_id: "switch_view_lb_<
         if (interaction.user.id !== userId) return interaction.createMessage(DiscordError.noBypass());
         if (parseInt(strLastUsed) + 10000 > Date.now()) return interaction.createMessage({content: "Calm down, the buttons are on cooldown for 10 seconds, refresh after that time period.", flags: 64});
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 

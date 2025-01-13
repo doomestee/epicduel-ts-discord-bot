@@ -8,7 +8,7 @@ export default new Command(CommandType.Application, { cmd: ["battle-pass", "view
         if (interaction.type !== 2) return;
         // if (!interaction.acknowledged) await interaction.defer();
 
-        const cli = Swarm.getClient(v => v.connected && v.lobbyInit);//centralClient//.getClient(v => v.connected && v.lobbyInit);
+        const cli = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);//centralClient//.getClient(v => v.connected && v.lobbyInit);
 
         if (!cli) return interaction.reply({ content: "There's no fresh client" })
 

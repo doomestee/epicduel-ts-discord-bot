@@ -29,7 +29,7 @@ export default new Command(CommandType.Component, { custom_id: "achiev_summary_<
         if (!interaction.acknowledged) await interaction.defer();
 
         if (!checked.valid) {
-            const cli = Swarm.getClient(v => v.connected && v.lobbyInit, true);
+            const cli = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving, true);
 
             if (!cli) return interaction.reply(SwarmError.noClient(true));
 

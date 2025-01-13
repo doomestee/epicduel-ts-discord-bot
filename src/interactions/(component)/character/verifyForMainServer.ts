@@ -17,7 +17,7 @@ export default new Command(CommandType.Component, { custom_id: "character_verify
             ["1081679443162050560", "Omega", "Available during EpicDuel's Omega phase.", ["1085255785073872906", "AchOmegaOverlord"]]
         ], v => {return { id: v[0], name: v[1], desc: v[2], emoji: { id: v[3][0], name: v[3][1] }}});
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient());
 

@@ -41,7 +41,7 @@ export default new Command(CommandType.Application, { cmd: ["leaderboard", "fetc
         const time = process.hrtime.bigint();
         const cooldown = Math.round(Date.now());
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 

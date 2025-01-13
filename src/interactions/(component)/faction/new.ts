@@ -30,7 +30,7 @@ export default new Command(CommandType.Component, { custom_id: ["faction_open_<f
             return interaction.reply({ content: "You need to provide a faction ID, or as for name, that must have existed in bot database.", flags: 64 });
         }
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 

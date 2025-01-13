@@ -25,7 +25,7 @@ export default new Command(CommandType.Component, { custom_id: "refresh_war_lead
 
         if (!bypass) return interaction.createMessage(DiscordError.noBypass());
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient());
         

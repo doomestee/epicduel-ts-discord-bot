@@ -27,7 +27,7 @@ export default new Command(CommandType.Component, { custom_id: "refresh_lb_<type
         if (!bypass) return interaction.reply(DiscordError.noBypass());
         if (parseInt(strType) + 10000 > Date.now()) return interaction.reply({content: "Woah woah calm down, the buttons are on cooldown for 10 seconds, refresh after that time period.", flags: 64});
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.reply(SwarmError.noClient(true));
 

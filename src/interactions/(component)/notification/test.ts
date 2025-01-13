@@ -41,7 +41,7 @@ export default new Command(CommandType.Component, { custom_id: "test_send_<notif
         let message = notify.message ?? "";
         let embeds:Embed[] = [];
         
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (notify.type === Notification.TYPE_RALLY_EXILE || notify.type === Notification.TYPE_RALLY_LEGION) {
             let currObjs = [{objectiveId: 1, points: 600, maxPoints: 1000, alignmentId: 1}, {objectiveId: 2, points: 300, maxPoints: 1000, alignmentId: 2}]

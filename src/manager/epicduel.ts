@@ -250,7 +250,7 @@ export default class Swarm {
     static getClientById(id?: number | boolean, fromPurgatoryToo=true) {
         for (let i = 0, len = this.clients.length; i < len; i++) {
             if (typeof id !== "number") {
-                if (this.clients[i].connected) return this.clients[i];
+                if (this.clients[i].connected && this.clients[i].receiving) return this.clients[i];
                 else continue;
             }
             if (this.clients[i].settings.id === id) return this.clients[i];
@@ -261,7 +261,7 @@ export default class Swarm {
 
             for (let i = 0, len = this.purgatory.length; i < len; i++) {
                 if (typeof id !== "number") {
-                    if (this.purgatory[i].connected) return this.purgatory[i];
+                    if (this.purgatory[i].connected && this.purgatory[i].receiving) return this.purgatory[i];
                     else continue;
                 }
                 if (this.purgatory[i].settings.id === id) return this.purgatory[i];

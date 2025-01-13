@@ -10,7 +10,7 @@ export default new Command(CommandType.Application, { cmd: ["gifting", "stat"], 
         
         const time = process.hrtime.bigint();
 
-        const cli = Swarm.getClient(v => v.connected && v.lobbyInit, true, true);
+        const cli = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving, true, true);
 
         if (!cli || !cli.lobbyInit) return interaction.reply({ content: `this message should not be possible to receive, contact developer.`, flags: 64 });
 

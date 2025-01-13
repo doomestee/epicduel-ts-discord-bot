@@ -12,7 +12,7 @@ export default new Command(CommandType.Application, { cmd: ["tournament", "fetch
 
         if (!interaction.acknowledged) await interaction.defer();
 
-        const ed = Swarm.getClient(v => v.connected && v.lobbyInit);
+        const ed = Swarm.getClient(v => v.connected && v.lobbyInit && v.receiving);
 
         if (!ed) return interaction.createMessage(SwarmError.noClient());
 
