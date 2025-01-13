@@ -298,6 +298,8 @@ export default class DNExecutor {
                 embed.description = trimString(stuff[0][1], 4096);
                 embed.fields = [];
             }
+
+            embeds.push(embed);
     
             length.push(embed.title.length + embed.description.length + map(embed.fields, v => v.name.length + v.value.length)//trimString(a[0], 256).length + trimString(a[1], 1024).length); })
                 .reduce((accum, stoff) => accum + stoff, 0));
