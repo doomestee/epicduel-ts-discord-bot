@@ -1,7 +1,7 @@
 import { ButtonStyles, ComponentTypes, Embed, EmbedField, EmbedOptions, MessageActionRow, Webhook } from "oceanic.js";
 import type DesignNoteManager from "../manager/designnote.js";
 import { DesignNote } from "../manager/designnote.js";
-import { epoch, filter, find, findIndex, map, trimString } from "./Misc.js";
+import { chunkStr, epoch, filter, find, findIndex, map, trimString } from "./Misc.js";
 import Logger from "../manager/logger.js";
 
 function tagBuilder(isFromArtixPost: boolean, tag: string) {
@@ -245,14 +245,61 @@ export default class DNExecutor {
             let stuff = regurgitate(field[1]);
             //if (field[1].trim().length > 2048) {
             // An embed will be dedicated entirely for this thing provided the overall chars does not go over 6000 chars smh pls.
+
+            // const embed = {
+            //     title: trimString(`​${field[0]}`, 256),
+            //     fields: [] as EmbedField[]
+            // };
+
+            // const preFields = map(stuff, ([heading, desc]) => {
+            //     return {
+            //         name: heading !== "" ? "Unknown Name" : trimString(heading, 256),
+            //         list: [trimString(desc, 1024), ...chunkStr(desc.slice(1024), 1024)]
+            //     }
+            // });
+
+            // let count = embed.title.length;
+
+            // for (let j = 0, jen = preFields.length; j < jen; j++) {
+            //     if (count > 6000) continue;
+
+            //     const preField = preFields[i];
+                
+            //     let newLen = 0;
+
+            //     if (preField.list.length === 1) {
+            //         newLen = preField.list[0].length + preField.list[0].length;
+            //         if (newLen + count > 6000) break;
+
+            //         count += newLen;
+
+            //         embed.fields.push({
+            //             name: preField.name, value: preField.list[0]
+            //         }); continue;
+            //     }
+
+            //     for (let x = 0, xen = Math.min(preField.list.length, 25); x < xen; x++) {
+            //         newLen += 
+            //     }
+            // }
     
-            embeds.push({
+            // embeds.push({
+                
+            //     fields: map(stuff, (a, b) => ({ name: (a[0] != "") ? trimString(a[0], 256) : "Unknown Name", value: trimString(a[1], 1024), inline: (a[1].length < 500 && b % 2) as boolean })),
+            // });
+
+            const embed = {
                 title: trimString(`​${field[0]}`, 256),
+                description: "",
                 fields: map(stuff, (a, b) => ({ name: (a[0] != "") ? trimString(a[0], 256) : "Unknown Name", value: trimString(a[1], 1024), inline: (a[1].length < 500 && b % 2) as boolean })),
-            });
+            };
+
+            if (embed.fields.length === 1 && embed.fields[0]["name"] === "Unknown Name" || embed.fields[0]["name"] === "Unknown heading") {
+                embed.description = trimString(stuff[0][1], 4096);
+                embed.fields = [];
+            }
     
-            length.push(trimString(`​${field[0]}`, 256).length + stuff
-                .map(a => { return (trimString(a[0], 256).length + trimString(a[1], 1024).length); })
+            length.push(embed.title.length + embed.description.length + map(embed.fields, v => v.name.length + v.value.length)//trimString(a[0], 256).length + trimString(a[1], 1024).length); })
                 .reduce((accum, stoff) => accum + stoff, 0));
             //} else {
     

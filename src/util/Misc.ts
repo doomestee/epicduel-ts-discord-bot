@@ -636,3 +636,14 @@ export function jumpLink(guildId: string, messageId: Message | string, channelId
 
     return `${BASE_URL}${Routes.MESSAGE_LINK(guildId, messageId.channelID, messageId.id)}`;
 }
+
+export function chunkStr(str: string, len: number) {
+    const size = Math.ceil(str.length / len);
+    const arr = Array<string>(size);
+
+    for (let i = 0; i < size; i++) {
+        arr[i] = str.slice(i * len, (i + 1) * len);
+    }
+
+    return arr;
+}
