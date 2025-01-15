@@ -1,6 +1,7 @@
 import CacheManager from "../../manager/cache.js";
 import DatabaseManager from "../../manager/database.js";
 import Logger from "../../manager/logger.js";
+import { IMerchant } from "../../Models/Merchant.js";
 import { getLegendRankByExp, map } from "../../util/Misc.js";
 import { WaitForResult, waitFor } from "../../util/WaitStream.js";
 import { Requests } from "../Constants.js";
@@ -70,13 +71,13 @@ export default class Merchant extends BaseModule {
         this.client.smartFox.sendXtMessage("main", Requests.REQUEST_GET_MERCHANT_INVENTORY, { merchId: mercId }, 2, "json");
 
         return wait.then(res => {
-            if (res.success) {
+            if (res.success && pushToDb) {
                 DatabaseManager.upsert("merchant", {
                     id: mercId,
                     name: this.client.boxes.merchant.objMap.get(mercId)?.mercName || "N/A",
-                    lastChecked: new Date(),
-                    items: map(res.value, v => [v.itemId, v.qtyLeft]) as [number, number][]
-                }, ["id"]).catch(err => Logger.error("Merchant").error(err));
+                    last_fetched: new Date(),
+                    items: JSON.stringify(map(res.value, v => [v.itemId, v.qtyLeft])) as unknown as [number, number][]
+                } satisfies IMerchant, ["id"]).catch(err => Logger.getLogger("Merchant").error(err));
             }
 
             return res;
