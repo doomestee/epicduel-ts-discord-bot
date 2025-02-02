@@ -37,13 +37,9 @@ function coreItemIdToSkillId(coreItemId: number) {
 
     const item = ItemSBox.objMap.get(coreItemId);
 
-    console.log([!item || !item.isCoreItemRecord()]);
-
     if (!item || !item.isCoreItemRecord()) return 0;
 
     const core = SkillsSMBox.recordById("core", item.coreId);
-
-    console.log("Core ID: " + item.coreId);
 
     return core?.skillId ?? 0;
 }
@@ -51,15 +47,11 @@ function coreItemIdToSkillId(coreItemId: number) {
 async function modifyCoredItem(coreItemId: number, cores: [number, number], type: 0 | 1, embeds: Embed[], files: File[]) : Promise<void> {
     const skillId = coreItemIdToSkillId(coreItemId);
 
-    console.log("Skill ID: " + skillId);
-
     if (skillId === 0) return;
     
     cores[type] = skillId;
 
     const obj = await EntitySkill.getSkillInfo(skillId);
-
-    console.log("Obj: " + obj);
 
     if (obj["content"]) {
         embeds.push({
@@ -148,8 +140,8 @@ export class Item {
                     value: `Class Specific: ${classical(item.itemClass)}\nDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
                 });
 
-                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
-                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
+                await modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                await modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
@@ -160,8 +152,8 @@ export class Item {
                     value: `Sex Requirement: ${item.itemSexReq === "" ? "N/A" : item.itemSexReq}\nClass Specific: ${classical(item.itemClass)}\nCustom Head Link: ${item.customHeadLink === "" ? "N/A" : item.customHeadLink}.\nHide Head: ${item.noHead}.\nHide Hip: ${item.noHip}.\nShow Default Limbs: ${item.defaultLimbs}.`
                 });
 
-                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
-                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
+                await modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                await modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
@@ -172,8 +164,8 @@ export class Item {
                     value: `Damage: **${item.itemDamage}**\nDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
                 });
 
-                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
-                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
+                await modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                await modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
