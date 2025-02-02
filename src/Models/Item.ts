@@ -37,9 +37,13 @@ function coreItemIdToSkillId(coreItemId: number) {
 
     const item = ItemSBox.objMap.get(coreItemId);
 
+    console.log([!item || !item.isCoreItemRecord()]);
+
     if (!item || !item.isCoreItemRecord()) return 0;
 
     const core = SkillsSMBox.recordById("core", item.coreId);
+
+    console.log("Core ID: " + item.coreId);
 
     return core?.skillId ?? 0;
 }
@@ -47,11 +51,15 @@ function coreItemIdToSkillId(coreItemId: number) {
 async function modifyCoredItem(coreItemId: number, cores: [number, number], type: 0 | 1, embeds: Embed[], files: File[]) : Promise<void> {
     const skillId = coreItemIdToSkillId(coreItemId);
 
+    console.log("Skill ID: " + skillId);
+
     if (skillId === 0) return;
     
     cores[type] = skillId;
 
     const obj = await EntitySkill.getSkillInfo(skillId);
+
+    console.log("Obj: " + obj);
 
     if (obj["content"]) {
         embeds.push({
@@ -61,8 +69,8 @@ async function modifyCoredItem(coreItemId: number, cores: [number, number], type
         return;
     };
 
-    if (obj["embeds"]) embeds.push(obj["embeds"][0]);
-    if (obj["files"]) files.push(...obj["files"]);
+    if (obj["embeds"]?.length) embeds.push(obj["embeds"][0]);
+    if (obj["files"]?.length) files.push(obj["files"][0]);
 }
 
 
@@ -161,7 +169,7 @@ export class Item {
             case ItemSBox.ITEM_CATEGORY_BOT_ID:
                 embeds[0].fields?.push({
                     name: "Robot",
-                    value: `Damage: **${item.itemDamage}**\nnDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
+                    value: `Damage: **${item.itemDamage}**\nDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
                 });
 
                 modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
