@@ -24,7 +24,7 @@ export default new Command(CommandType.Application, { cmd: ["item", "search"], d
             iconURL: interaction.user.avatarURL()
         };
 
-        embeds[0]["footer"] = {
+        embeds[embeds.length - 1]["footer"] = {
             text: `Execution time: ${getHighestTime(process.hrtime.bigint() - time, "ns")}.`
         };
 

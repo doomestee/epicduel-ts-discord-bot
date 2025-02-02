@@ -295,7 +295,8 @@ export default class DNExecutor {
             const embed = {
                 title: trimString(`​${field[0]}`, 256),
                 description: "",
-                fields: map(stuff, (a, b) => ({ name: (a[0] != "") ? trimString(a[0], 256) : "Unknown Name", value: trimString(a[1], 1024), inline: (a[1].length < 500 && b % 2) !== 0 })),
+                fields: map(stuff, (a, b) => ({ name: (a[0] != "") ? trimString(a[0], 256) : "Unknown Name", value: trimString(a[1], 1024), //inline: (a[1].length < 500 && b % 2) !== 0
+                    })),
             };
 
             if (embed.fields.length === 1 && embed.fields[0]["name"] === "Unknown Name" || embed.fields[0]["name"] === "Unknown heading") {
@@ -353,7 +354,7 @@ export default class DNExecutor {
                 embeds[bomb[0]].fields?.push({
                     name: (field[0] != "") ? trimString(field[0], 256) : "Unknown Name",
                     value: trimString(field[1], 1024),
-                    inline: (field[1].length < 500 && index % 2) !== 0
+                    //inline: (field[1].length < 500 && index % 2) !== 0
                 });
     
                 //let reference = slombs.find((stuff) => stuff[0] == bomb[0] && stuff[1] == bomb[1] && stuff[2] == bomb[2]);
@@ -370,7 +371,7 @@ export default class DNExecutor {
                         fields: [{
                             name: (field[0] != "") ? trimString(field[0], 256) : "Unknown Name",
                             value: trimString(field[1], 1024),
-                            inline: (field[1].length < 500 && index % 2) !== 0
+                            //inline: (field[1].length < 500 && index % 2) !== 0
                         }]
                     })-1, length.push(trimString(field[0], 256).length + trimString(field[1], 1024).length)-1, true
                 ]);
