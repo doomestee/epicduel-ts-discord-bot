@@ -102,7 +102,7 @@ export default class EntitySkill implements IEntitySkill {
         }
 
         obj["embeds"] = [{
-            title: SwarmResources.langCheck(info.skill.skillName) + ` ${info.skill.skillId}`,
+            title: SwarmResources.langCheck(info.skill.skillName) + ` (Skill ID: ${info.skill.skillId}${info.isCore() ? (", Core ID: " + info.core.coreId) : ""})`,
             description: SwarmResources.langCheck(info.skill.skillDesc).replace(/\#DMGPERCENT/, String(info.activeSkill?.damagePercent ? info.activeSkill.damagePercent + "%" : "N/A")),
             thumbnail: {
                 url: (files.length) ? "attachment://" + info.skill.skillLink + ".png" : "",
