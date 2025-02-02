@@ -9,6 +9,7 @@ import { readFile } from "fs/promises";
 import Config from "../config/index.js";
 import { filter, lazyTrimStringList, map } from "../util/Misc.js";
 import SwarmResources from "../util/game/SwarmResources.js";
+import EntitySkill from "./EntitySkill.js";
 
 // WE LOVE MUTABILITY!
 function coreItemIdToFull(itemId: number, cores: [number, number], type: 0 | 1) {
@@ -30,6 +31,40 @@ function coreItemIdToFull(itemId: number, cores: [number, number], type: 0 | 1) 
 
     return `**${skillName}** (Item ID: ${itemId}, Skill ID: ${skill.skillId}, Core ID: ${core?.coreId})\n${skillDesc}`;//skill.skillId
 }
+
+function coreItemIdToSkillId(coreItemId: number) {
+    if (coreItemId === 0) return 0;
+
+    const item = ItemSBox.objMap.get(coreItemId);
+
+    if (!item || !item.isCoreItemRecord()) return 0;
+
+    const core = SkillsSMBox.recordById("core", item.coreId);
+
+    return core?.skillId ?? 0;
+}
+
+async function modifyCoredItem(coreItemId: number, cores: [number, number], type: 0 | 1, embeds: Embed[], files: File[]) : Promise<void> {
+    const skillId = coreItemIdToSkillId(coreItemId);
+
+    if (skillId === 0) return;
+    
+    cores[type] = skillId;
+
+    const obj = await EntitySkill.getSkillInfo(skillId);
+
+    if (obj["content"]) {
+        embeds.push({
+            description: "Unable to fetch the " + (type === 0 ? "active" : "passive") + " core record."
+        });
+
+        return;
+    };
+
+    if (obj["embeds"]) embeds.push(obj["embeds"][0]);
+    if (obj["files"]) files.push(...obj["files"]);
+}
+
 
 export class Item {
     static async resultify(item: AnyItemRecordsExceptSelf) {
@@ -54,6 +89,8 @@ export class Item {
                 label: "Get SWF Links (Ghost Respond)", disabled: false
             }]
         }];
+
+        const files:File[] = [];
 
         if ("itemDesc" in item) {
             embeds[0].description = item.itemDesc;
@@ -101,10 +138,10 @@ export class Item {
                 embeds[0].fields?.push({
                     name: "Weapon",
                     value: `Class Specific: ${classical(item.itemClass)}\nDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
-                }, {
-                    name: "Core(s)",
-                    value: `__Active__:\n${coreItemIdToFull(item.coreActiveItemId, cores, 0)}\n\n__Passive__:\n${coreItemIdToFull(item.corePassiveItemId, cores, 1)}`
                 });
+
+                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
@@ -113,10 +150,10 @@ export class Item {
                 embeds[0].fields?.push({
                     name: "Armor",
                     value: `Sex Requirement: ${item.itemSexReq === "" ? "N/A" : item.itemSexReq}\nClass Specific: ${classical(item.itemClass)}\nCustom Head Link: ${item.customHeadLink === "" ? "N/A" : item.customHeadLink}.\nHide Head: ${item.noHead}.\nHide Hip: ${item.noHip}.\nShow Default Limbs: ${item.defaultLimbs}.`
-                }, {
-                    name: "Core(s)",
-                    value: `__Active__:\n${coreItemIdToFull(item.coreActiveItemId, cores, 0)}\n\n__Passive__:\n${coreItemIdToFull(item.corePassiveItemId, cores, 1)}`
                 });
+
+                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
@@ -125,10 +162,10 @@ export class Item {
                 embeds[0].fields?.push({
                     name: "Robot",
                     value: `Damage: **${item.itemDamage}**\nnDamage Type: ${item.itemDmgType === 1 ? "Physical" : "Energy"}`
-                }, {
-                    name: "Core(s)",
-                    value: `__Active__:\n${coreItemIdToFull(item.coreActiveItemId, cores, 0)}\n\n__Passive__:\n${coreItemIdToFull(item.corePassiveItemId, cores, 1)}`
                 });
+
+                modifyCoredItem(item.coreActiveItemId, cores, 0, embeds, files);
+                modifyCoredItem(item.corePassiveItemId, cores, 1, embeds, files);
 
                 if (item.coreActiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[0], style: ButtonStyles.PRIMARY, disabled: cores[0] < 1, label: "See Active Core Info" });
                 if (item.corePassiveItemId > 0) components[0].components.push({ type: ComponentTypes.BUTTON, customID: "core_open_" + cores[1], style: ButtonStyles.PRIMARY, disabled: cores[1] < 1, label: "See Passive Core Info" });
@@ -140,8 +177,6 @@ export class Item {
             //     });
             //     break;
         }
-
-        const files:File[] = [];
 
         if (item.isCoreItemRecord()) {
             const core = SkillsSMBox.recordById("core", item.coreId);
