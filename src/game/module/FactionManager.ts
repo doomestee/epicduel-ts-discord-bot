@@ -83,6 +83,8 @@ export default class FactionManager extends BaseModule {
         const membersIndex = data.indexOf("#");
         const success = data[2];
 
+        console.log(data);
+
         // if (success != 1) {
         //     this.client.smartFox.emit("factionData", [])
 
