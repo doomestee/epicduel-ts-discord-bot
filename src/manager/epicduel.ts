@@ -747,7 +747,7 @@ export default class Swarm {
     static async indexFactions() {
         // Commented out for now as I've added partial faction member
         // const facts = await DatabaseManager.helper.getFaction();
-        const factIds:number[] = [1];//map(facts, v => v.id);
+        const factIds:number[] = [52748];//map(facts, v => v.id);
 
         let clis = filter(this.clis, v => v.settings.scalable && v.receiving);
 
