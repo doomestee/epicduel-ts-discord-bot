@@ -732,9 +732,9 @@ export default class Client {
 
         const time = Date.now();
 
-        // if (this.storeRawData) {
-        //     console.log("RawData Count: " + this.rawdata.push(dataObj));
-        // }
+        if (this.storeRawData) {
+            console.log("RawData Count: " + this.rawdata.push(dataObj));
+        }
 
         if (type === SmartFoxClient.XTMSG_TYPE_XML) {
             switch (cmd) {
