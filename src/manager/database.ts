@@ -1,13 +1,12 @@
-import { Collection } from "oceanic.js";
 import pg from "pg";
 import Logger from "./logger.js";
-import { IFaction } from "../Models/Faction.js";
 import DBHelper from "../util/DBHelper.js";
 import Config from "../config/index.js";
 
 /**
  * This is to avoid use of map excessively, as it's significantly weaker (in terms of performance) compared to for loop
- * @param length 
+ * @param length How many more to add
+ * @param index Starting index
  */
 export function quickDollars(length: number | Array<any>, index = 0) : string {
     const len = Array.isArray(length) ? length.length : length;
@@ -113,6 +112,61 @@ export default class DatabaseManager {
         if (Config.isDevelopment) console.log([`UPDATE ${table} SET ${str}`, values.flat()]);
 
         return this.cli.query(`UPDATE ${table} SET ${str}`, values.flat());
+    }
+
+    static async bulkInsert(table: string, columns: string[], values: (string|number)[] | Record<string, string|number>[] | Array<string|number>[]) {
+        if (columns.length === 0) throw Error("No columns.");
+        if (values.length === 0) throw Error("No values.");
+
+        /**
+         * SQL statement
+         */
+        let query = "INSERT INTO " + table + " (";
+        /**
+         * Parameters
+         */
+        let toQuery:(string|number)[] = [];
+
+        for (let i = 0, len = columns.length; i < len; i++) {
+            query += columns[i] + ", ";
+        }
+
+        query = query.slice(0, -2) + ") VALUES";
+
+        for (let i = 0, len = values.length; i < len; i++) {
+            let count = 1;
+
+            const val = values[i];
+
+            if (typeof val === "object") {
+                if (Array.isArray(val)) {
+                    toQuery.push(...val);
+                    count += val.length;
+                } else {
+                    for (let k = 0, ken = columns.length; k < ken; k++) {
+                        const col = columns[k];
+
+                        if (typeof val[columns[k]] === undefined) {
+                            throw Error(`Bulk insert HALTED due to a missing column (${col}) in an object`);
+                        } else {
+                            toQuery.push(val[columns[k]]);
+                            count++;
+                        }
+                    }
+                }
+            } else {
+                toQuery.push(val);
+                count++;
+            }
+
+            if (i !== 0) query += ",";
+
+            query += ` (${quickDollars(count, toQuery.length - 1)})`;
+        }
+
+        //@ts-ignore
+        if (this.test) console.log(query, toQuery);
+        return this.cli.query(query, toQuery as string[]).then(v => v.rowCount);
     }
 
     static helper = new DBHelper(this);
