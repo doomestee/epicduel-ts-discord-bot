@@ -47,7 +47,7 @@ export interface SFSClientEvents {
 export interface CustomSFSClientEvents {
     achieve_data: [result: Cheevo[], id: number],
     leader_lb: [result: (CacheTypings.AnyLeaders)[], type: number],
-    faction_data: [result?: (Faction), id: number],
+    faction_data: [result: (Faction) | null, id: number],
     merch_item: [result: Shop, id: number];
     leader_war: [result: WarSide, type: "overall" | "daily"],
     leader_war_gfx: [result: WarSideGFX],

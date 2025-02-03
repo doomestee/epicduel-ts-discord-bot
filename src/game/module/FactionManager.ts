@@ -86,7 +86,7 @@ export default class FactionManager extends BaseModule {
         const success = data[2] === "1";
 
         if (!success) {
-            this.client.smartFox.emit("faction_data", undefined, this.prevId);
+            this.client.smartFox.emit("faction_data", null, this.prevId);
 
             return; // No faction, TODO: Handle this.
         }
@@ -189,7 +189,7 @@ export default class FactionManager extends BaseModule {
 
         return wait
             .then(res => {
-                if (res === undefined) return { success: false, reason: "faction doesn't exist" };
+                if (res === null) return { success: false, reason: "faction doesn't exist" };
 
                 return res as WaitForResult<Faction>;
             });
