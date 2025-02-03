@@ -762,7 +762,7 @@ export default class Swarm {
         for (let id = 20, c = 0; id < lastId; id++) {
             if (factIds.indexOf(id) !== -1) continue;
 
-            if (clis.length >= c) c = 0;
+            if (c >= clis.length) c = 0;
 
             const cli = clis[c];
 
@@ -812,7 +812,7 @@ export default class Swarm {
             for (let i = 0, c = 0, len = remaining.length; i < len; i++) {
                 const id = remaining[i];
 
-                if (clis.length >= c) c = 0;
+                if (c >= clis.length) c = 0;
 
                 const cli = clis[c];
 
