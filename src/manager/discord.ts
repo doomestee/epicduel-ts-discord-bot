@@ -564,7 +564,13 @@ export default class Hydra extends Client {
 
         try {
             if (!Swarm.probing) {
-                const { servers } = await Swarm["login"](Config.edPuppetEmailBase + "+" + Swarm.appendages[10] + "@gmail.com", Config.edPuppetPass, 1);
+                const appendage = Swarm.appendages.at(-10);
+                const account = {
+                    email: appendage?.length === 2 ? appendage[0] : Config.edPuppetEmailBase + "+" + Swarm.appendages.at(-1) + "@gmail.com",
+                    pass: appendage?.length === 2 ? appendage[1] : Config.edPuppetPass
+                };
+
+                const { servers } = await Swarm["login"](account.email, account.pass, 1);
 
                 serverCount = servers.reduce((a, b) => a + b.userCount[0], 0);
             }
