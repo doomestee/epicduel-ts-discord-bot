@@ -134,7 +134,7 @@ export default class DatabaseManager {
         query = query.slice(0, -2) + ") VALUES";
 
         for (let i = 0, len = values.length; i < len; i++) {
-            let count = 1;
+            let count = 0;
 
             const val = values[i];
 
@@ -161,7 +161,7 @@ export default class DatabaseManager {
 
             if (i !== 0) query += ",";
 
-            query += ` (${quickDollars(count, toQuery.length - 1)})`;
+            query += ` (${quickDollars(count, toQuery.length)})`;
         }
 
         //@ts-ignore
