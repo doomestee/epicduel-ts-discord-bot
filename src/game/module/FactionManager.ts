@@ -189,7 +189,7 @@ export default class FactionManager extends BaseModule {
 
         return wait
             .then(res => {
-                if (res === null) return { success: false, reason: "faction doesn't exist" };
+                if (res.success === true && res.value === null) return { success: false, reason: "faction doesn't exist" };
 
                 return res as WaitForResult<Faction>;
             });
