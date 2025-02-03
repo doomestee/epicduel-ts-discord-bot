@@ -63,7 +63,9 @@ export default class FactionManager extends BaseModule {
 
     static readonly fctRanks = ['Recruits', 'Initiates', 'Militia', 'Squad', 'Enforcers', 'Syndicate', 'Coalition',
     'Veterans', 'Guardians', 'Harbingers', 'Champions', 'Grand Champions', 'Duel Masters', 'Juggernauts', 
-    'Immortals', 'Immortal Champions', 'Immortal Legends', 'Eternal Legends']
+    'Immortals', 'Immortal Champions', 'Immortal Legends', 'Eternal Legends'];
+
+    prevId: number = -1;
 
     constructor(public client: Client) {
         super();
@@ -81,15 +83,13 @@ export default class FactionManager extends BaseModule {
     factionDataAvailable(data: string[]) {
         const officersIndex = data.indexOf("$");
         const membersIndex = data.indexOf("#");
-        const success = data[2];
+        const success = data[2] === "1";
 
-        console.log(data);
+        if (!success) {
+            this.client.smartFox.emit("faction_data", undefined, this.prevId);
 
-        // if (success != 1) {
-        //     this.client.smartFox.emit("factionData", [])
-
-        //     return; // No faction, TODO: Handle this.
-        // }
+            return; // No faction, TODO: Handle this.
+        }
 
         let fctId = Number(data[3]);
 
@@ -183,9 +183,15 @@ export default class FactionManager extends BaseModule {
 
         if (cache.valid) return Promise.resolve({ success: true, value: cache.value });
 
+        this.prevId = id;
         const wait = waitFor(this.client.smartFox, "faction_data", [1, id], 3000);
         this.getFactionData(id);
 
-        return wait;
+        return wait
+            .then(res => {
+                if (res === undefined) return { success: false, reason: "faction doesn't exist" };
+
+                return res as WaitForResult<Faction>;
+            });
     }
 }
