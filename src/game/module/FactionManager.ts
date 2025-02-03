@@ -181,7 +181,7 @@ export default class FactionManager extends BaseModule {
 
         if (cache.valid) return Promise.resolve({ success: true, value: cache.value });
 
-        const wait = waitFor(this.client.smartFox, "faction_data", [1, id], 4000);
+        const wait = waitFor(this.client.smartFox, "faction_data", [1, id], 3000);
         this.getFactionData(id);
 
         return wait;

@@ -79,6 +79,23 @@ export interface ClientSettings {
      * If -1, it will never be proxied.
      */
     proxy: -1|0|1;
+    
+    mode: ClientSettingsMode;
+}
+
+export enum ClientSettingsMode {
+    /**
+     * The puppet is free to be used for any tasks, it is currently chilling.
+     */
+    FREE,
+    /**
+     * The puppet is currently being used but it is not prioritised and can be used for heavy tasks.
+     */
+    IDLE,
+    /**
+     * Used to describe that the puppet is currently doing something intensive right now.
+     */
+    ACTIVE
 }
 
 export default class Client {
@@ -181,7 +198,7 @@ export default class Client {
     pingTime:number = 0;
 
     get receiving() {
-        return !this.smartFox.bufferHiatus;
+        return !this.smartFox.bufferHiatus && this.settings.mode !== ClientSettingsMode.ACTIVE;
     }
 
     //#endregion
@@ -195,6 +212,7 @@ export default class Client {
             startRoom: settings["startRoom"] ?? RoomManager.TRAIN_HUB_RIGHT + "_0",
             scalable: settings["scalable"] ?? false,
             proxy: settings["proxy"] ?? -1,
+            mode: ClientSettingsMode.FREE,
         };
 
         //#region legacy dump

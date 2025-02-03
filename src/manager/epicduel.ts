@@ -1,5 +1,5 @@
 import { fetch, request } from "undici";
-import Client from "../game/Proximus.js";
+import Client, { ClientSettingsMode } from "../game/Proximus.js";
 import User from "../game/User.js";
 import { parseStringPromise } from "xml2js";
 import { SwarmError } from "../util/errors/index.js";
@@ -16,7 +16,7 @@ import type { ImportResult } from "../util/types.js";
 import EDEvent from "../util/events/EDEvent.js";
 import type Hydra from "./discord.js";
 import RoomManager from "../game/module/RoomManager.js";
-import { filter, find, findIndex, map } from "../util/Misc.js";
+import { filter, find, findIndex, map, sleep } from "../util/Misc.js";
 import type { WarObjective } from "../game/module/WarManager.js";
 import type RoomManagerRecord from "../game/record/RoomManagerRecord.js";
 import { readFileSync } from "fs";
@@ -740,6 +740,122 @@ export default class Swarm {
 
         return client;
     }
+
+    /**
+     * This will start from id 20 and use all available clients
+     */
+    static async indexFactions() {
+        const facts = await DatabaseManager.helper.getFaction();
+        const factIds = map(facts, v => v.id);
+
+        let clis = filter(this.clis, v => v.settings.scalable && v.receiving);
+
+        const lastId = factIds[factIds.length - 1];
+
+        /**
+         * Array which is a map of client index to their assigned faction ids.
+         */
+        const turns:Array<number[]> = [];
+
+        let remainingIds = 0;
+
+        for (let id = 20, c = 0; id < lastId; id++) {
+            if (factIds.indexOf(id) !== -1) continue;
+
+            if (clis.length >= c) c = 0;
+
+            const cli = clis[c];
+
+            turns[c] ??= [];
+
+            if (cli.settings.mode !== ClientSettingsMode.ACTIVE) cli.settings.mode = ClientSettingsMode.ACTIVE;
+
+            turns[c].push(id);
+
+            c++;
+            remainingIds++;
+        }
+        
+        Logger.getLogger("Swarm").debug(`Ready to fetch ${remainingIds} factions with ${clis.length} clients.`);
+
+        let cycle = 0;
+
+        let loop = async () => {
+            Logger.getLogger("Swarm").debug(`BEGIN: Cycle no. ${cycle} - ${turns.length} clients - ${turns[0].length} factions each.`);
+
+            const proms:Promise<{ missing: number[]; timedout: number[]; }>[] = [];
+    
+            for (let i = 0, len = turns.length; i < len; i++) {
+                proms.push(index(clis[i], turns[i]));
+            };
+    
+            const res = await Promise.all(proms);
+
+            let remaining:number[] = [];
+            let timedout:number[] = [];
+
+            for (let i = 0, len = res.length; i < len; i++) {
+                if (res[i].missing.length !== 0) remaining = remaining.concat(res[i].missing);
+                if (res[i].timedout.length !== 0) timedout = remaining.concat(res[i].timedout);
+
+                clis[i].settings.mode = ClientSettingsMode.FREE;
+            }
+            
+            Logger.getLogger("Swarm").debug(`END: Cycle no. ${cycle} - ${remaining.length} remaining, ${timedout.length} facts failed due to time outs.`);
+
+            DatabaseManager.bulkInsert("faction", ["id", "name"], map(timedout, v => [v, "Missing Faction"]));
+
+            if (remaining.length === 0) return true;
+
+            clis = filter(this.clis, v => v.settings.scalable && v.receiving);
+
+            for (let i = 0, c = 0, len = remaining.length; i < len; i++) {
+                const id = remaining[i];
+
+                if (clis.length >= c) c = 0;
+
+                const cli = clis[c];
+
+                turns[c] ??= [];
+
+                if (cli.settings.mode !== ClientSettingsMode.ACTIVE) cli.settings.mode = ClientSettingsMode.ACTIVE;
+
+                turns[c].push(id);
+
+                c++;
+            }
+
+            return loop();
+        }
+
+        return loop();
+    }
+}
+
+// Not to be exported
+async function index(cli: Client, fctIds: number[]) : Promise<{ missing: number[]; timedout: number[]; }> {
+    let timedout = [];
+
+    for (let attempt = 0, i = 0, len = fctIds.length; i < len; i++) {
+        // In case the cli disconnects midway through
+
+        if (!cli.connected) return { missing: fctIds.slice(i), timedout };
+
+        const res = await cli.modules.FactionManager.getFaction(fctIds[i]);
+
+        // If fails
+        if (!res.success) {
+            // It will attempt 3 times before skipping this faction
+            if (++attempt > 2) {
+                attempt = 0;
+                timedout.push(fctIds[i]);
+            } else i--;
+        } else attempt = 0;
+
+        await sleep(1500);
+    }
+
+    return { missing: [], timedout };
 }
 
 Swarm["init"]();
