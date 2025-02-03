@@ -169,6 +169,18 @@ CREATE TABLE faction (
 
 CREATE INDEX ON faction (name);
 
+--- Faction Member
+
+CREATE TABLE faction_member (
+    faction_id INT,
+    char_id INT PRIMARY KEY,
+    char_name VARCHAR(255),
+    title VARCHAR(255),
+    rank SMALLINT
+);
+
+CREATE INDEX ON faction_member (faction_id);
+
 -- Fame
 
 CREATE TABLE fame (

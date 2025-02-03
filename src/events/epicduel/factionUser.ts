@@ -1,4 +1,5 @@
-import { ICharacter } from "../../Models/Character.js";
+import type { ICharacter } from "../../Models/Character.js";
+import type { IFactionMember } from "../../Models/FactionMember.js";
 import pg from "pg";
 import DatabaseManager, { quickDollars } from "../../manager/database.js";
 import { find, findIndex, map } from "../../util/Misc.js";
@@ -10,6 +11,11 @@ import Logger from "../../manager/logger.js";
 function lazy<T>(arr: Array<T>) {
     return map(arr, v => [v]);
 }
+
+const state = {
+    log: false,
+    missing: [] as any[]
+};
 
 function quickValues(rows: number | Array<Array<string | number>>, columns: number, offset = 1) {
     let str = ""; let len = offset;
@@ -55,6 +61,17 @@ export default new EDEvent("onFactionMemberEncounter", async function (hydra, { 
 
     const toPush:[number, string][] = [];
     const toRename:[number, string][] = []; const renameIds:number[] = [];
+
+    // Members will be on its own
+
+    DatabaseManager.cli.query<IFactionMember>(`SELECT * FROM faction_member WHERE faction_id = $1`, [faction_id])
+        .then(v => {
+            const { rows: mems } = v;
+
+            if (mems.length !== 0) return;
+
+            return DatabaseManager.bulkInsert("faction_member", ["faction_id", "char_id", "char_name", "title", "rank"], map(chars, v => [faction_id, v.id, v.name, v.title, v.rank]))
+        }).catch((err) => { state.missing.push(err); }); // eh who cares, not an issue that id like to care about for now
 
     const ogChars = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE id IN (${quickDollars(chars)})`, map(chars, v => v.id))
         .then(v => v.rows);
@@ -123,14 +140,16 @@ export default new EDEvent("onFactionMemberEncounter", async function (hydra, { 
 
     // Now the final bit, updating everything!
 
-    console.log(`PUSHING`);
-    console.log(toPush);
-    // toPush.push([1235, "PUSH HARD'E!R\"; DROP TABLE your_mom;"]);
-    console.log(`REMOVING`);
-    console.log(toKick);
-    console.log(`SQLs:`);
-    console.log([`UPDATE character as c1 SET faction_id = $1, name = c2.name FROM (VALUES ${quickValues(toPush, 2, 2)}) AS c2(id, name) WHERE c2.id = c1.id`, [faction_id]]);//([faction_id] as unknown as [number, string][]).concat(toPush).flat() as string[]]);
-    console.log([`UPDATE character as c1 SET faction_id = 0 FROM (VALUES ${quickValues(lazy(toKick), 1)}) AS c2(id) WHERE c2.id = c1.id`]);
+    if (state["log"] === true) {
+        console.log(`PUSHING`);
+        console.log(toPush);
+        // toPush.push([1235, "PUSH HARD'E!R\"; DROP TABLE your_mom;"]);
+        console.log(`REMOVING`);
+        console.log(toKick);
+        console.log(`SQLs:`);
+        console.log([`UPDATE character as c1 SET faction_id = $1, name = c2.name FROM (VALUES ${quickValues(toPush, 2, 2)}) AS c2(id, name) WHERE c2.id = c1.id`, [faction_id]]);//([faction_id] as unknown as [number, string][]).concat(toPush).flat() as string[]]);
+        console.log([`UPDATE character as c1 SET faction_id = 0 FROM (VALUES ${quickValues(lazy(toKick), 1)}) AS c2(id) WHERE c2.id = c1.id`]);
+    }
 
     // New members.
     if (toPush.length) DatabaseManager.cli.query(`UPDATE character as c1 SET faction_id = $1, name = c2.name FROM (VALUES ${quickValues(toPush, 2, 2)}) AS c2(id, name) WHERE c2.id = c1.id`, [faction_id]).then(v => console.log({ rowCount: v.rowCount }), console.log);//([faction_id] as unknown as [number, string][]).concat(toPush).flat() as string[]).then(console.log, console.log);
@@ -160,4 +179,4 @@ export default new EDEvent("onFactionMemberEncounter", async function (hydra, { 
                 }).catch(e => Logger.getLogger("CharTracker").error(e))
         }
     }
-});
+}, state);

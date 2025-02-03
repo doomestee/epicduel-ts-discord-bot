@@ -76,7 +76,7 @@ export interface MainEDEvents {
     onUserListUpdate: [event: { type: 1 | 2, list: User[], user: User, room: Room }];// | { type: 2, list: User[], user: User  }];
 
     onFactionEncounter: [event: { fact: IFaction }];
-    onFactionMemberEncounter: [event: { alignment?: 1|2, faction_id: number, chars: { name: string, id: number }[] }];//{ faction_id: number, char_id: number } | { faction_id: number, char_id: number }[]];
+    onFactionMemberEncounter: [event: { alignment?: 1|2, faction_id: number, chars: { name: string, id: number, title: string, rank: number }[] }];//{ faction_id: number, char_id: number } | { faction_id: number, char_id: number }[]];
 
     onFriendStatus: [event: { charId: number, isOnline: boolean, sfsUserId: number, link: boolean, isMuted: boolean }];
 

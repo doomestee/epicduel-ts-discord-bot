@@ -745,8 +745,9 @@ export default class Swarm {
      * This will start from id 20 and use all available clients
      */
     static async indexFactions() {
-        const facts = await DatabaseManager.helper.getFaction();
-        const factIds = map(facts, v => v.id);
+        // Commented out for now as I've added partial faction member
+        // const facts = await DatabaseManager.helper.getFaction();
+        const factIds:number[] = [1];//map(facts, v => v.id);
 
         let clis = filter(this.clis, v => v.settings.scalable && v.receiving);
 
@@ -808,6 +809,8 @@ export default class Swarm {
             if (remaining.length === 0) return true;
 
             clis = filter(this.clis, v => v.settings.scalable && v.receiving);
+
+            if (clis.length === 0) return false;
 
             for (let i = 0, c = 0, len = remaining.length; i < len; i++) {
                 const id = remaining[i];
