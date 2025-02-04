@@ -2,6 +2,7 @@ import FactionManager from "../../game/module/FactionManager.js";
 import DatabaseManager from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
 import ImageManager from "../../manager/image.js";
+import { IFactionMember } from "../../Models/FactionMember.js";
 import Command, { CommandType } from "../../util/Command.js";
 import { getHighestTime } from "../../util/Misc.js";
 import type { File } from "oceanic.js";
@@ -18,10 +19,10 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
         let factId = interaction.data.options.getInteger("name") ?? 102030405;
 
         if (isMember && factId !== 102030405) {
-            const char = await DatabaseManager.helper.getCharacter(factId)
-                .then(res => res?.[0]);
+            const [char, mem] = await Promise.all([DatabaseManager.helper.getCharacter(factId).then(res => res?.[0]),
+                DatabaseManager.cli.query<IFactionMember>("select * from faction_member where faction_member.char_id = $1", [factId]).then(res => res.rows?.[0])]);
 
-            if (char) factId = char.faction_id;
+            if (char || mem) factId = char ? char.faction_id : mem.faction_id;
             else factId = 102030405;
         }
 
