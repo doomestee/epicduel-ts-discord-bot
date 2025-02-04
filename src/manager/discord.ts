@@ -283,6 +283,9 @@ export default class Hydra extends Client {
                 options: [{
                     type: ApplicationCommandOptionTypes.INTEGER, autocomplete: true,
                     name: "name", description: "The name of the faction (or ID).", required: true
+                }, {
+                    type: ApplicationCommandOptionTypes.BOOLEAN,
+                    name: "byMember", description: "If true, this will instead let you search for faction members and their corresponding faction.", required: false
                 }]
             }],
         }, {

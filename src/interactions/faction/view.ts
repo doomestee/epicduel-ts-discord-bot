@@ -1,4 +1,5 @@
 import FactionManager from "../../game/module/FactionManager.js";
+import DatabaseManager from "../../manager/database.js";
 import Swarm from "../../manager/epicduel.js";
 import ImageManager from "../../manager/image.js";
 import Command, { CommandType } from "../../util/Command.js";
@@ -12,9 +13,22 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
 
         const time = process.hrtime.bigint();
 
-        const factId = interaction.data.options.getInteger("name") ?? 102030405;
+        const isMember = interaction.data.options.getBoolean("byMember", false) ?? false;
 
-        if (factId === 102030405) return interaction.reply({ content: "You need to provide a faction ID, if you're using autocomplete part for name, use what it's giving you.", flags: 64 });
+        let factId = interaction.data.options.getInteger("name") ?? 102030405;
+
+        if (isMember && factId !== 102030405) {
+            const char = await DatabaseManager.helper.getCharacter(factId)
+                .then(res => res?.[0]);
+
+            if (char) factId = char.faction_id;
+            else factId = 102030405;
+        }
+
+        if (factId === 102030405) return interaction.reply({
+            content: "You need to provide a " + (isMember ? "character ID" : "faction ID") + ", if you're using autocomplete part for name, use what it's giving you.\nIn the case of characters, it's possible that the character has switched faction but is not recognised in the database.",
+            flags: 64
+        });
 
         const ed = Swarm.getClientById(true);
 

@@ -59,6 +59,8 @@ export default class FactionManager extends BaseModule {
     static readonly PERM_OFFICER_ID = 2;
     static readonly PERM_FOUNDER_ID = 3;
 
+    static readonly PERM_ID_TO_TEXT = ["", "Member", "Officer", "Founder"];
+
     static readonly FACTION_SIZE = 18;
 
     static readonly fctRanks = ['Recruits', 'Initiates', 'Militia', 'Squad', 'Enforcers', 'Syndicate', 'Coalition',
