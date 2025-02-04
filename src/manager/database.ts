@@ -161,7 +161,7 @@ export default class DatabaseManager {
 
             if (i !== 0) query += ",";
 
-            query += ` (${quickDollars(count, toQuery.length)})`;
+            query += ` (${quickDollars(count, toQuery.length - count)})`;
         }
 
         //@ts-ignore
