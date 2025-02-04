@@ -26,7 +26,7 @@ export default class DBHelper {
     }
 
     getFaction(id?: number) {
-        return this.#cli.query<IFaction>(`SELECT * FROM faction${id ? " WHERE id = $1" : ""}`, id ? [id] : []).then(v => v.rows);//;.map(v => new Faction(v)))
+        return this.#cli.query<IFaction>(`SELECT * FROM faction${id ? " WHERE id = $1" : ""} order by id`, id ? [id] : []).then(v => v.rows);//;.map(v => new Faction(v)))
     }
 
     getNotification(serverId?: string) {

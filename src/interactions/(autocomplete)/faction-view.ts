@@ -60,7 +60,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["faction", "view"],
         // if (value) list = fuzzy.search(actualNeedle(value));
         // else list = items;
 
-        let list = await DatabaseManager.cli.query<IFaction & { similarity: number }>(value ? "select *, similarity(faction.name, $1) from faction where faction.name ilike $2 order by similarity desc limit 25" : "select * from faction " +  (preValue?.startsWith("$") === true ? "order by id desc " : "") + "limit 25", value ? [value, "%" + value + "%"] : []).then(v => v.rows);
+        let list = await DatabaseManager.cli.query<IFaction & { similarity: number }>(value ? "select *, similarity(faction.name, $1) from faction where faction.name ilike $2 order by similarity desc limit 25" : "select * from faction order by id " +  (preValue?.startsWith("$") === true ? "desc " : "") + "limit 25", value ? [value, "%" + value + "%"] : []).then(v => v.rows);
 
         for (let i = 0, len = list.length; i < len; i++) {
             looky[i] = {

@@ -64,14 +64,16 @@ export default new EDEvent("onFactionMemberEncounter", async function (hydra, { 
 
     // Members will be on its own
 
-    DatabaseManager.cli.query<IFactionMember>(`SELECT * FROM faction_member WHERE faction_id = $1`, [faction_id])
-        .then(v => {
-            const { rows: mems } = v;
+    if (faction_id !== 0) {
+        DatabaseManager.cli.query<IFactionMember>(`SELECT * FROM faction_member WHERE faction_id = $1`, [faction_id])
+            .then(v => {
+                const { rows: mems } = v;
 
-            if (mems.length !== 0) return;
+                if (mems.length !== 0) return;
 
-            return DatabaseManager.bulkInsert("faction_member", ["faction_id", "char_id", "char_name", "title", "rank"], map(chars, v => [faction_id, v.id, v.name, v.title, v.rank]))
-        }).catch((err) => { state.missing.push(err); }); // eh who cares, not an issue that id like to care about for now
+                return DatabaseManager.bulkInsert("faction_member", ["faction_id", "char_id", "char_name", "title", "rank"], map(chars, v => [faction_id, v.id, v.name, v.title, v.rank]))
+            }).catch((err) => { state.missing.push(err); }); // eh who cares, not an issue that id like to care about for now
+    }
 
     const ogChars = await DatabaseManager.cli.query<ICharacter>(`SELECT * FROM character WHERE id IN (${quickDollars(chars)})`, map(chars, v => v.id))
         .then(v => v.rows);
