@@ -35,7 +35,7 @@ export default new Command(CommandType.Autocomplete, { cmd: ["faction", "view"],
     .attach('run', async ({ client, interaction }) => {
         const preValue = interaction.data.options.getFocused()?.value as string | undefined;
 
-        const isMember = interaction.data.options.getBoolean("byMember", false) ?? false;
+        const isMember = interaction.data.options.getBoolean("by-member-name", false) ?? false;
 
         const value = actualNeedle(preValue?.startsWith("$") === true ? preValue.slice(1) : preValue);
 

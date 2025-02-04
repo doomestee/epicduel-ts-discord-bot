@@ -13,7 +13,7 @@ export default new Command(CommandType.Application, { cmd: ["faction", "view"], 
 
         const time = process.hrtime.bigint();
 
-        const isMember = interaction.data.options.getBoolean("byMember", false) ?? false;
+        const isMember = interaction.data.options.getBoolean("by-member-name", false) ?? false;
 
         let factId = interaction.data.options.getInteger("name") ?? 102030405;
 
