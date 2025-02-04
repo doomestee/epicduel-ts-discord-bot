@@ -153,7 +153,17 @@ export default class FactionManager extends BaseModule {
 
         CacheManager.update("faction", fctId, fact);
         this.client.smartFox.emit("faction_data", fact, fctId);
-        this.client.swarm.execute("onFactionEncounter", this.client, { fact: { id: fact.id, name: fact.name, alignment: fact.alignment as 1 | 2 } });
+        this.client.swarm.execute("onFactionEncounter", this.client, { fact: {
+            id: fact.id,
+            name: fact.name,
+            alignment: fact.alignment as 1 | 2,
+            flag_symbol: fact.flag.symbol,
+            flag_symbol_color: fact.flag.symbolColor,
+            flag_back: fact.flag.back,
+            flag_back_color: fact.flag.backColor,
+            flag_color: fact.flag.flagColor,
+            last_fetched: new Date()
+         } });
         this.client.swarm.execute("onFactionMemberEncounter", this.client, { alignment: fact.alignment, faction_id: fact.id, chars: map(fact.members, v => ({ id: v.id, name: v.name, rank: v.rank, title: v.title })) });
         // this.client.smartFox.emit("factionData", fctId, this.cache[fctId]);
     }

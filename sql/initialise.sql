@@ -164,10 +164,28 @@ CREATE TABLE entity_style (
 CREATE TABLE faction (
     id        INT          PRIMARY KEY,
     name      VARCHAR(200) NOT NULL,
-    alignment INT          NULL DEFAULT NULL
+    alignment INT          NULL DEFAULT NULL,
+    flag_symbol SMALLINT NULL DEFAULT NULL,
+    flag_symbol_color CHAR(7) CHECK (hex ~ '^#([A-Fa-f0-9]{6})$'),
+    flag_back SMALLINT NULL DEFAULT NULL,
+    flag_back_color CHAR(7) CHECK (hex ~ '^#([A-Fa-f0-9]{6})$'),
+    flag_color CHAR(7) CHECK (hex ~ '^#([A-Fa-f0-9]{6})$'),
+    last_fetched TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
-
+    
 CREATE INDEX ON faction (name);
+CREATE INDEX ON faction (alignment);
+
+ALTER TABLE faction
+ALTER COLUMN flag_symbol_color TYPE CHAR(6),
+ALTER COLUMN flag_back_color TYPE CHAR(6),
+ALTER COLUMN flag_color TYPE CHAR(6),
+DROP CONSTRAINT flag_symbol_check,
+DROP CONSTRAINT flag_back_check,
+DROP CONSTRAINT flag_check,
+ADD CONSTRAINT flag_symbol_check CHECK (flag_symbol_color ~ '^([A-Fa-f0-9]{6})$'),
+ADD CONSTRAINT flag_back_check CHECK (flag_back_color ~ '^([A-Fa-f0-9]{6})$'),
+ADD CONSTRAINT flag_check CHECK (flag_color ~ '^([A-Fa-f0-9]{6})$');
 
 --- Faction Member
 
